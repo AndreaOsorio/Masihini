@@ -2,14 +2,44 @@ grammar MasishiniGrammar;
 
 /* GRAMMAR RULES */ 
 
-global_declaration : _global declaration run
-				   ;
+
+global_declaration : global_declaration_1 RUN
+                   ;
 
 global_declaration_1 : STATIC declaration global_declaration_1
-						  |
-						  ;
+                     |
+                     ;
 
+run : FUNC VOID RUN PARENTHESIS_L PARENTHESIS_R block func
+    ;
 
+func : FUNC type func_1
+     | FUNC VOID func_1
+     ;
+
+func_1 : ID PARENTHESIS_R func_2
+       ;
+
+func_3 : COMMA func_3
+       | PARENTHESIS_R block func
+       | PARENTHESIS_R block
+       ;
+
+block  : BRACE_L block_1
+       ;
+
+block_1   : statement block_1
+          | statement RETURN expression SEMICOLON BRACKET_R
+          | statement BRACKET_R
+          ;
+
+statement : func_call SEMICOLON
+          | assignment
+          | condition
+          | declaration
+          | cycle
+          ;
+		  
 
 func_call : system_func
 		  | ID PARENTHESIS_L func_call_1
@@ -147,3 +177,4 @@ STOP : 'stop';
 JUMP : 'jump';
 STRING_LITERAL  :  '"' ( ESCAPED_QUOTE | ~('\n'|'\r') )*? '"';
 WS          :   [ \n\t\r]+ -> skip;
+VOID : 'void';
