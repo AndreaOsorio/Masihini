@@ -5,9 +5,92 @@ grammar MasishiniGrammar;
 global_declaration : _global declaration run
 				   ;
 
-global_declaration_lambda : STATIC declaration global_declaration_lambda
+global_declaration_1 : STATIC declaration global_declaration_1
 						  |
 						  ;
+
+
+
+func_call : system_func
+		  | ID PARENTHESIS_L func_call_1
+		  ;
+
+func_call_1 : expression func_call_2
+				 | PARENTHESIS_R
+				 ;
+
+func_call_2 : COMMA expression func_call_2
+				  | PARENTHESIS_R
+				  ;
+
+
+system_func : ACCEL system_func_1
+			| ROT system_func_1
+			| STOP system_func_1
+			| JUMP system_func_1
+			| SPEAK system_func_1
+			;
+
+system_func_1 : PARENTHESIS_R system_func_2
+			  ;
+
+system_func_2 : expression PARENTHESIS_R
+			  | PARENTHESIS_R
+			  ;
+
+
+assignment : id assignment_1
+
+assignment_1 : BRACKET_L expression BRACKET_R assignment_2 
+			 | assignment_3
+			 ;
+			
+assignment_2 : BRACKET_L expression BRACKET_R assignment_3 
+			 | assignment_3
+			 ; 
+
+assignment_3 : expression
+			 ;
+
+
+
+exp : term exp_1
+
+exp_1 : ADD exp
+	  | SUBS exp
+	  |
+	  ;
+
+
+factor : PARENTHESIS_L relation PARENTHESIS_R
+	   | ADD factor_1
+	   | SUBS factor_1
+	   |
+	   ;
+
+factor_1 : var_cte
+		 ;
+
+
+var_cte : func_call
+		| INT
+		| FLOAT
+		| STRING
+		| FALSE
+		| TRUE
+		| ID var_cte_1
+		;
+
+var_cte_1 : BRACKET_L expression BRACKET_R var_cte_2
+		  | var_cte_2
+		  ;
+
+var_cte_2 : BRACKET_L expression BRACKET_R
+		  |
+		  ;
+
+
+
 
 
 
@@ -47,7 +130,7 @@ GT : '>';
 LT : '<';
 LE : '<=';
 GE : '>=';
-COMPARE : "=="
+COMPARE : '==';
 AND : '&';
 OR : '|';
 NOT : '!';
