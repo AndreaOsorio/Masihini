@@ -1,11 +1,16 @@
 all:
-	$(MAKE) parser
-	$(MAKE) scanner
-	g++ -std=c++11 -Wall -Wextra parser.tab.c lex.yy.c main.cpp
-	./a.exe < sample_input
+	$(MAKE) grammar
+	$(MAKE)	lex
+	gcc -c grammar.tab.c lex.yy.c
+	ar rvs lexgram.a grammar.tab.o lex.yy.o
+	g++ -std=c++11 -Wall -Wextra main.cpp lexgram.a
 
-parser:
-	bison -d parser.y
 
-scanner:
-	flex scanner.l	
+grammar:
+	bison -d grammar.y
+
+lex:
+	flex lex.l
+
+clean:
+		rm -f lex.yy.c grammar.tab.o grammar.tab.h lex.yy.o lexgram.a a.out
