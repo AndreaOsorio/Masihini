@@ -71,7 +71,7 @@ global_declaration_1 : STATIC declaration global_declaration_1 {;}
                      ;
 
 run : FUNC VOID RUN L_PARENTHESIS R_PARENTHESIS block func {;}
-    ; 
+    ;
 
 func : FUNC type func_1 {;}
      | FUNC VOID func_1 {;}
@@ -143,7 +143,7 @@ statement : func_call SEMICOLON {;}
           | cycle {;}
           ;
 
- 
+
 cycle : WHILE L_PARENTHESIS expression  R_PARENTHESIS block {;}
       ;
 
@@ -168,7 +168,7 @@ declaration_2 : L_BRACKET INT R_BRACKET declaration_3 {;}
 
 declaration_3 : SEMICOLON {;}
               ;
-		  
+
 
 func_call : system_func {;}
 		  | ID L_PARENTHESIS func_call_1 {;}
@@ -203,10 +203,10 @@ assignment : ID assignment_1 {;}
 assignment_1 : L_BRACKET expression L_BRACKET assignment_2 {;}
 			 | assignment_3 {;}
 			 ;
-			
+
 assignment_2 : L_BRACKET expression R_BRACKET assignment_3 {;}
 			 | assignment_3 {;}
-			 ; 
+			 ;
 
 assignment_3 : expression {;}
 			 ;
@@ -222,7 +222,7 @@ exp_1 : ADD exp {;}
 	  ;
 
 term : factor term_1 {;}
-     ; 
+     ;
 
 term_1 : MULT term {;}
        | DIV term {;}

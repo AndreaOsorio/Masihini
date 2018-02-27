@@ -1,17 +1,18 @@
 %option noyywrap
 %{
-    #include "parser.tab.h"
+    #include "grammar.tab.h"
 %}
 
-whitespace   [ \n\t\v\f]
-linefeed    \n
+float_num          [0-9]+"."[0-9]+
+int_num            ([0]|[1-9][0-9]*)
+id                 [a-zA-Z][_a-zA-Z0-9]*
+string_literal      \"(([^\"]|\\\")*[^\\])?\"
+whitespace         [\t\v\f ]
+linefeed           \n
+
 
 %%
 
-[0-9]+"."[0-9]+             { return FLOAT; }
-([0]|[1-9][0-9]*)           { return INT; }
-[a-zA-Z][_a-zA-Z0-9]*       { return ID; }
-\"([^\\\"]|\\.)*\"          { return STRING; }
 "true"                      { return TRUE; }
 "false"                     { return FALSE; }
 "if"                        { return IF; }
@@ -56,7 +57,13 @@ linefeed    \n
 "jump"                      { return JUMP; }
 "void"                      { return VOID; }
 
+{float_num}                 { return FLOAT; }
+{int_num}                   { return INT; }
+{id}                        { return ID; }
+{string_literal}            { return STRING;}
+
 {whitespace}
 {linefeed}                  ++yylineno;
+
 
 %%
