@@ -13,4 +13,7 @@ lex:
 	flex lex.l
 
 clean:
-		rm -f lex.yy.c grammar.tab.o grammar.tab.h lex.yy.o lexgram.a a.out
+		rm -f lex.yy.c grammar.tab.o grammar.tab.h lex.yy.o lexgram.a a.out grammar.output grammar.tab.c
+
+check:
+	bison -v grammar.y

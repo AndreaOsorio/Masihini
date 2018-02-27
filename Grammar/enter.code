@@ -1,4 +1,4 @@
 func void run ()
 {
-
+  var id : string;
 }

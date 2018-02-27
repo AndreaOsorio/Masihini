@@ -70,7 +70,7 @@ global_declaration_1 : STATIC declaration global_declaration_1 {;}
                      | {;}
                      ;
 
-run : FUNC VOID RUN L_PARENTHESIS R_PARENTHESIS block func {;}
+run : FUNC VOID RUN L_PARENTHESIS R_PARENTHESIS block {;}
     ;
 
 func : FUNC type func_1 {;}
@@ -104,20 +104,17 @@ type    :   TYPE_INT {;}
         ;
 
 
-expression : NOT expression_1 {;}
-           | expression_1 {;}
-           ;
+expression : NOT relation expression_1 {;}
+           | relation expression_1;
 
-expression_1 : relation expression_2 {;}
-             ;
-
-expression_2 : AND expression_3 {;}
-            |  OR expression_3 {;}
-            |
-            ;
-
-expression_3  : relation {;}
+expression_1  :  AND expression_2{;}
+              |  OR expression_2{;}
+              |
               ;
+
+expression_2 : NOT relation {;}
+             | relation
+             ;
 
 
 relation : exp relation_1
@@ -156,18 +153,9 @@ condition_1 : ELSE block SEMICOLON {;}
 
 
 
-declaration : VAR ID COLON type declaration_1 {;}
-            ;
-declaration_1 : L_BRACKET INT R_BRACKET declaration_2 {;}
-              | declaration_3 {;}
-              ;
+declaration : VAR ID COLON type SEMICOLON {;}
 
-declaration_2 : L_BRACKET INT R_BRACKET declaration_3 {;}
-              | declaration_3 {;}
-              ;
 
-declaration_3 : SEMICOLON {;}
-              ;
 
 
 func_call : system_func {;}
@@ -230,10 +218,10 @@ term_1 : MULT term {;}
        ;
 
 
-factor : L_PARENTHESIS relation R_PARENTHESIS {;}
+factor : L_PARENTHESIS expression R_PARENTHESIS {;}
 	   | ADD factor_1 {;}
 	   | SUBS factor_1 {;}
-	   | {;}
+	   | factor_1{;}
 	   ;
 
 factor_1 : var_cte {;}
@@ -246,16 +234,10 @@ var_cte : func_call {;}
 		| STRING {;}
 		| FALSE {;}
 		| TRUE {;}
-		| ID var_cte_1 {;}
+		| ID {;}
 		;
 
-var_cte_1 : L_BRACKET expression R_BRACKET var_cte_2 {;}
-		  | var_cte_2 {;}
-		  ;
 
-var_cte_2 : L_BRACKET expression R_BRACKET {;}
-		  | {;}
-		  ;
 
 %%
 
