@@ -1,9 +1,11 @@
 all:
-	flex -o scanner.cpp scanner.l
-	bison -o parser.cpp parser.y
-	g++ -g main.cpp scanner.cpp parser.cpp interpreter.cpp command.cpp -o a.out
+	$(MAKE) parser
+	$(MAKE) scanner
+	g++ -std=c++11 -Wall -Wextra parser.tab.c lex.yy.c main.cpp
+	./a.exe < sample_input
 
-clean:
-	rm -rf scanner.cpp
-	rm -rf parser.cpp parser.hpp location.hh position.hh stack.hh
-	rm -rf a.out
+parser:
+	bison -d parser.y
+
+scanner:
+	flex scanner.l	
