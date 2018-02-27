@@ -25,7 +25,7 @@ linefeed    \n
 "string"                    { return TYPE_STRING; }
 "{"                         { return L_BRACE; }
 "}"                         { return R_BRACE; }
-"("                         { return L PARENTHESIS; }
+"("                         { return L_PARENTHESIS; }
 ")"                         { return R_PARENTHESIS; }
 "["                         { return L_BRACKET; }
 "]"                         { return R_BRACKET; }

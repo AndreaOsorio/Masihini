@@ -77,7 +77,7 @@ func : FUNC type func_1 {;}
      | FUNC VOID func_1 {;}
      ;
 
-func_1 : ID R_PARENTHESIS func_2 {;}
+func_1 : ID L_PARENTHESIS func_2 {;}
        ;
 
 func_2 : ID COLON type func_3 {;}
