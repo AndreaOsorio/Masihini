@@ -1,3 +1,11 @@
+Grammar/lex.yy.c
+Grammar/lex.yy.o
+Grammar/lexgram.a
+Grammar/grammar.output
+Grammar/grammar.tab.h
+Grammar/grammar.tab.o
+
+
 # Maven build folders
 target/
 # ... but not code generation targets
@@ -97,3 +105,5 @@ xcuserdata
 # VSCode Java plugin temporary files
 javac-services.0.log
 javac-services.0.log.lck
+Grammar/grammar.tab.c
+Grammar/Makefile
