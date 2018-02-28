@@ -17,3 +17,6 @@ clean:
 
 check:
 	bison -v grammar.y
+
+test:
+	./a.out < enter.code

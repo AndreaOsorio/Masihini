@@ -3,6 +3,7 @@
     #include "grammar.tab.h"
 %}
 
+
 float_num          [0-9]+"."[0-9]+
 int_num            ([0]|[1-9][0-9]*)
 id                 [a-zA-Z][_a-zA-Z0-9]*
@@ -12,7 +13,7 @@ linefeed           \n
 
 
 %%
-
+"local"                     {return LOCAL;}
 "true"                      { return TRUE; }
 "false"                     { return FALSE; }
 "if"                        { return IF; }
@@ -35,12 +36,9 @@ linefeed           \n
 "*"                         { return MULT; }
 "/"                         { return DIV; }
 "="                         { return EQ; }
-"!="                        { return NE; }
-">"                         { return GT; }
-"<"                         { return LT; }
-"<="                        { return LE; }
-">="                        { return GE; }
-"=="                        { return COMPARE; }
+
+
+
 "&"                         { return AND; }
 "|"                         { return OR; }
 "!"                         { return NOT; }
@@ -50,12 +48,19 @@ linefeed           \n
 "return"                    { return RETURN; }
 "static"                    { return STATIC; }
 "run"                       { return RUN; }
-"speak"                     { return SPEAK; }
-"accel"                     { return ACCEL; }
-"rot"                       { return ROT; }
-"stop"                      { return STOP; }
-"jump"                      { return JUMP; }
 "void"                      { return VOID; }
+
+"speak" |
+"accel" |
+"jump"  |
+"stop"  |
+"rot"                       { return SYSTEM_PREFIX; }
+
+">" |
+"<" |
+"<=" |
+">=" |
+"=="                        { return RELOP; }
 
 {float_num}                 { return FLOAT; }
 {int_num}                   { return INT; }

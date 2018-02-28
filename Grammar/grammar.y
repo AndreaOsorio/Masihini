@@ -33,12 +33,7 @@
 %token MULT
 %token DIV
 %token EQ
-%token NE
-%token GT
-%token LT
-%token LE
-%token GE
-%token COMPARE
+%token RELOP
 %token AND
 %token OR
 %token NOT
@@ -48,12 +43,9 @@
 %token RETURN
 %token STATIC
 %token RUN
-%token SPEAK
-%token ACCEL
-%token ROT
-%token STOP
-%token JUMP
 %token VOID
+%token LOCAL
+%token SYSTEM_PREFIX
 
 
 %start global_declaration
@@ -63,181 +55,152 @@
 
 /* Grammar Rules */
 
-global_declaration : global_declaration_1 run {;}
-                   ;
 
-global_declaration_1 : STATIC declaration global_declaration_1 {;}
-                     | {;}
-                     ;
+global_declaration : STATIC declaration global_declaration {;}
+                    | func_declaration
+                    ;
 
-run : FUNC VOID RUN L_PARENTHESIS R_PARENTHESIS block {;}
-    ;
+declaration : VAR ID COLON type array SEMICOLON {;}
+            ;
 
-func : FUNC type func_1 {;}
-     | FUNC VOID func_1 {;}
+func_declaration : func func_declaration
+                 | run
+                 ;
+
+func : FUNC VOID ID L_PARENTHESIS func_1 R_PARENTHESIS local_declaration
      ;
 
-func_1 : ID L_PARENTHESIS func_2 {;}
+func_1 : ID COLON type func_2
+       |
        ;
 
-func_2 : ID COLON type func_3 {;}
+func_2 : COMMA ID COLON type func_2
+       |
        ;
 
-func_3 : COMMA func_2 {;}
-       | R_PARENTHESIS block func {;}
-       | R_PARENTHESIS block {;}
-       ;
+local_declaration : declaration local_declaration
+                  | block
+                  ;
 
-block  : L_BRACE block_1 {;}
-       ;
+run : STATIC FUNC VOID RUN L_PARENTHESIS R_PARENTHESIS local_declaration
+    ;
 
-block_1   : statement block_1 {;}
-          | statement RETURN expression SEMICOLON R_BRACE {;}
-          | statement R_BRACE {;}
-          ;
+block : L_BRACE block_1
+      ;
 
+block_1 : statement block_1
+        | block_2
+        ;
 
-type    :   TYPE_INT {;}
-        |   TYPE_FLOAT {;}
-        |   TYPE_BOOLEAN {;}
-        |   TYPE_STRING {;}
+block_2 : RETURN expression /* Aqui va Expression */ SEMICOLON block_2
+        | R_BRACE
         ;
 
 
-expression : NOT relation expression_1 {;}
-           | relation expression_1;
+statement : assignment
+          | cycle
+          | condition
+          | func_call SEMICOLON
+          | system_func
+          ;
 
-expression_1  :  AND expression_2{;}
-              |  OR expression_2{;}
+assignment : ID array EQ expression /* Aqui va Expression */SEMICOLON
+           ;
+
+condition : IF L_PARENTHESIS expression /* Aqui va Expression */ R_PARENTHESIS block condition_1
+          ;
+
+condition_1 : ELSE block
+            |
+            ;
+
+func_call : ID L_PARENTHESIS func_call_1 R_PARENTHESIS
+          ;
+func_call_1 :  expression /* Aqui va Expression */  func_call_2
+            |
+            ;
+
+func_call_2 : COMMA expression /* Aqui va Expression */  func_call_2
+            |
+            ;
+
+system_func : SYSTEM_PREFIX L_PARENTHESIS system_func_1 R_PARENTHESIS SEMICOLON
+            ;
+
+system_func_1 : expression /* Aqui va Expression */
               |
               ;
 
-expression_2 : NOT relation {;}
+cycle : WHILE L_PARENTHESIS expression /* Aqui va Expression */ R_PARENTHESIS block
+      ;
+
+
+expression : NOT relation expression_1
+           | relation expression_1
+           ;
+
+expression_1 : AND expression_2
+             | OR expression_2
+             |
+             ;
+
+expression_2 : NOT relation
              | relation
              ;
 
-
 relation : exp relation_1
-         ;
-
-relation_1 : GT relation_2 {;}
-           | LT relation_2 {;}
-           | GE relation_2 {;}
-           | LE relation_2 {;}
-           | NOT relation_2 {;}
-           | {;}
            ;
 
-relation_2 : exp {;}
-          ;
+relation_1  : RELOP exp
+              |
+              ;
 
 
-
-statement : func_call SEMICOLON {;}
-          | assignment {;}
-          | condition {;}
-          | declaration {;}
-          | cycle {;}
-          ;
-
-
-cycle : WHILE L_PARENTHESIS expression  R_PARENTHESIS block {;}
-      ;
-
-condition : IF L_PARENTHESIS expression R_PARENTHESIS block condition_1 {;}
-          ;
-
-condition_1 : ELSE block SEMICOLON {;}
-          | SEMICOLON {;}
-          ;
-
-
-
-declaration : VAR ID COLON type SEMICOLON {;}
-
-
-
-
-func_call : system_func {;}
-		  | ID L_PARENTHESIS func_call_1 {;}
-		  ;
-
-func_call_1 : expression func_call_2 {;}
-				 | R_PARENTHESIS {;}
-				 ;
-
-func_call_2 : COMMA expression func_call_2 {;}
-				  | R_PARENTHESIS {;}
-				  ;
-
-
-system_func : ACCEL system_func_1 {;}
-			| ROT system_func_1 {;}
-			| STOP system_func_1 {;}
-			| JUMP system_func_1 {;}
-			| SPEAK system_func_1 {;}
-			;
-
-system_func_1 : L_PARENTHESIS system_func_2 {;}
-			  ;
-
-system_func_2 : expression R_PARENTHESIS {;}
-			  | R_PARENTHESIS {;}
-			  ;
-
-
-assignment : ID assignment_1 {;}
-            ;
-assignment_1 : L_BRACKET expression L_BRACKET assignment_2 {;}
-			 | assignment_3 {;}
-			 ;
-
-assignment_2 : L_BRACKET expression R_BRACKET assignment_3 {;}
-			 | assignment_3 {;}
-			 ;
-
-assignment_3 : expression {;}
-			 ;
-
-
-
-exp : term exp_1 {;}
+exp : term exp_1
     ;
 
-exp_1 : ADD exp {;}
-	  | SUBS exp {;}
-	  | {;}
-	  ;
+exp_1 : ADD exp
+      | SUBS exp
+      |
+      ;
 
-term : factor term_1 {;}
-     ;
+term  : factor term_1
+      ;
 
-term_1 : MULT term {;}
-       | DIV term {;}
-       | {;}
+term_1 : MULT term
+       | DIV term
+       |
        ;
 
+factor : L_PARENTHESIS expression R_PARENTHESIS
+       | factor_1 var_cte
+       ;
 
-factor : L_PARENTHESIS expression R_PARENTHESIS {;}
-	   | ADD factor_1 {;}
-	   | SUBS factor_1 {;}
-	   | factor_1{;}
-	   ;
+factor_1 : ADD
+         | SUBS
+         |
+         ;
 
-factor_1 : var_cte {;}
-		 ;
-
-
-var_cte : func_call {;}
-		| INT {;}
-		| FLOAT {;}
-		| STRING {;}
-		| FALSE {;}
-		| TRUE {;}
-		| ID {;}
-		;
+var_cte : func_call
+        | ID array
+        | INT
+        | FLOAT
+        | STRING
+        | TRUE
+        | FALSE
+        ;
 
 
+array : L_BRACKET expression R_BRACKET array
+      |
+      ;
+
+
+type :  TYPE_STRING {;}
+      | TYPE_INT {;}
+      | TYPE_FLOAT {;}
+      | TYPE_BOOLEAN {;}
+      ;
 
 %%
 
