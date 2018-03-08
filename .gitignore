@@ -107,3 +107,4 @@ javac-services.0.log
 javac-services.0.log.lck
 Grammar/grammar.tab.c
 Grammar/Makefile
+Grammar/varTable.hpp.gch
