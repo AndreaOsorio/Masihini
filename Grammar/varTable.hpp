@@ -1,5 +1,5 @@
 #include <set>
-
+#include <iostream>
 
 class VarTable {
 
