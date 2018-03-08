@@ -1,4 +1,5 @@
 #include <iostream>
+#include "varTable.hpp"
 
 extern "C"
 {
@@ -18,6 +19,8 @@ int main()
   {
     std::cout << "The input is valid.\n";
   }
+
+  VarTable *varTable = new VarTable();
 
   return result;
 }
