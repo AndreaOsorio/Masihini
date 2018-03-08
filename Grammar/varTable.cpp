@@ -1,7 +1,5 @@
-#include <iostream>
-#include <string>
-#include <set>
-#include "varTable.hpp"
+#include "varNode.hpp"
+
 
 VarTable::VarTable(){
 
