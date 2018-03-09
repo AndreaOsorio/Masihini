@@ -1,15 +1,36 @@
-#include <iostream>
-#include "varTable.hpp"
 
-extern "C"
-{
-  int yyparse();
-  void yyerror(const char*);
-  int yyparse();
-}
+#include <iostream>
+
+
+#include "FuncDir.hpp"
+
+
+extern int yyparse();
+extern int yylineno;
+
+
 
 int main()
 {
+
+  VarNode *var  = new VarNode("hello", FLOAT);
+    
+  VarNode *var2  = new VarNode("hello", FLOAT);
+  VarNode *var3  = new VarNode("hello1", FLOAT);
+  
+  VarTable *table = new VarTable();
+  
+  table->insertNode(*var);
+  table->insertNode(*var2);
+  table->insertNode(*var3);
+  
+  FuncNode *node = new FuncNode("hello", VOID, *table);
+  FuncNode *node2 = new FuncNode("hello", VOID, *table);
+
+  FuncDir * dir = new FuncDir();
+  
+  dir->insertNode(*node);
+
   int result = yyparse();
 
   if(result){
@@ -20,7 +41,7 @@ int main()
     std::cout << "The input is valid.\n";
   }
 
-  VarTable *varTable = new VarTable();
+  std::cout << "The number of lines in the file is: "<< yylineno <<std::endl;
 
   return result;
 }

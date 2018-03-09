@@ -1,9 +1,20 @@
 %{
+    #include <math.h>
     #include <stdio.h>
     #include <stdlib.h>
-    int yylex (void);
+    int yylex ();
     void yyerror (char const *);
 %}
+
+/*UNIONS DEFINITION*/
+
+%union
+{
+    int intValue;
+    float floatValue;
+    char *stringValue;
+}
+
 
 /* TOKENS */
 
