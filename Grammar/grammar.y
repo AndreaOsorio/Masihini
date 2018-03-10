@@ -4,6 +4,7 @@
     #include <stdlib.h>
     #include <string>
     #include <iostream>
+    
     int yylex ();
     void yyerror (char const *);
 %}
@@ -81,8 +82,12 @@ func_declaration : func func_declaration
                  | run
                  ;
 
-func : FUNC VOID ID L_PARENTHESIS func_1 R_PARENTHESIS local_declaration
+func : FUNC VOID func_0
+     | FUNC type func_0
      ;
+
+func_0 : ID L_PARENTHESIS func_1 R_PARENTHESIS local_declaration
+       ;
 
 func_1 : ID COLON type func_2
        |
