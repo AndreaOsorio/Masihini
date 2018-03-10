@@ -5,9 +5,9 @@
 
 enum Type
 {
-    STRING,
-    BOOLEAN,
-    INTEGER,
-    FLOAT,
-    VOID
+    STRING_,
+    BOOLEAN_,
+    INTEGER_,
+    FLOAT_,
+    VOID_
 };

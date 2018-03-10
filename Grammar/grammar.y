@@ -5,6 +5,8 @@
     #include <string>
     #include <iostream>
     
+    #include "FuncNode.hpp"
+
     int yylex ();
     void yyerror (char const *);
 %}
@@ -78,7 +80,7 @@ global_declaration : STATIC declaration global_declaration
 declaration : VAR ID COLON type array SEMICOLON {printf($2);}
             ;
 
-func_declaration : func func_declaration
+func_declaration : func func_declaration {  }
                  | run
                  ;
 
