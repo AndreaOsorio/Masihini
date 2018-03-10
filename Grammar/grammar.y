@@ -2,6 +2,8 @@
     #include <math.h>
     #include <stdio.h>
     #include <stdlib.h>
+    #include <string>
+    #include <iostream>
     int yylex ();
     void yyerror (char const *);
 %}
@@ -13,14 +15,15 @@
     int intValue;
     float floatValue;
     char *stringValue;
+    bool booleanValue;
 }
 
 
 /* TOKENS */
 
-%token FLOAT
-%token INT
-%token ID
+%token <floatValue>   FLOAT
+%token <intValue>     INT
+%token <stringValue>  ID
 %token STRING
 %token TRUE
 %token FALSE
@@ -67,11 +70,11 @@
 /* Grammar Rules */
 
 
-global_declaration : STATIC declaration global_declaration {;}
+global_declaration : STATIC declaration global_declaration 
                     | func_declaration
                     ;
 
-declaration : VAR ID COLON type array SEMICOLON {;}
+declaration : VAR ID COLON type array SEMICOLON {printf($2);}
             ;
 
 func_declaration : func func_declaration
@@ -184,7 +187,7 @@ term_1 : MULT term
        ;
 
 factor : L_PARENTHESIS expression R_PARENTHESIS
-       | factor_1 var_cte
+       | factor_1 var_cte 
        ;
 
 factor_1 : ADD
@@ -194,8 +197,8 @@ factor_1 : ADD
 
 var_cte : func_call
         | ID array
-        | INT
-        | FLOAT
+        | INT { int foo = $1; printf("%d" ,foo); }
+        | FLOAT { float foof = $1; printf("%f" ,foof); }
         | STRING
         | TRUE
         | FALSE
@@ -207,10 +210,10 @@ array : L_BRACKET expression R_BRACKET array
       ;
 
 
-type :  TYPE_STRING {;}
-      | TYPE_INT {;}
-      | TYPE_FLOAT {;}
-      | TYPE_BOOLEAN {;}
+type :  TYPE_STRING
+      | TYPE_INT
+      | TYPE_FLOAT 
+      | TYPE_BOOLEAN 
       ;
 
 %%

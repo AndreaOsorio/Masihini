@@ -6,7 +6,7 @@ static var myVar : string ;
 func void myFunc (myVar : string, myvar2 : float)
   var myVar2 : boolean;
 {
-  myVar2 = ("Hola"+20.0)/10;
+  myVar2 = ("Hola"+20.5)/10;
   myVar2 = 10;
   myVar2 = "esto es una constante";
   myVar3 = myVar;
