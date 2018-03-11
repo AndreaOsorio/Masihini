@@ -11,3 +11,10 @@ enum Type
     FLOAT_,
     VOID_
 };
+
+enum DeclarationState
+{
+    GLOBAL_,
+    LOCAL_
+
+};

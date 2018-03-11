@@ -1,79 +1,21 @@
 static var myVar : int ;
-static var myVar : boolean ;
-static var myVar : float ;
-static var myVar : string ;
+static var myVar1 : boolean ;
+static var myVar2 : float ;
+static var myVar3 : string ;
 
-func void myFunc (myVar : string, myvar2 : float)
-  var myVar2 : boolean;
+func void myFunc ()
+
 {
-  myVar2 = ("Hola"+20.5)/10;
-  myVar2 = 10;
-  myVar2 = "esto es una constante";
-  myVar3 = myVar;
 
-  myFunc(20,true,"hola");
-
-  accel(10);
-  rot(10);
-  accel();
-  stop();
-  speak();
-
-
-  if ((!true & !true) == true){
-    myVar2 = 10;
-    myVar2 = 10;
-    myVar2 = 10;
-  }else{
-    myVar2 = 10;
-    myVar2 = 10;
-    myVar2 = 10;
-  }
-  while(true){
-
-  accel(10);
-  rot(10);
-  accel();
-  stop();
-  speak();
-
-  }
-  return 10 ;
 
 }
 
-func int myFunc2 (myVar : string, myvar2 : float)
-  var myVar2 : boolean;
-  var myVar2 : boolean;
-  var myVar2 : boolean;
-{
-  myVar2 = 10;
-}
 
 static func void run ()
-  var myVar2 : boolean;
-  var myVar2 : boolean;
-  var myVar2 : boolean[10][10];
+
 {
 
-if ((!true & !true) == true){
-  myVar2[0][0] = 10;
-  myVar2 = 10;
-  myVar2 = 10;
-}else{
-  myVar2 = 10;
-  myVar2 = 10;
-  myVar2 = 10;
-}
-while(true){
 
-accel(10);
-rot(10);
-accel();
-stop();
-speak();
-
-}
 
 
 }

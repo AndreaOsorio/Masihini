@@ -4,11 +4,19 @@
     #include <stdlib.h>
     #include <string>
     #include <iostream>
-    
-    #include "FuncNode.hpp"
+    #include "FuncDir.hpp"
+
+    using namespace std;
 
     int yylex ();
     void yyerror (char const *);
+
+      DeclarationState declarationState = GLOBAL_;
+      Type currentDeclaredtype = VOID_;
+      string currrentDeclaredIdentificator;
+      VarTable *globalSymbolTable = new VarTable();
+
+
 %}
 
 /*UNIONS DEFINITION*/
@@ -73,22 +81,29 @@
 /* Grammar Rules */
 
 
-global_declaration : STATIC declaration global_declaration 
+global_declaration : STATIC declaration global_declaration  {
+                                                                 declarationState = GLOBAL_;
+                                                                
+                                                            }
                     | func_declaration
                     ;
 
-declaration : VAR ID COLON type array SEMICOLON {printf($2);}
+declaration : VAR ID COLON type array SEMICOLON { string identificator($2);
+                                                currrentDeclaredIdentificator = identificator;
+                                                if(declarationState == GLOBAL_){
+                                                      globalSymbolTable->insertNode(*new VarNode(identificator, currentDeclaredtype));
+                                                }}
             ;
 
-func_declaration : func func_declaration {  }
+func_declaration : func func_declaration 
                  | run
                  ;
 
-func : FUNC VOID func_0
+func : FUNC VOID func_0 {currentDeclaredtype = VOID_}
      | FUNC type func_0
      ;
 
-func_0 : ID L_PARENTHESIS func_1 R_PARENTHESIS local_declaration
+func_0 : ID L_PARENTHESIS func_1 R_PARENTHESIS local_declaration {}
        ;
 
 func_1 : ID COLON type func_2
@@ -204,8 +219,8 @@ factor_1 : ADD
 
 var_cte : func_call
         | ID array
-        | INT { int foo = $1; printf("%d" ,foo); }
-        | FLOAT { float foof = $1; printf("%f" ,foof); }
+        | INT 
+        | FLOAT 
         | STRING
         | TRUE
         | FALSE
@@ -217,10 +232,10 @@ array : L_BRACKET expression R_BRACKET array
       ;
 
 
-type :  TYPE_STRING
-      | TYPE_INT
-      | TYPE_FLOAT 
-      | TYPE_BOOLEAN 
+type :  TYPE_STRING     {currentDeclaredtype = STRING_;}
+      | TYPE_INT        {currentDeclaredtype = INTEGER_;}  
+      | TYPE_FLOAT      {currentDeclaredtype = FLOAT_;}
+      | TYPE_BOOLEAN    {currentDeclaredtype = BOOLEAN_;}
       ;
 
 %%
