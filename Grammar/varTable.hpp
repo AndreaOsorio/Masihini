@@ -19,8 +19,8 @@ using namespace std;
 
 class VarTable{
     private:
+
     unordered_set<VarNode, VarNodeHasher, VarNodeComparator> varTable;
-    
     
     
     public:
@@ -37,10 +37,17 @@ class VarTable{
         if (res.second == false)
             std::cout << "Failed to insert a thingy in VarTable" << std::endl;
         
-        
-        
+    }
+
+    
+    bool isContained(VarTable *globalTable, VarNode element)
+    {
+        const bool result = globalTable->varTable.find(element) != globalTable->varTable.end();
+        return result;
     }
     
+
+
     ~VarTable(){
         
     }
