@@ -1,10 +1,15 @@
 static var myVar : int ;
-static var myVar1 : boolean ;
+static var myVar : boolean ;
 static var myVar2 : float ;
 static var myVar3 : string ;
 
-func void myFunc ()
+func void myFunc (myVar : string, myvar2 : float)
+{
 
+
+}
+
+func int myFunc2 (myVar : string, myvar2 : float)
 {
 
 
@@ -12,7 +17,6 @@ func void myFunc ()
 
 
 static func void run ()
-
 {
 
 

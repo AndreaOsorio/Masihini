@@ -13,8 +13,11 @@
 
       DeclarationState declarationState = GLOBAL_;
       Type currentDeclaredtype = VOID_;
-      string currrentDeclaredIdentificator;
+
+      FuncNode *currentDeclaredFunction ;
+
       VarTable *globalSymbolTable = new VarTable();
+      FuncDir *functionDirectory = new FuncDir();
 
 
 %}
@@ -88,29 +91,40 @@ global_declaration : STATIC declaration global_declaration  {
                     | func_declaration
                     ;
 
-declaration : VAR ID COLON type array SEMICOLON { string identificator($2);
-                                                currrentDeclaredIdentificator = identificator;
-                                                if(declarationState == GLOBAL_){
-                                                      globalSymbolTable->insertNode(*new VarNode(identificator, currentDeclaredtype));
-                                                }}
+declaration : VAR ID COLON type array SEMICOLON { 
+                                                      if(declarationState == GLOBAL_){
+                                                           cout<<"Inserting "<<$2<<" with type "<<currentDeclaredtype<<endl;
+                                                            globalSymbolTable->insertNode(new VarNode($2, currentDeclaredtype)); 
+                                                      }
+                                                      
+                                                      
+
+                                                }
             ;
 
-func_declaration : func func_declaration 
+func_declaration : func func_declaration {declarationState = LOCAL_;}
                  | run
                  ;
 
-func : FUNC VOID func_0 {currentDeclaredtype = VOID_}
+func : FUNC VOID {currentDeclaredtype = VOID_;}  func_0 
      | FUNC type func_0
      ;
 
-func_0 : ID L_PARENTHESIS func_1 R_PARENTHESIS local_declaration {}
+func_0 :    ID    {
+                        cout<<"Inserting "<<$1<<" with type "<<currentDeclaredtype<<endl;
+                        currentDeclaredFunction = new FuncNode($1, currentDeclaredtype, new VarTable());
+                        functionDirectory->insertNode(currentDeclaredFunction);
+                  }
+
+
+            L_PARENTHESIS func_1 R_PARENTHESIS local_declaration 
        ;
 
-func_1 : ID COLON type func_2
+func_1 : ID COLON type func_2 
        |
        ;
 
-func_2 : COMMA ID COLON type func_2
+func_2 : COMMA ID COLON type func_2 
        |
        ;
 

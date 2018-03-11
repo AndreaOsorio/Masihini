@@ -13,6 +13,7 @@ extern int yylineno;
 int main()
 {
 
+/*
   VarNode *var  = new VarNode("hello", FLOAT_);
     
   VarNode *var2  = new VarNode("hello", FLOAT_);
@@ -31,6 +32,7 @@ int main()
   
   dir->insertNode(*node);
 
+*/
   int result = yyparse();
 
   if(result){

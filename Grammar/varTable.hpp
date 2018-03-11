@@ -28,14 +28,14 @@ class VarTable{
         
     }
     
-    void insertNode(VarNode node){
+    void insertNode(VarNode* node){
         
-        auto res = varTable.insert(node);
+        auto res = varTable.insert(*node);
 
 
         
         if (res.second == false)
-            std::cout << "Failed to insert a thingy" << std::endl;
+            std::cout << "Failed to insert a thingy in VarTable" << std::endl;
         
         
         

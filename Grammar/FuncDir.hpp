@@ -26,14 +26,14 @@ private:
     
     
 public:
-    void insertNode(FuncNode node){
+    void insertNode(FuncNode* node){
         
-        auto res = funcTable.insert(node);
+        auto res = funcTable.insert(*node);
         
         
         
         if (res.second == false)
-            std::cout << "Failed to insert a thingy inf funcDir" << std::endl;
+            std::cout << "Failed to insert a thingy in funcDir" << std::endl;
         
         
     }

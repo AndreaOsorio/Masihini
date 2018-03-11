@@ -29,16 +29,20 @@ private:
     
     
 public:
-    FuncNode( string identifier, Type dataType, VarTable symbTable){
+    FuncNode( string identifier, Type dataType, VarTable* symbTable){
         
         id = identifier;
         type = dataType;
-        symbolTable = &symbTable;
+        symbolTable = symbTable;
         
     }
     
     string getId() const{
         return id;
+    }
+
+    VarTable* getSymbolTable(){
+        return symbolTable;
     }
     
 };
