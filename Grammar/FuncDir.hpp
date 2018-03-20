@@ -33,7 +33,11 @@ public:
         
         
         if (res.second == false)
-            std::cout << "Failed to insert a thingy in funcDir" << std::endl;
+
+            
+
+            std::cout << "ERROR: Function \""<< node->getId() <<"\" has been declared previously" << std::endl;
+
         
         
     }

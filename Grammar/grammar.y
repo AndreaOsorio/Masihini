@@ -120,11 +120,25 @@ func_0 :    ID    {
             L_PARENTHESIS func_1 R_PARENTHESIS local_declaration 
        ;
 
-func_1 : ID COLON type func_2 
+func_1 : ID COLON type {
+                              VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
+                              cout<<"Inserting "<<$1<<" with type "<<currentDeclaredtype<< " in function "<< currentDeclaredFunction->getId()<<endl;
+                              symbolTable->insertNode(new VarNode($1, currentDeclaredtype)); 
+                              
+                        } 
+         
+         
+      func_2 
        |
        ;
 
-func_2 : COMMA ID COLON type func_2 
+func_2 : COMMA ID COLON type {
+                                    VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
+                                    cout<<"Inserting "<<$2<<" with type "<<currentDeclaredtype<< " in function "<< currentDeclaredFunction->getId()<<endl;
+                                    symbolTable->insertNode(new VarNode($2, currentDeclaredtype)); 
+                                    
+                              } 
+      func_2 
        |
        ;
 

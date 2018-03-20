@@ -9,7 +9,7 @@ func void myFunc (myVar : string, myvar2 : float)
 
 }
 
-func int myFunc2 (myVar : string, myvar2 : float)
+func int myFunc2 (myVar : boolean, myvar2 : float)
 {
 
 

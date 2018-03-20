@@ -35,7 +35,7 @@ class VarTable{
 
         
         if (res.second == false)
-            std::cout << "Failed to insert a thingy in VarTable" << std::endl;
+            std::cout << "ERROR: Variable \""<< node->getId() <<"\" has been declared previously" << std::endl;
         
     }
 
