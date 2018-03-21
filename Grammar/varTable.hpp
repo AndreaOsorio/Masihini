@@ -28,14 +28,16 @@ class VarTable{
         
     }
     
-    void insertNode(VarNode* node){
+    string insertNode(VarNode* node){
         
         auto res = varTable.insert(*node);
 
-
+        string message = "";
         
         if (res.second == false)
-            std::cout << "ERROR: Variable \""<< node->getId() <<"\" has been declared previously" << std::endl;
+            message = "Variable \"" + node->getId() + "\" has been defined previously";
+
+        return message;
         
     }
 

@@ -35,15 +35,8 @@ int main()
 */
   int result = yyparse();
 
-  if(result){
-    std::cout << "The input is valid. \n";
-  }
-  else
-  {
-    std::cout << "The input is valid.\n";
-  }
+    cout<< "BUILD IS SUCESSFUL"<<endl;
 
-  std::cout << "The number of lines in the file is: "<< yylineno <<std::endl;
 
   return result;
 }

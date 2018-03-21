@@ -26,20 +26,17 @@ private:
     
     
 public:
-    void insertNode(FuncNode* node){
+    string insertNode(FuncNode* node){
         
         auto res = funcTable.insert(*node);
-        
+        string message = "";
         
         
         if (res.second == false)
-
-            
-
-            std::cout << "ERROR: Function \""<< node->getId() <<"\" has been declared previously" << std::endl;
-
+            message = "Function \"" + node->getId() + "\" has been defined previously";
         
-        
+
+        return message;
     }
 
     

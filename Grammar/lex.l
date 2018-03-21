@@ -14,8 +14,8 @@ linefeed           \n
 
 %%
 "local"                     { return LOCAL; }
-"true"                      { return TRUE; }
-"false"                     { return FALSE; }
+"true" |                    
+"false"                     { return BOOLEAN; }
 "if"                        { return IF; }
 "else"                      { return ELSE; }
 "while"                     { return WHILE; }

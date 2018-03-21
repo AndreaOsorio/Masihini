@@ -5,20 +5,27 @@
     #include <string>
     #include <iostream>
     #include "FuncDir.hpp"
+    #include "MemoryFrame.hpp"
 
     using namespace std;
 
     int yylex ();
     void yyerror (char const *);
+    void callForError(string message);
+    void doGlobalDeclaration(string id);
+    void doLocalDeclaration();
 
+      //Parameters used to store values in Func Directory
       DeclarationState declarationState = GLOBAL_;
       Type currentDeclaredtype = VOID_;
-
       FuncNode *currentDeclaredFunction ;
-
       VarTable *globalSymbolTable = new VarTable();
       FuncDir *functionDirectory = new FuncDir();
 
+      //Parameters used to assign memory to items;
+
+      MemoryFrame *globalMemoryFrame = new MemoryFrame();
+      MemoryFrame *currenMemoryFrame;
 
 %}
 
@@ -38,7 +45,8 @@
 %token <floatValue>   FLOAT
 %token <intValue>     INT
 %token <stringValue>  ID
-%token STRING
+%token <stringValue>  STRING
+%token <booleanValue> BOOLEAN
 %token TRUE
 %token FALSE
 %token IF
@@ -88,13 +96,17 @@ global_declaration : STATIC declaration global_declaration  {
                                                                  declarationState = GLOBAL_;
                                                                 
                                                             }
-                    | func_declaration
+                    |  {declarationState = LOCAL_;} func_declaration
                     ;
 
 declaration : VAR ID COLON type array SEMICOLON { 
                                                       if(declarationState == GLOBAL_){
-                                                           cout<<"Inserting "<<$2<<" with type "<<currentDeclaredtype<<endl;
-                                                            globalSymbolTable->insertNode(new VarNode($2, currentDeclaredtype)); 
+                                                           callForError(globalSymbolTable->insertNode(new VarNode($2, currentDeclaredtype))); 
+                                                      }else{
+
+                                                             VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
+                                                            callForError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype))); 
+
                                                       }
                                                       
                                                       
@@ -102,7 +114,7 @@ declaration : VAR ID COLON type array SEMICOLON {
                                                 }
             ;
 
-func_declaration : func func_declaration {declarationState = LOCAL_;}
+func_declaration : func func_declaration
                  | run
                  ;
 
@@ -111,9 +123,8 @@ func : FUNC VOID {currentDeclaredtype = VOID_;}  func_0
      ;
 
 func_0 :    ID    {
-                        cout<<"Inserting "<<$1<<" with type "<<currentDeclaredtype<<endl;
                         currentDeclaredFunction = new FuncNode($1, currentDeclaredtype, new VarTable());
-                        functionDirectory->insertNode(currentDeclaredFunction);
+                        callForError(functionDirectory->insertNode(currentDeclaredFunction));
                   }
 
 
@@ -122,8 +133,7 @@ func_0 :    ID    {
 
 func_1 : ID COLON type {
                               VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
-                              cout<<"Inserting "<<$1<<" with type "<<currentDeclaredtype<< " in function "<< currentDeclaredFunction->getId()<<endl;
-                              symbolTable->insertNode(new VarNode($1, currentDeclaredtype)); 
+                             callForError( symbolTable->insertNode(new VarNode($1, currentDeclaredtype))); 
                               
                         } 
          
@@ -134,8 +144,7 @@ func_1 : ID COLON type {
 
 func_2 : COMMA ID COLON type {
                                     VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
-                                    cout<<"Inserting "<<$2<<" with type "<<currentDeclaredtype<< " in function "<< currentDeclaredFunction->getId()<<endl;
-                                    symbolTable->insertNode(new VarNode($2, currentDeclaredtype)); 
+                                    callForError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype))); 
                                     
                               } 
       func_2 
@@ -146,7 +155,12 @@ local_declaration : declaration local_declaration
                   | block
                   ;
 
-run : STATIC FUNC VOID RUN L_PARENTHESIS R_PARENTHESIS local_declaration
+run : STATIC FUNC VOID RUN L_PARENTHESIS R_PARENTHESIS      {
+                                                                  currentDeclaredFunction = new FuncNode("run", VOID_, new VarTable());
+                                                                  callForError(functionDirectory->insertNode(currentDeclaredFunction));
+
+                                                            } 
+      local_declaration
     ;
 
 block : L_BRACE block_1
@@ -250,8 +264,7 @@ var_cte : func_call
         | INT 
         | FLOAT 
         | STRING
-        | TRUE
-        | FALSE
+        | BOOLEAN
         ;
 
 
@@ -268,8 +281,19 @@ type :  TYPE_STRING     {currentDeclaredtype = STRING_;}
 
 %%
 
+
+
+void callForError(string message){
+      if(!message.empty()){
+            cout<<message << endl;
+            exit (0);
+      }
+}
+
 void yyerror(char const *x)
 {
-    printf("Error %s\n", x);
-    exit(1);
+
+    cout <<"ERROR: "<<x;
+    printf("ERROR: %s\n", x);
+    exit (0);
 }

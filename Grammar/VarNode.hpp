@@ -23,6 +23,7 @@ class VarNode{
    private:
         string id;
         Type type;
+        int memDir;
     
     
     
@@ -31,6 +32,14 @@ class VarNode{
         
         id = identifier;
         type = dataType;
+        
+    }
+
+    VarNode( string identifier, Type dataType, int memoryDirection){
+        
+        id = identifier;
+        type = dataType;
+        memDir = memoryDirection;
         
     }
     
