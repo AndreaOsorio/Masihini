@@ -334,7 +334,7 @@ expression : NOT {stackOperator.push(NOT_);} relation{
                                             expression_1{
 
                                                             if(stackOperator.empty() == false){
-                                                                  if(stackOperator.top() == AND || OR_){
+                                                                  if(stackOperator.top() == AND_ || stackOperator.top() == OR_){
                                                                         MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
 
                                                                                     int rightOperand = stackOperand.top();
@@ -366,12 +366,12 @@ expression : NOT {stackOperator.push(NOT_);} relation{
 
                                                                   }
 
-                                                                  }
-                                                            } 
+                                                            }
+                                                      } 
            | relation expression_1 {
 
                                     if(stackOperator.empty() == false){
-                                          if(stackOperator.top() == AND || OR_){
+                                          if(stackOperator.top() == AND_ || stackOperator.top() == OR_){
                                                 MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
 
                                                             int rightOperand = stackOperand.top();
@@ -598,14 +598,11 @@ term_1 : MULT {stackOperator.push(MULT_);} term
        |
        ;
 
-factor : L_PARENTHESIS expression R_PARENTHESIS
-       | factor_1 var_cte 
+factor : L_PARENTHESIS  expression R_PARENTHESIS 
+       | var_cte 
        ;
 
-factor_1 : ADD
-         | SUBS
-         |
-         ;
+
 
 var_cte : func_call
         | ID {

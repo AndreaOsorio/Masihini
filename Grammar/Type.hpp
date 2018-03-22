@@ -5,7 +5,7 @@
 
 enum Type
 {
-    STRING_,
+    STRING_, 
     BOOLEAN_,
     INTEGER_,
     FLOAT_,
@@ -26,7 +26,8 @@ enum Operator
     NOT_,
     AND_,
     OR_,
-    EQ_
+    EQ_,
+    PARENTHESIS_
 };
 
 enum DeclarationState
