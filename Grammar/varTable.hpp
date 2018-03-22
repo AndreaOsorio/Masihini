@@ -42,10 +42,16 @@ class VarTable{
     }
 
     
-    bool isContained(VarTable *globalTable, VarNode element)
+    string isContained(string id, Type type)
     {
-        const bool result = globalTable->varTable.find(element) != globalTable->varTable.end();
-        return result;
+        VarNode elem (id, type);
+        string message = "";
+        const bool result = varTable.find(elem) != varTable.end();
+
+        if(result){
+            message = "Refedinition of global variable \"" + id + "\" ";
+        }
+        return message;
     }
     
 

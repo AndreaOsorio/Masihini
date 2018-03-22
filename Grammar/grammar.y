@@ -11,9 +11,14 @@
 
     int yylex ();
     void yyerror (char const *);
-    void callForError(string message);
-    void doGlobalDeclaration(string id);
-    void doLocalDeclaration();
+    extern int yylineno;
+
+
+
+    //Functions that handle errors
+
+    void callForLocalRedefinitionError(string message);
+    void callForGlobalRedefinitionError(string message);
 
       //Parameters used to store values in Func Directory
       DeclarationState declarationState = GLOBAL_;
@@ -96,16 +101,17 @@ global_declaration : STATIC declaration global_declaration  {
                                                                  declarationState = GLOBAL_;
                                                                 
                                                             }
-                    |  {declarationState = LOCAL_;} func_declaration
+                    |  func_declaration
                     ;
 
 declaration : VAR ID COLON type array SEMICOLON { 
                                                       if(declarationState == GLOBAL_){
-                                                           callForError(globalSymbolTable->insertNode(new VarNode($2, currentDeclaredtype))); 
+                                                           callForLocalRedefinitionError(globalSymbolTable->insertNode(new VarNode($2, currentDeclaredtype))); 
                                                       }else{
 
-                                                             VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
-                                                            callForError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype))); 
+                                                            VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
+                                                            callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype))); 
+                                                            callForGlobalRedefinitionError(globalSymbolTable->isContained($2, currentDeclaredtype));
 
                                                       }
                                                       
@@ -114,7 +120,7 @@ declaration : VAR ID COLON type array SEMICOLON {
                                                 }
             ;
 
-func_declaration : func func_declaration
+func_declaration : {declarationState = LOCAL_;} func func_declaration
                  | run
                  ;
 
@@ -124,7 +130,8 @@ func : FUNC VOID {currentDeclaredtype = VOID_;}  func_0
 
 func_0 :    ID    {
                         currentDeclaredFunction = new FuncNode($1, currentDeclaredtype, new VarTable());
-                        callForError(functionDirectory->insertNode(currentDeclaredFunction));
+                        callForLocalRedefinitionError(functionDirectory->insertNode(currentDeclaredFunction));
+                        callForGlobalRedefinitionError(globalSymbolTable->isContained($1, currentDeclaredtype));
                   }
 
 
@@ -133,7 +140,8 @@ func_0 :    ID    {
 
 func_1 : ID COLON type {
                               VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
-                             callForError( symbolTable->insertNode(new VarNode($1, currentDeclaredtype))); 
+                             callForLocalRedefinitionError( symbolTable->insertNode(new VarNode($1, currentDeclaredtype))); 
+                              callForGlobalRedefinitionError(globalSymbolTable->isContained($1, currentDeclaredtype));
                               
                         } 
          
@@ -144,7 +152,7 @@ func_1 : ID COLON type {
 
 func_2 : COMMA ID COLON type {
                                     VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
-                                    callForError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype))); 
+                                    callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype))); 
                                     
                               } 
       func_2 
@@ -157,7 +165,7 @@ local_declaration : declaration local_declaration
 
 run : STATIC FUNC VOID RUN L_PARENTHESIS R_PARENTHESIS      {
                                                                   currentDeclaredFunction = new FuncNode("run", VOID_, new VarTable());
-                                                                  callForError(functionDirectory->insertNode(currentDeclaredFunction));
+                                                                  callForLocalRedefinitionError(functionDirectory->insertNode(currentDeclaredFunction));
 
                                                             } 
       local_declaration
@@ -283,17 +291,26 @@ type :  TYPE_STRING     {currentDeclaredtype = STRING_;}
 
 
 
-void callForError(string message){
+
+void callForLocalRedefinitionError(string message){
       if(!message.empty()){
-            cout<<message << endl;
+            cout<<yylineno<<" ERROR: "<<message << endl;
             exit (0);
       }
+}
+
+void callForGlobalRedefinitionError(string message){
+     
+      if(!message.empty()){
+                  cout<<yylineno<<" ERROR: "<<message << endl;
+                  exit (0);
+      }
+
 }
 
 void yyerror(char const *x)
 {
 
-    cout <<"ERROR: "<<x;
-    printf("ERROR: %s\n", x);
+    cout <<yylineno<<" ERROR: "<<x<<endl;
     exit (0);
 }
