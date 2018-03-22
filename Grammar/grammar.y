@@ -240,40 +240,80 @@ cycle : WHILE L_PARENTHESIS expression R_PARENTHESIS block
       ;
 
 
-expression : NOT {stackOperator.push(NOT_);} relation expression_1{
+expression : NOT {stackOperator.push(NOT_);} relation{
+                                                            if(stackOperator.empty() == false){
+                                                                  if(stackOperator.top() == NOT_){
+                                                                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
 
-                                                                        if(stackOperator.empty() == false){
-                                                                              if(stackOperator.top() == AND || OR_){
-                                                                                    MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+                                                                                    int rightOperand = stackOperand.top();
+                                                                                    Type rightType = memFrame->getType(rightOperand);
+                                                                                    stackOperand.pop();
+                                                                                   
+                                                                                    int leftOperand = 0;
+                                                                                    Type leftType = VOID_;
 
-                                                                                                int rightOperand = stackOperand.top();
-                                                                                                Type rightType = memFrame->getType(rightOperand);
-                                                                                                stackOperand.pop();
-                                                                                                int leftOperand = stackOperand.top();
-                                                                                                Type leftType = memFrame->getType(leftOperand);
-                                                                                                stackOperand.pop();
-                                                                                                Operator op = stackOperator.top();
-                                                                                                stackOperator.pop();
+                                                                                    Operator op = stackOperator.top();
+                                                                                    stackOperator.pop();
 
-                                                                                                Type resultType = semantics->isAllowed(rightType,leftType, op);
-                                                                                          if(resultType == VOID_){
+                                                                                    Type resultType = semantics->isAllowed(rightType,leftType, op);
+                                                                              if(resultType == VOID_){
 
-                                                                                                callForTypeMismatchError("Mismatch error, cannot perform operation");
-                                                                                                
-                                                                                          }else{
-                                                                                                
-                                                                                                      int result = memFrame->declareValue(resultType);
-                                                                                                      stackOperand.push(result);
-                                                                                                      cout << "Right " << rightOperand<< " ";
-                                                                                                      cout << " RightType "<< rightType<<" ";
-                                                                                                      cout << "Left " << leftOperand<<"  ";
-                                                                                                      cout << " LefType "<< leftType<<endl;
-
-                                                                                          }
-
+                                                                                    callForTypeMismatchError("Mismatch error, cannot perform operation");
                                                                                     
+                                                                              }else{
+                                                                                    
+                                                                                          int result = memFrame->declareValue(resultType);
+                                                                                          stackOperand.push(result);
+                                                                                          cout << "Right " << rightOperand<< " ";
+                                                                                          cout << " RightType "<< rightType<<" ";
+                                                                                          cout << "Left " << leftOperand<<"  ";
+                                                                                          cout << " LefType "<< leftType<<endl;
 
                                                                               }
+
+                                                                        
+
+                                                                  }
+
+                                                            }
+                                                             
+
+                                                      }
+
+                                            expression_1{
+
+                                                            if(stackOperator.empty() == false){
+                                                                  if(stackOperator.top() == AND || OR_){
+                                                                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
+                                                                                    int rightOperand = stackOperand.top();
+                                                                                    Type rightType = memFrame->getType(rightOperand);
+                                                                                    stackOperand.pop();
+                                                                                    int leftOperand = stackOperand.top();
+                                                                                    Type leftType = memFrame->getType(leftOperand);
+                                                                                    stackOperand.pop();
+                                                                                    Operator op = stackOperator.top();
+                                                                                    stackOperator.pop();
+
+                                                                                    Type resultType = semantics->isAllowed(rightType,leftType, op);
+                                                                              if(resultType == VOID_){
+
+                                                                                    callForTypeMismatchError("Mismatch error, cannot perform operation");
+                                                                                    
+                                                                              }else{
+                                                                                    
+                                                                                          int result = memFrame->declareValue(resultType);
+                                                                                          stackOperand.push(result);
+                                                                                          cout << "Right " << rightOperand<< " ";
+                                                                                          cout << " RightType "<< rightType<<" ";
+                                                                                          cout << "Left " << leftOperand<<"  ";
+                                                                                          cout << " LefType "<< leftType<<endl;
+
+                                                                              }
+
+                                                                        
+
+                                                                  }
 
                                                                   }
                                                             } 
@@ -321,7 +361,45 @@ expression_1 : AND {stackOperator.push(AND_);} expression_2
              |
              ;
 
-expression_2 : NOT {stackOperator.push(NOT_);} relation
+expression_2 : NOT {stackOperator.push(NOT_);} relation{
+                                                            if(stackOperator.empty() == false){
+                                                                  if(stackOperator.top() == NOT_){
+                                                                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
+                                                                                    int rightOperand = stackOperand.top();
+                                                                                    Type rightType = memFrame->getType(rightOperand);
+                                                                                    stackOperand.pop();
+                                                                                   
+                                                                                    int leftOperand = 0;
+                                                                                    Type leftType = VOID_;
+
+                                                                                    Operator op = stackOperator.top();
+                                                                                    stackOperator.pop();
+
+                                                                                    Type resultType = semantics->isAllowed(rightType,leftType, op);
+                                                                              if(resultType == VOID_){
+
+                                                                                    callForTypeMismatchError("Mismatch error, cannot perform operation");
+                                                                                    
+                                                                              }else{
+                                                                                    
+                                                                                          int result = memFrame->declareValue(resultType);
+                                                                                          stackOperand.push(result);
+                                                                                          cout << "Right " << rightOperand<< " ";
+                                                                                          cout << " RightType "<< rightType<<" ";
+                                                                                          cout << "Left " << leftOperand<<"  ";
+                                                                                          cout << " LefType "<< leftType<<endl;
+
+                                                                              }
+
+                                                                        
+
+                                                                  }
+
+                                                            }
+                                                             
+
+                                                      }
              | relation
              ;
 

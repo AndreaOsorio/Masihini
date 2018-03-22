@@ -83,6 +83,17 @@ private:
         return t;
     }
 
+    //means NOT! operator
+    Type isTier5Alowed(Type rightOperand){
+
+        Type t = VOID_;
+
+        if(rightOperand == BOOLEAN_ ) return BOOLEAN_;
+
+
+        return t;
+    }
+
 
     
     
@@ -106,6 +117,7 @@ public:
             case EE_ : p = isTier3Alowed(rightOperand, leftOperand);  break;
             case AND_: p = isTier4Alowed(rightOperand, leftOperand);  break;
             case OR_ : p = isTier4Alowed(rightOperand, leftOperand);  break;
+            case NOT_: p = isTier5Alowed(rightOperand);  break;
         }
 
 
