@@ -72,7 +72,7 @@ private:
         return t;
     }
 
-    //This means boolean operations
+    //This means AND OR operations
     Type isTier4Alowed(Type rightOperand, Type leftOperand){
 
         Type t = VOID_;
@@ -104,6 +104,8 @@ public:
             case LE_ : p = isTier3Alowed(rightOperand, leftOperand);  break;
             case GE_ : p = isTier3Alowed(rightOperand, leftOperand);  break;
             case EE_ : p = isTier3Alowed(rightOperand, leftOperand);  break;
+            case AND_: p = isTier4Alowed(rightOperand, leftOperand);  break;
+            case OR_ : p = isTier4Alowed(rightOperand, leftOperand);  break;
         }
 
 

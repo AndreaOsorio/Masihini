@@ -22,7 +22,10 @@ enum Operator
     LT_,
     LE_,
     GE_,
-    EE_
+    EE_,
+    NOT_,
+    AND_,
+    OR_
 };
 
 enum DeclarationState
