@@ -274,13 +274,14 @@ exp : term  {
                               Operator op = stackOperator.top();
                               stackOperator.pop();
 
-                             if(semantics->isAllowed(rightType,leftType, op)== VOID_){
+                              Type resultType = semantics->isAllowed(rightType,leftType, op);
+                             if(resultType == VOID_){
 
                                    callForTypeMismatchError("Mismatch error, cannot perform operation");
                                    
                              }else{
                               
-                                    int result = memFrame->declareValue(INTEGER_);
+                                    int result = memFrame->declareValue(resultType);
                                     stackOperand.push(result);
                                     cout << "Right " << rightOperand<< " ";
                                     cout << " RightType "<< rightType<<" ";
@@ -305,7 +306,46 @@ exp_1 : ADD {stackOperator.push(ADD_);} exp
       |
       ;
 
-term  : factor term_1
+term  : factor {
+
+                  if(stackOperator.empty() == false){
+                        if(stackOperator.top() == MULT_ || stackOperator.top() == DIV_  ){
+                              MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
+                              int rightOperand = stackOperand.top();
+                              Type rightType = memFrame->getType(rightOperand);
+                              stackOperand.pop();
+                              int leftOperand = stackOperand.top();
+                              Type leftType = memFrame->getType(leftOperand);
+                              stackOperand.pop();
+                              Operator op = stackOperator.top();
+                              stackOperator.pop();
+
+                              Type resultType = semantics->isAllowed(rightType,leftType, op);
+                             if(resultType == VOID_){
+
+                                   callForTypeMismatchError("Mismatch error, cannot perform operation");
+                                   
+                             }else{
+                              
+                                    int result = memFrame->declareValue(resultType);
+                                    stackOperand.push(result);
+                                    cout << "Right " << rightOperand<< " ";
+                                    cout << " RightType "<< rightType<<" ";
+                                    cout << "Left " << leftOperand<<"  ";
+                                    cout << " LefType "<< leftType<<endl;
+
+                             }
+
+                        }
+
+                  }
+
+
+                 
+
+            } 
+            term_1
       ;
 
 term_1 : MULT {stackOperator.push(MULT_);} term
