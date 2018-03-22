@@ -12,11 +12,12 @@ enum Type
     VOID_
 };
 
-enum Operand
+enum Operator
 {
     ADD_,
     SUBS_,
-    MULT_
+    MULT_,
+    DIV_
 };
 
 enum DeclarationState

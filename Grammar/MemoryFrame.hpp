@@ -10,7 +10,7 @@ using namespace std;
 class MemoryFrame{
     private:
     MemoryDispatcher <int>* integerMemoryDispatcher = new MemoryDispatcher<int>(0, 1999); //from 0 to 1999 are integers
-    MemoryDispatcher <float>* floatMemoryDispatcher = new MemoryDispatcher<float>(2000,1999); //from 2001 to 3999 are float
+    MemoryDispatcher <float>* floatMemoryDispatcher = new MemoryDispatcher<float>(2000,1999); //from 200 to 3999 are float
     MemoryDispatcher <std::string>* stringMemoryDispatcher = new MemoryDispatcher<string>(4000, 1999); //from 4000 to 5999 are string
     MemoryDispatcher <bool>* booleanMemoryDispatcher = new MemoryDispatcher<bool> (6000,2000);//from 6000 to 8000 are boolean
  
@@ -60,6 +60,22 @@ class MemoryFrame{
         }
 
     }
+
+//Get type from memory dir
+
+Type getType(int memDir){
+
+
+    if(memDir >=0 && memDir <=1999) return INTEGER_;
+    if(memDir >=2000 && memDir <=3999) return FLOAT_;
+    if(memDir >=4000 && memDir <=5999) return STRING_;
+    if(memDir >=6000 && memDir <=8000) return BOOLEAN_;
+    
+    return VOID_;
+
+
+}
+
 //Get value from memory  direction    
     template <typename T>
     inline T getValue(int memDir, Type type){
@@ -73,6 +89,8 @@ class MemoryFrame{
 
         }
     }
+
+
 
 
     ~MemoryFrame(){

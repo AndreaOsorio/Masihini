@@ -34,13 +34,6 @@ class MemoryDispatcher{
         return memDir;
     }
 
-    int declare(T value){
-        mem[memCounter] = value;
-        int memDir = memCounter;
-        memCounter++;
-        return memDir;
-    }
-
     T getValue(int memDir){
         return mem[memDir];
     }

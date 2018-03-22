@@ -7,6 +7,7 @@
     #include <stack>
     #include "FuncDir.hpp"
     #include "MemoryFrame.hpp"
+    #include "SemanticRuleSet.hpp"
 
     using namespace std;
 
@@ -21,6 +22,7 @@
     void callForLocalRedefinitionError(string message);
     void callForGlobalRedefinitionError(string message);
     void callForNonDeclaredVariableError(string message);
+    void callForTypeMismatchError(string message);
 
       //Parameters used to store values in Func Directory
       DeclarationState declarationState = GLOBAL_;
@@ -35,8 +37,11 @@
 
       //Stack used for Code Generation
 
-      stack <int> stackOperator;
-      stack <Operand> stackOperand;
+      stack <int> stackOperand;
+      stack <Operator> stackOperator;
+
+      //Set of global semantic considerations
+      SemanticRuleSet *semantics ;
       
 
 %}
@@ -254,19 +259,57 @@ relation_1  : RELOP exp
               ;
 
 
-exp : term exp_1
+exp : term  {
+
+                  if(stackOperator.empty() == false){
+                        if(stackOperator.top() == ADD_ || stackOperator.top() == SUBS_  ){
+                              MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
+                              int rightOperand = stackOperand.top();
+                              Type rightType = memFrame->getType(rightOperand);
+                              stackOperand.pop();
+                              int leftOperand = stackOperand.top();
+                              Type leftType = memFrame->getType(leftOperand);
+                              stackOperand.pop();
+                              Operator op = stackOperator.top();
+                              stackOperator.pop();
+
+                             if(semantics->isAllowed(rightType,leftType, op)== VOID_){
+
+                                   callForTypeMismatchError("Mismatch error, cannot perform operation");
+                                   
+                             }else{
+                              
+                                    int result = memFrame->declareValue(INTEGER_);
+                                    stackOperand.push(result);
+                                    cout << "Right " << rightOperand<< " ";
+                                    cout << " RightType "<< rightType<<" ";
+                                    cout << "Left " << leftOperand<<"  ";
+                                    cout << " LefType "<< leftType<<endl;
+
+                             }
+
+                        }
+
+                  }
+
+
+                 
+
+            } 
+      exp_1
     ;
 
-exp_1 : ADD exp
-      | SUBS exp
+exp_1 : ADD {stackOperator.push(ADD_);} exp
+      | SUBS {stackOperator.push(SUBS_);} exp
       |
       ;
 
 term  : factor term_1
       ;
 
-term_1 : MULT term
-       | DIV term
+term_1 : MULT {stackOperator.push(MULT_);} term
+       | DIV {stackOperator.push(DIV_);} term
        |
        ;
 
@@ -291,32 +334,32 @@ var_cte : func_call
                         }
                   }
 
-                  stackOperator.push(memDir);
+                  stackOperand.push(memDir);
 
              } array
         | INT     {
                         MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
                         int memDir = memFrame->registerValue($1);
 
-                        stackOperator.push(memDir);
+                        stackOperand.push(memDir);
                   }
         | FLOAT  {
                         MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
                         int memDir = memFrame->registerValue($1);
 
-                        stackOperator.push(memDir);
+                        stackOperand.push(memDir);
                   }
         | STRING {
                         MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
                         int memDir = memFrame->registerValue($1);
 
-                        stackOperator.push(memDir);
+                        stackOperand.push(memDir);
                   }
         | BOOLEAN {
                         MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
                         int memDir = memFrame->registerValue($1);
 
-                        stackOperator.push(memDir);
+                        stackOperand.push(memDir);
                   }
         ;
 
@@ -334,6 +377,13 @@ type :  TYPE_STRING     {currentDeclaredtype = STRING_;}
 
 %%
 
+
+void callForTypeMismatchError(string message){
+      if(!message.empty()){
+            cout<<yylineno<<" ERROR: "<<message << endl;
+            exit (0);
+      }
+}
 
 void callForNonDeclaredVariableError(string message){
       if(!message.empty()){
