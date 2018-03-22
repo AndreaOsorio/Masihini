@@ -17,7 +17,12 @@ enum Operator
     ADD_,
     SUBS_,
     MULT_,
-    DIV_
+    DIV_,
+    GT_,
+    LT_,
+    LE_,
+    GE_,
+    EE_
 };
 
 enum DeclarationState

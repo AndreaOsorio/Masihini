@@ -95,10 +95,15 @@ public:
         Type p = VOID_;
 
         switch (op){
-            case MULT_: p = isTier0Alowed(rightOperand, leftOperand);  break;
+            case MULT_: p = isTier0Alowed(rightOperand, leftOperand); break;
             case DIV_: p = isTier0Alowed(rightOperand, leftOperand);  break;
             case ADD_: p = isTier1Alowed(rightOperand, leftOperand);  break;
-            case SUBS_: p = isTier1Alowed(rightOperand, leftOperand);  break;
+            case SUBS_: p = isTier2Alowed(rightOperand, leftOperand); break;
+            case GT_ : p = isTier3Alowed(rightOperand, leftOperand);  break;
+            case LT_ : p = isTier3Alowed(rightOperand, leftOperand);  break;
+            case LE_ : p = isTier3Alowed(rightOperand, leftOperand);  break;
+            case GE_ : p = isTier3Alowed(rightOperand, leftOperand);  break;
+            case EE_ : p = isTier3Alowed(rightOperand, leftOperand);  break;
         }
 
 

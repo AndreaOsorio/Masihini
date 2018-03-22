@@ -14,8 +14,8 @@ linefeed           \n
 
 %%
 "local"                     { return LOCAL; }
-"true" |                    
-"false"                     { return BOOLEAN; }
+"true"                      {return TRUE;}
+"false"                     {return FALSE;}
 "if"                        { return IF; }
 "else"                      { return ELSE; }
 "while"                     { return WHILE; }
@@ -56,11 +56,11 @@ linefeed           \n
 "stop"  |
 "rot"                       { return SYSTEM_PREFIX; }
 
-">" |
-"<" |
-"<=" |
-">=" |
-"=="                        { return RELOP; }
+">"                        {return GT;}
+"<"                        {return LT;}
+"<="                       {return LE;}
+">="                       {return GE;}
+"=="                       { return EE; }
 
 {float_num}                 { yylval.floatValue = atof(yytext); return FLOAT; }
 {int_num}                   { yylval.intValue = atoi(yytext); return INT; }

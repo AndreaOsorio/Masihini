@@ -10,7 +10,7 @@ func void myFunc (myVar10 : string, myvar12 : float)
 
 {
 
-    myVar = 10 - 10.0 + 10.5  ;
+    myVar =   ;
 
 
 }

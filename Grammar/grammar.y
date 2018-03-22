@@ -53,7 +53,6 @@
     int intValue;
     float floatValue;
     char *stringValue;
-    bool booleanValue;
 }
 
 
@@ -63,7 +62,6 @@
 %token <intValue>     INT
 %token <stringValue>  ID
 %token <stringValue>  STRING
-%token <booleanValue> BOOLEAN
 %token TRUE
 %token FALSE
 %token IF
@@ -86,7 +84,11 @@
 %token MULT
 %token DIV
 %token EQ
-%token RELOP
+%token GT
+%token LT
+%token LE
+%token GE
+%token EE
 %token AND
 %token OR
 %token NOT
@@ -251,12 +253,54 @@ expression_2 : NOT relation
              | relation
              ;
 
-relation : exp relation_1
+relation : exp relation_1 {
+
+                  if(stackOperator.empty() == false){
+                        if(stackOperator.top() == GT_ || stackOperator.top() == LT_ ||stackOperator.top() == LE_ || stackOperator.top() == GE_ || stackOperator.top() == EE_ ){
+                              MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
+                              int rightOperand = stackOperand.top();
+                              Type rightType = memFrame->getType(rightOperand);
+                              stackOperand.pop();
+                              int leftOperand = stackOperand.top();
+                              Type leftType = memFrame->getType(leftOperand);
+                              stackOperand.pop();
+                              Operator op = stackOperator.top();
+                              stackOperator.pop();
+
+                              Type resultType = semantics->isAllowed(rightType,leftType, op);
+                             if(resultType == VOID_){
+
+                                   callForTypeMismatchError("Mismatch error, cannot perform operation");
+                                   
+                             }else{
+                              
+                                    int result = memFrame->declareValue(resultType);
+                                    stackOperand.push(result);
+                                    cout << "Right " << rightOperand<< " ";
+                                    cout << " RightType "<< rightType<<" ";
+                                    cout << "Left " << leftOperand<<"  ";
+                                    cout << " LefType "<< leftType<<endl;
+
+                             }
+
+                        }
+
+                  }
+
+
+                 
+
+            } 
            ;
 
-relation_1  : RELOP exp
-              |
-              ;
+relation_1  : GT {stackOperator.push(GT_);} exp
+            | LT {stackOperator.push(LT_);} exp
+            | LE {stackOperator.push(LE_);} exp
+            | GE {stackOperator.push(GE_);} exp
+            | EE {stackOperator.push(EE_);} exp
+            |
+            ;
 
 
 exp : term  {
@@ -395,9 +439,15 @@ var_cte : func_call
 
                         stackOperand.push(memDir);
                   }
-        | BOOLEAN {
+        | TRUE    {
                         MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
-                        int memDir = memFrame->registerValue($1);
+                        int memDir = memFrame->registerValue(true);
+
+                        stackOperand.push(memDir);
+                  }
+        | FALSE  {
+                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+                        int memDir = memFrame->registerValue(false);
 
                         stackOperand.push(memDir);
                   }
