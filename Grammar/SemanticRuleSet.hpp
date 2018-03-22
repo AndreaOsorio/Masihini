@@ -94,6 +94,17 @@ private:
         return t;
     }
 
+    //means the EQ operator
+    Type isTier6Alowed(Type rightOperand, Type leftOperand){
+
+        Type t = VOID_;
+
+        if(rightOperand == leftOperand) return rightOperand;
+
+
+        return t;
+    }
+
 
     
     
@@ -118,6 +129,7 @@ public:
             case AND_: p = isTier4Alowed(rightOperand, leftOperand);  break;
             case OR_ : p = isTier4Alowed(rightOperand, leftOperand);  break;
             case NOT_: p = isTier5Alowed(rightOperand);  break;
+            case EQ_ : p = isTier6Alowed(rightOperand, leftOperand);  break;
         }
 
 

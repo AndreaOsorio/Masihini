@@ -25,7 +25,8 @@ enum Operator
     EE_,
     NOT_,
     AND_,
-    OR_
+    OR_,
+    EQ_
 };
 
 enum DeclarationState

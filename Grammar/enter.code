@@ -6,11 +6,11 @@ func void myFunc (myVar10 : string, myvar12 : float)
 
     var a:int;
     var b:int;
-    var c:int;
+    var c:string;
 
 {
 
-    myVar = !10>20 & !20>10 ;
+    c = "hola" + "Hola";
 
 
 }

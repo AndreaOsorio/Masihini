@@ -209,10 +209,61 @@ statement : assignment
           | system_func
           ;
 
-assignment : ID array EQ expression /* Aqui va Expression */SEMICOLON
+assignment : ID {
+                  VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
+                  int memDir = symbolTable->search($1);
+                  if(memDir == -1){
+                        memDir = globalSymbolTable->search($1);
+                        if(memDir==-1){
+                              string id ($1);
+                              callForNonDeclaredVariableError("Variable \"" +id+ "\" has not been declared");
+                        }
+                  }
+
+                  stackOperand.push(memDir);
+
+             } array EQ {stackOperator.push(EQ_);} expression{
+                                                            if(stackOperator.empty() == false){
+                                                                  if(stackOperator.top() == EQ_){
+                                                                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
+                                                                                   int rightOperand = stackOperand.top();
+                                                                                    Type rightType = memFrame->getType(rightOperand);
+                                                                                    stackOperand.pop();
+                                                                                    int leftOperand = stackOperand.top();
+                                                                                    Type leftType = memFrame->getType(leftOperand);
+                                                                                    stackOperand.pop();
+                                                                                    Operator op = stackOperator.top();
+                                                                                    stackOperator.pop();
+
+                                                                                    Type resultType = semantics->isAllowed(rightType,leftType, op);
+                                                                              if(resultType == VOID_){
+
+                                                                                    callForTypeMismatchError("Mismatch error, cannot perform operation");
+                                                                                    
+                                                                              }else{
+                                                                                    
+                                                                                          int result = memFrame->declareValue(resultType);
+                                                                                          stackOperand.push(result);
+                                                                                          cout << "Right " << rightOperand<< " ";
+                                                                                          cout << " RightType "<< rightType<<" ";
+                                                                                          cout << "Left " << leftOperand<<"  ";
+                                                                                          cout << " LefType "<< leftType<<endl;
+
+                                                                              }
+                                                                        
+
+                                                                  }
+
+                                                            }
+                                                             
+
+                                                      }
+             
+              SEMICOLON
            ;
 
-condition : IF L_PARENTHESIS expression /* Aqui va Expression */ R_PARENTHESIS block condition_1
+condition : IF L_PARENTHESIS expression  R_PARENTHESIS block condition_1
           ;
 
 condition_1 : ELSE block
@@ -221,11 +272,11 @@ condition_1 : ELSE block
 
 func_call : ID L_PARENTHESIS func_call_1 R_PARENTHESIS
           ;
-func_call_1 :  expression /* Aqui va Expression */  func_call_2
+func_call_1 :  expression func_call_2
             |
             ;
 
-func_call_2 : COMMA expression /* Aqui va Expression */  func_call_2
+func_call_2 : COMMA expression func_call_2
             |
             ;
 
@@ -585,8 +636,8 @@ var_cte : func_call
                   }
         | STRING {
                         MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
-                        int memDir = memFrame->registerValue($1);
-
+                        string literal($1);
+                        int memDir = memFrame->registerValue(literal);
                         stackOperand.push(memDir);
                   }
         | TRUE    {
