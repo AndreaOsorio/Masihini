@@ -4,7 +4,11 @@ static var myVar4: boolean;
 
 func void myFunc (myVar10 : string, myvar12 : float)
 
+    var a:int;
+
 {
+
+    myVar = a + a;
 
 
 }

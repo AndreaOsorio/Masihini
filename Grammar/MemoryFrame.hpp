@@ -50,6 +50,7 @@ class MemoryFrame{
 
         switch(type){
 
+            //set default values for a new variable
             case INTEGER_ : return integerMemoryDispatcher->insert(0);
             case FLOAT_ : return floatMemoryDispatcher->insert(0.0f); 
             case STRING_ : return stringMemoryDispatcher->insert("");

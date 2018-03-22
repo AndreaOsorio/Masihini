@@ -4,6 +4,7 @@
     #include <stdlib.h>
     #include <string>
     #include <iostream>
+    #include <stack>
     #include "FuncDir.hpp"
     #include "MemoryFrame.hpp"
 
@@ -19,6 +20,7 @@
 
     void callForLocalRedefinitionError(string message);
     void callForGlobalRedefinitionError(string message);
+    void callForNonDeclaredVariableError(string message);
 
       //Parameters used to store values in Func Directory
       DeclarationState declarationState = GLOBAL_;
@@ -30,7 +32,12 @@
       //Parameters used to assign memory to items;
 
       MemoryFrame *globalMemoryFrame = new MemoryFrame();
-      MemoryFrame *currenMemoryFrame;
+
+      //Stack used for Code Generation
+
+      stack <int> stackOperator;
+      stack <Operand> stackOperand;
+      
 
 %}
 
@@ -106,11 +113,14 @@ global_declaration : STATIC declaration global_declaration  {
 
 declaration : VAR ID COLON type array SEMICOLON { 
                                                       if(declarationState == GLOBAL_){
-                                                           callForLocalRedefinitionError(globalSymbolTable->insertNode(new VarNode($2, currentDeclaredtype))); 
-                                                      }else{
+                                                            int memDir = globalMemoryFrame->declareValue(currentDeclaredtype);
+                                                            callForLocalRedefinitionError(globalSymbolTable->insertNode(new VarNode($2, currentDeclaredtype, memDir))); 
 
+
+                                                      }else{
+                                                            int memDir = globalMemoryFrame->declareValue(currentDeclaredtype);
                                                             VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
-                                                            callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype))); 
+                                                            callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype, memDir))); 
                                                             callForGlobalRedefinitionError(globalSymbolTable->isContained($2, currentDeclaredtype));
 
                                                       }
@@ -129,9 +139,9 @@ func : FUNC VOID {currentDeclaredtype = VOID_;}  func_0
      ;
 
 func_0 :    ID    {
-                        currentDeclaredFunction = new FuncNode($1, currentDeclaredtype, new VarTable());
+                        //Function definition
+                        currentDeclaredFunction = new FuncNode($1, currentDeclaredtype, new VarTable(), new MemoryFrame());
                         callForLocalRedefinitionError(functionDirectory->insertNode(currentDeclaredFunction));
-                        callForGlobalRedefinitionError(globalSymbolTable->isContained($1, currentDeclaredtype));
                   }
 
 
@@ -139,8 +149,9 @@ func_0 :    ID    {
        ;
 
 func_1 : ID COLON type {
+                              int memDir = globalMemoryFrame->declareValue(currentDeclaredtype);
                               VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
-                             callForLocalRedefinitionError( symbolTable->insertNode(new VarNode($1, currentDeclaredtype))); 
+                              callForLocalRedefinitionError( symbolTable->insertNode(new VarNode($1, currentDeclaredtype,memDir))); 
                               callForGlobalRedefinitionError(globalSymbolTable->isContained($1, currentDeclaredtype));
                               
                         } 
@@ -151,8 +162,9 @@ func_1 : ID COLON type {
        ;
 
 func_2 : COMMA ID COLON type {
+                                    int memDir = globalMemoryFrame->declareValue(currentDeclaredtype);
                                     VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
-                                    callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype))); 
+                                    callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype,memDir))); 
                                     
                               } 
       func_2 
@@ -164,7 +176,7 @@ local_declaration : declaration local_declaration
                   ;
 
 run : STATIC FUNC VOID RUN L_PARENTHESIS R_PARENTHESIS      {
-                                                                  currentDeclaredFunction = new FuncNode("run", VOID_, new VarTable());
+                                                                  currentDeclaredFunction = new FuncNode("run", VOID_, new VarTable(), new MemoryFrame());
                                                                   callForLocalRedefinitionError(functionDirectory->insertNode(currentDeclaredFunction));
 
                                                             } 
@@ -268,11 +280,44 @@ factor_1 : ADD
          ;
 
 var_cte : func_call
-        | ID array
-        | INT 
-        | FLOAT 
-        | STRING
-        | BOOLEAN
+        | ID {
+                  VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
+                  int memDir = symbolTable->search($1);
+                  if(memDir == -1){
+                        memDir = globalSymbolTable->search($1);
+                        if(memDir==-1){
+                              string id ($1);
+                              callForNonDeclaredVariableError("Variable \"" +id+ "\" has not been declared");
+                        }
+                  }
+
+                  stackOperator.push(memDir);
+
+             } array
+        | INT     {
+                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+                        int memDir = memFrame->registerValue($1);
+
+                        stackOperator.push(memDir);
+                  }
+        | FLOAT  {
+                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+                        int memDir = memFrame->registerValue($1);
+
+                        stackOperator.push(memDir);
+                  }
+        | STRING {
+                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+                        int memDir = memFrame->registerValue($1);
+
+                        stackOperator.push(memDir);
+                  }
+        | BOOLEAN {
+                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+                        int memDir = memFrame->registerValue($1);
+
+                        stackOperator.push(memDir);
+                  }
         ;
 
 
@@ -290,6 +335,12 @@ type :  TYPE_STRING     {currentDeclaredtype = STRING_;}
 %%
 
 
+void callForNonDeclaredVariableError(string message){
+      if(!message.empty()){
+            cout<<yylineno<<" ERROR: "<<message << endl;
+            exit (0);
+      }
+}
 
 
 void callForLocalRedefinitionError(string message){

@@ -13,6 +13,7 @@
 #include <string>
 #include "Type.hpp"
 #include "VarTable.hpp"
+#include "MemoryFrame.hpp"
 
 
 
@@ -25,15 +26,17 @@ private:
     string id;
     Type type;
     VarTable *symbolTable;
+    MemoryFrame *memoryFrame;
     
     
     
 public:
-    FuncNode( string identifier, Type dataType, VarTable* symbTable){
+    FuncNode( string identifier, Type dataType, VarTable* symbTable, MemoryFrame* memFrame){
         
         id = identifier;
         type = dataType;
         symbolTable = symbTable;
+        memoryFrame = memFrame;
         
     }
     
@@ -43,6 +46,10 @@ public:
 
     VarTable* getSymbolTable(){
         return symbolTable;
+    }
+
+    MemoryFrame* getMemoryFrame(){
+        return memoryFrame;
     }
     
 };

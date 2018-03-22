@@ -32,6 +32,7 @@ class VarNode{
         
         id = identifier;
         type = dataType;
+        memDir = -1;
         
     }
 
@@ -45,6 +46,10 @@ class VarNode{
     
     string getId() const{
         return id;
+    }
+
+    int getMemDir() const{
+        return memDir;
     }
 
 };

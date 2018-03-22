@@ -12,6 +12,13 @@ enum Type
     VOID_
 };
 
+enum Operand
+{
+    ADD_,
+    SUBS_,
+    MULT_
+};
+
 enum DeclarationState
 {
     GLOBAL_,

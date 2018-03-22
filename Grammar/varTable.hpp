@@ -21,6 +21,13 @@ class VarTable{
     private:
 
     unordered_set<VarNode, VarNodeHasher, VarNodeComparator> varTable;
+
+    bool isContainedInTable(string id)
+    {
+        VarNode elem (id, VOID_);
+        const bool result = varTable.find(elem) != varTable.end();
+        return result;
+    }
     
     
     public:
@@ -52,6 +59,20 @@ class VarTable{
             message = "Refedinition of global variable \"" + id + "\" ";
         }
         return message;
+    }
+
+    int search(string id){
+
+        if(isContainedInTable(id)){
+            VarNode elem (id, VOID_);
+            auto it = varTable.find(elem);
+
+            return it->getMemDir();
+
+        }
+
+        return -1;
+
     }
     
 
