@@ -15,6 +15,10 @@
     void yyerror (char const *);
     extern int yylineno;
 
+    //Semantic functions
+    void performSemantics();
+    void performSemanticsNot();
+    void manageMemoryVarCte(Type type, char value);
 
 
     //Functions that handle errors
@@ -111,29 +115,21 @@
 /* Grammar Rules */
 
 
-global_declaration : STATIC declaration global_declaration  {
-                                                                 declarationState = GLOBAL_;
-                                                                
-                                                            }
+global_declaration : STATIC declaration global_declaration  {declarationState = GLOBAL_;}
                     |  func_declaration
                     ;
 
-declaration : VAR ID COLON type array SEMICOLON { 
+declaration : VAR ID COLON type array SEMICOLON 
+                                                { 
                                                       if(declarationState == GLOBAL_){
                                                             int memDir = globalMemoryFrame->declareValue(currentDeclaredtype);
                                                             callForLocalRedefinitionError(globalSymbolTable->insertNode(new VarNode($2, currentDeclaredtype, memDir))); 
-
-
                                                       }else{
                                                             int memDir = globalMemoryFrame->declareValue(currentDeclaredtype);
                                                             VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
                                                             callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype, memDir))); 
                                                             callForGlobalRedefinitionError(globalSymbolTable->isContained($2, currentDeclaredtype));
-
                                                       }
-                                                      
-                                                      
-
                                                 }
             ;
 
@@ -160,19 +156,15 @@ func_1 : ID COLON type {
                               VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
                               callForLocalRedefinitionError( symbolTable->insertNode(new VarNode($1, currentDeclaredtype,memDir))); 
                               callForGlobalRedefinitionError(globalSymbolTable->isContained($1, currentDeclaredtype));
-                              
-                        } 
-         
-         
-      func_2 
+                        }
+         func_2 
        |
        ;
 
 func_2 : COMMA ID COLON type {
                                     int memDir = globalMemoryFrame->declareValue(currentDeclaredtype);
                                     VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
-                                    callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype,memDir))); 
-                                    
+                                    callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype,memDir)));   
                               } 
       func_2 
        |
@@ -185,7 +177,6 @@ local_declaration : declaration local_declaration
 run : STATIC FUNC VOID RUN L_PARENTHESIS R_PARENTHESIS      {
                                                                   currentDeclaredFunction = new FuncNode("run", VOID_, new VarTable(), new MemoryFrame());
                                                                   callForLocalRedefinitionError(functionDirectory->insertNode(currentDeclaredFunction));
-
                                                             } 
       local_declaration
     ;
@@ -197,7 +188,7 @@ block_1 : statement block_1
         | block_2
         ;
 
-block_2 : RETURN expression /* Aqui va Expression */ SEMICOLON block_2
+block_2 : RETURN expression SEMICOLON block_2
         | R_BRACE
         ;
 
@@ -209,61 +200,31 @@ statement : assignment
           | system_func
           ;
 
-assignment : ID {
-                  VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
-                  int memDir = symbolTable->search($1);
-                  if(memDir == -1){
-                        memDir = globalSymbolTable->search($1);
-                        if(memDir==-1){
-                              string id ($1);
-                              callForNonDeclaredVariableError("Variable \"" +id+ "\" has not been declared");
+assignment : ID 
+                  {
+                        VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
+                        int memDir = symbolTable->search($1);
+                        if(memDir == -1){
+                              memDir = globalSymbolTable->search($1);
+                              if(memDir==-1){
+                                    string id ($1);
+                                    callForNonDeclaredVariableError("Variable \"" +id+ "\" has not been declared");
+                              }
                         }
-                  }
-
-                  stackOperand.push(memDir);
-
-             } array EQ {stackOperator.push(EQ_);} expression{
-                                                            if(stackOperator.empty() == false){
-                                                                  if(stackOperator.top() == EQ_){
-                                                                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
-
-                                                                                   int rightOperand = stackOperand.top();
-                                                                                    Type rightType = memFrame->getType(rightOperand);
-                                                                                    stackOperand.pop();
-                                                                                    int leftOperand = stackOperand.top();
-                                                                                    Type leftType = memFrame->getType(leftOperand);
-                                                                                    stackOperand.pop();
-                                                                                    Operator op = stackOperator.top();
-                                                                                    stackOperator.pop();
-
-                                                                                    Type resultType = semantics->isAllowed(rightType,leftType, op);
-                                                                              if(resultType == VOID_){
-
-                                                                                    callForTypeMismatchError("Mismatch error, cannot perform operation");
-                                                                                    
-                                                                              }else{
-                                                                                    
-                                                                                          int result = memFrame->declareValue(resultType);
-                                                                                          stackOperand.push(result);
-                                                                                          cout << "Right " << rightOperand<< " ";
-                                                                                          cout << " RightType "<< rightType<<" ";
-                                                                                          cout << "Left " << leftOperand<<"  ";
-                                                                                          cout << " LefType "<< leftType<<endl;
-
-                                                                              }
-                                                                        
-
+                        stackOperand.push(memDir);
+                  } 
+             array EQ {stackOperator.push(EQ_);} expression
+                                                            {
+                                                                  if(stackOperator.empty() == false){
+                                                                        if(stackOperator.top() == EQ_){
+                                                                              performSemantics();
+                                                                        }
                                                                   }
-
-                                                            }
-                                                             
-
-                                                      }
-             
-              SEMICOLON
+                                                             }
+             SEMICOLON
            ;
 
-condition : IF L_PARENTHESIS expression  R_PARENTHESIS block condition_1
+condition : IF L_PARENTHESIS expression R_PARENTHESIS block condition_1
           ;
 
 condition_1 : ELSE block
@@ -291,118 +252,22 @@ cycle : WHILE L_PARENTHESIS expression R_PARENTHESIS block
       ;
 
 
-expression : NOT {stackOperator.push(NOT_);} relation{
-                                                            if(stackOperator.empty() == false){
-                                                                  if(stackOperator.top() == NOT_){
-                                                                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+expression : NOT {stackOperator.push(NOT_);} relation {performSemanticsNot();}
+             expression_1
+                        {
+                              if(stackOperator.empty() == false){
+                                    if(stackOperator.top() == AND_ || stackOperator.top() == OR_){
+                                          performSemantics();
+                                    }
+                              }
+                        } 
 
-                                                                                    int rightOperand = stackOperand.top();
-                                                                                    Type rightType = memFrame->getType(rightOperand);
-                                                                                    stackOperand.pop();
-                                                                                   
-                                                                                    int leftOperand = 0;
-                                                                                    Type leftType = VOID_;
-
-                                                                                    Operator op = stackOperator.top();
-                                                                                    stackOperator.pop();
-
-                                                                                    Type resultType = semantics->isAllowed(rightType,leftType, op);
-                                                                              if(resultType == VOID_){
-
-                                                                                    callForTypeMismatchError("Mismatch error, cannot perform operation");
-                                                                                    
-                                                                              }else{
-                                                                                    
-                                                                                          int result = memFrame->declareValue(resultType);
-                                                                                          stackOperand.push(result);
-                                                                                          cout << "Right " << rightOperand<< " ";
-                                                                                          cout << " RightType "<< rightType<<" ";
-                                                                                          cout << "Left " << leftOperand<<"  ";
-                                                                                          cout << " LefType "<< leftType<<endl;
-
-                                                                              }
-
-                                                                        
-
-                                                                  }
-
-                                                            }
-                                                             
-
-                                                      }
-
-                                            expression_1{
-
-                                                            if(stackOperator.empty() == false){
-                                                                  if(stackOperator.top() == AND_ || stackOperator.top() == OR_){
-                                                                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
-
-                                                                                    int rightOperand = stackOperand.top();
-                                                                                    Type rightType = memFrame->getType(rightOperand);
-                                                                                    stackOperand.pop();
-                                                                                    int leftOperand = stackOperand.top();
-                                                                                    Type leftType = memFrame->getType(leftOperand);
-                                                                                    stackOperand.pop();
-                                                                                    Operator op = stackOperator.top();
-                                                                                    stackOperator.pop();
-
-                                                                                    Type resultType = semantics->isAllowed(rightType,leftType, op);
-                                                                              if(resultType == VOID_){
-
-                                                                                    callForTypeMismatchError("Mismatch error, cannot perform operation");
-                                                                                    
-                                                                              }else{
-                                                                                    
-                                                                                          int result = memFrame->declareValue(resultType);
-                                                                                          stackOperand.push(result);
-                                                                                          cout << "Right " << rightOperand<< " ";
-                                                                                          cout << " RightType "<< rightType<<" ";
-                                                                                          cout << "Left " << leftOperand<<"  ";
-                                                                                          cout << " LefType "<< leftType<<endl;
-
-                                                                              }
-
-                                                                        
-
-                                                                  }
-
-                                                            }
-                                                      } 
-           | relation expression_1 {
-
-                                    if(stackOperator.empty() == false){
-                                          if(stackOperator.top() == AND_ || stackOperator.top() == OR_){
-                                                MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
-
-                                                            int rightOperand = stackOperand.top();
-                                                            Type rightType = memFrame->getType(rightOperand);
-                                                            stackOperand.pop();
-                                                            int leftOperand = stackOperand.top();
-                                                            Type leftType = memFrame->getType(leftOperand);
-                                                            stackOperand.pop();
-                                                            Operator op = stackOperator.top();
-                                                            stackOperator.pop();
-
-                                                            Type resultType = semantics->isAllowed(rightType,leftType, op);
-                                                      if(resultType == VOID_){
-
-                                                            callForTypeMismatchError("Mismatch error, cannot perform operation");
-                                                            
-                                                      }else{
-                                                            
-                                                                  int result = memFrame->declareValue(resultType);
-                                                                  stackOperand.push(result);
-                                                                  cout << "Right " << rightOperand<< " ";
-                                                                  cout << " RightType "<< rightType<<" ";
-                                                                  cout << "Left " << leftOperand<<"  ";
-                                                                  cout << " LefType "<< leftType<<endl;
-
-                                                      }
-
-                                                
-
-                                          }
-
+           | relation expression_1 
+                        {
+                              if(stackOperator.empty() == false){
+                                    if(stackOperator.top() == AND_ || stackOperator.top() == OR_){
+                                          performSemantics();
+                                    }
                               }
                         } 
            ;
@@ -412,86 +277,17 @@ expression_1 : AND {stackOperator.push(AND_);} expression_2
              |
              ;
 
-expression_2 : NOT {stackOperator.push(NOT_);} relation{
-                                                            if(stackOperator.empty() == false){
-                                                                  if(stackOperator.top() == NOT_){
-                                                                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
-
-                                                                                    int rightOperand = stackOperand.top();
-                                                                                    Type rightType = memFrame->getType(rightOperand);
-                                                                                    stackOperand.pop();
-                                                                                   
-                                                                                    int leftOperand = 0;
-                                                                                    Type leftType = VOID_;
-
-                                                                                    Operator op = stackOperator.top();
-                                                                                    stackOperator.pop();
-
-                                                                                    Type resultType = semantics->isAllowed(rightType,leftType, op);
-                                                                              if(resultType == VOID_){
-
-                                                                                    callForTypeMismatchError("Mismatch error, cannot perform operation");
-                                                                                    
-                                                                              }else{
-                                                                                    
-                                                                                          int result = memFrame->declareValue(resultType);
-                                                                                          stackOperand.push(result);
-                                                                                          cout << "Right " << rightOperand<< " ";
-                                                                                          cout << " RightType "<< rightType<<" ";
-                                                                                          cout << "Left " << leftOperand<<"  ";
-                                                                                          cout << " LefType "<< leftType<<endl;
-
-                                                                              }
-
-                                                                        
-
-                                                                  }
-
-                                                            }
-                                                             
-
-                                                      }
+expression_2 : NOT {stackOperator.push(NOT_);} relation {performSemanticsNot();}
              | relation
              ;
 
-relation : exp relation_1 {
-
+relation : exp relation_1 
+            {
                   if(stackOperator.empty() == false){
                         if(stackOperator.top() == GT_ || stackOperator.top() == LT_ ||stackOperator.top() == LE_ || stackOperator.top() == GE_ || stackOperator.top() == EE_ ){
-                              MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
-
-                              int rightOperand = stackOperand.top();
-                              Type rightType = memFrame->getType(rightOperand);
-                              stackOperand.pop();
-                              int leftOperand = stackOperand.top();
-                              Type leftType = memFrame->getType(leftOperand);
-                              stackOperand.pop();
-                              Operator op = stackOperator.top();
-                              stackOperator.pop();
-
-                              Type resultType = semantics->isAllowed(rightType,leftType, op);
-                             if(resultType == VOID_){
-
-                                   callForTypeMismatchError("Mismatch error, cannot perform operation");
-                                   
-                             }else{
-                              
-                                    int result = memFrame->declareValue(resultType);
-                                    stackOperand.push(result);
-                                    cout << "Right " << rightOperand<< " ";
-                                    cout << " RightType "<< rightType<<" ";
-                                    cout << "Left " << leftOperand<<"  ";
-                                    cout << " LefType "<< leftType<<endl;
-
-                             }
-
+                              performSemantics();
                         }
-
                   }
-
-
-                 
-
             } 
            ;
 
@@ -504,44 +300,13 @@ relation_1  : GT {stackOperator.push(GT_);} exp
             ;
 
 
-exp : term  {
-
+exp : term  
+            {
                   if(stackOperator.empty() == false){
-                        if(stackOperator.top() == ADD_ || stackOperator.top() == SUBS_  ){
-                              MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
-
-                              int rightOperand = stackOperand.top();
-                              Type rightType = memFrame->getType(rightOperand);
-                              stackOperand.pop();
-                              int leftOperand = stackOperand.top();
-                              Type leftType = memFrame->getType(leftOperand);
-                              stackOperand.pop();
-                              Operator op = stackOperator.top();
-                              stackOperator.pop();
-
-                              Type resultType = semantics->isAllowed(rightType,leftType, op);
-                             if(resultType == VOID_){
-
-                                   callForTypeMismatchError("Mismatch error, cannot perform operation");
-                                   
-                             }else{
-                              
-                                    int result = memFrame->declareValue(resultType);
-                                    stackOperand.push(result);
-                                    cout << "Right " << rightOperand<< " ";
-                                    cout << " RightType "<< rightType<<" ";
-                                    cout << "Left " << leftOperand<<"  ";
-                                    cout << " LefType "<< leftType<<endl;
-
-                             }
-
+                        if( stackOperator.top() == ADD_ || stackOperator.top() == SUBS_ ){
+                              performSemantics();
                         }
-
                   }
-
-
-                 
-
             } 
       exp_1
     ;
@@ -551,44 +316,13 @@ exp_1 : ADD {stackOperator.push(ADD_);} exp
       |
       ;
 
-term  : factor {
-
+term  : factor
+            {
                   if(stackOperator.empty() == false){
                         if(stackOperator.top() == MULT_ || stackOperator.top() == DIV_  ){
-                              MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
-
-                              int rightOperand = stackOperand.top();
-                              Type rightType = memFrame->getType(rightOperand);
-                              stackOperand.pop();
-                              int leftOperand = stackOperand.top();
-                              Type leftType = memFrame->getType(leftOperand);
-                              stackOperand.pop();
-                              Operator op = stackOperator.top();
-                              stackOperator.pop();
-
-                              Type resultType = semantics->isAllowed(rightType,leftType, op);
-                             if(resultType == VOID_){
-
-                                   callForTypeMismatchError("Mismatch error, cannot perform operation");
-                                   
-                             }else{
-                              
-                                    int result = memFrame->declareValue(resultType);
-                                    stackOperand.push(result);
-                                    cout << "Right " << rightOperand<< " ";
-                                    cout << " RightType "<< rightType<<" ";
-                                    cout << "Left " << leftOperand<<"  ";
-                                    cout << " LefType "<< leftType<<endl;
-
-                             }
-
+                              performSemantics();
                         }
-
                   }
-
-
-                 
-
             } 
             term_1
       ;
@@ -619,36 +353,16 @@ var_cte : func_call
                   stackOperand.push(memDir);
 
              } array
-        | INT     {
-                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
-                        int memDir = memFrame->registerValue($1);
-
-                        stackOperand.push(memDir);
-                  }
-        | FLOAT  {
-                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
-                        int memDir = memFrame->registerValue($1);
-
-                        stackOperand.push(memDir);
-                  }
-        | STRING {
-                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+        | INT     {manageMemoryVarCte(INTEGER_, $1);}
+        | FLOAT   {manageMemoryVarCte(FLOAT_, $1);}
+        | STRING  {
                         string literal($1);
+                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
                         int memDir = memFrame->registerValue(literal);
                         stackOperand.push(memDir);
                   }
-        | TRUE    {
-                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
-                        int memDir = memFrame->registerValue(true);
-
-                        stackOperand.push(memDir);
-                  }
-        | FALSE  {
-                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
-                        int memDir = memFrame->registerValue(false);
-
-                        stackOperand.push(memDir);
-                  }
+        | TRUE    {manageMemoryVarCte(BOOLEAN_, 1);}
+        | FALSE   {manageMemoryVarCte(BOOLEAN_, 0);}
         ;
 
 
@@ -665,6 +379,80 @@ type :  TYPE_STRING     {currentDeclaredtype = STRING_;}
 
 %%
 
+void performSemantics(){
+      MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
+      int rightOperand = stackOperand.top();
+      Type rightType = memFrame->getType(rightOperand);
+      stackOperand.pop();
+      
+      int leftOperand = stackOperand.top();
+      Type leftType = memFrame->getType(leftOperand);
+      stackOperand.pop();
+      
+      Operator op = stackOperator.top();
+      stackOperator.pop();
+
+      Type resultType = semantics->isAllowed(rightType,leftType, op);
+      if(resultType == VOID_){
+            callForTypeMismatchError("Mismatch error, cannot perform operation");                      
+      }else{                        
+            int result = memFrame->declareValue(resultType);
+            stackOperand.push(result);
+
+            cout << "Right " << rightOperand<< " ";
+            cout << " RightType "<< rightType<<" ";
+            cout << "Left " << leftOperand<<"  ";
+            cout << " LefType "<< leftType<<endl;
+      }
+}
+
+void performSemanticsNot(){
+      if(stackOperator.empty() == false){
+            if(stackOperator.top() == NOT_){
+                  MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
+                  int rightOperand = stackOperand.top();
+                  Type rightType = memFrame->getType(rightOperand);
+                  stackOperand.pop();
+                                                                                   
+                  int leftOperand = 0;
+                  Type leftType = VOID_;
+
+                  Operator op = stackOperator.top();
+                  stackOperator.pop();
+
+                  Type resultType = semantics->isAllowed(rightType,leftType, op);
+                  if(resultType == VOID_){
+                        callForTypeMismatchError("Mismatch error, cannot perform operation");
+                  }else{
+                        int result = memFrame->declareValue(resultType);
+                        stackOperand.push(result);
+                        
+                        cout << "Right " << rightOperand<< " ";
+                        cout << " RightType "<< rightType<<" ";
+                        cout << "Left " << leftOperand<<"  ";
+                        cout << " LefType "<< leftType<<endl;
+                  }
+            }
+      }
+}
+
+void manageMemoryVarCte(Type type, char value){
+      MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+      int memDir;
+      if(type == INTEGER_ || type == FLOAT_){
+            memDir = memFrame->registerValue(value);
+      }
+      else if(type == BOOLEAN_){
+            if(value == 1){
+                  memDir = memFrame->registerValue(true);
+            }else{
+                  memDir = memFrame->registerValue(false);
+            }
+      }
+      stackOperand.push(memDir);
+}
 
 void callForTypeMismatchError(string message){
       if(!message.empty()){

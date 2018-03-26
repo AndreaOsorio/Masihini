@@ -26,8 +26,7 @@ enum Operator
     NOT_,
     AND_,
     OR_,
-    EQ_,
-    PARENTHESIS_
+    EQ_
 };
 
 enum DeclarationState

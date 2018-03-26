@@ -9,13 +9,13 @@ func void myFunc (myVar10 : string, myvar12 : float)
 
 {
 
-
+    a = 10+20;
 
 
 }
 
-func void myFunc ()
-
+func void myFunc2 ()
+    var t:boolean;
 
 {
 
