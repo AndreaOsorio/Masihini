@@ -5,9 +5,11 @@
     #include <string>
     #include <iostream>
     #include <stack>
+    #include <vector>
     #include "Semantics/FuncDir.hpp"
     #include "Memory/MemoryFrame.hpp"
     #include "Semantics/SemanticRuleSet.hpp"
+    #include "Quadruples/Quadruple.hpp"
 
     using namespace std;
 
@@ -18,6 +20,7 @@
     //Semantic functions
     void performSemantics();
     void performSemanticsNot();
+    void performSemanticsAssignment();
     void manageMemoryVarCte(Type type, char value);
 
 
@@ -46,6 +49,12 @@
 
       //Set of global semantic considerations
       SemanticRuleSet *semantics ;
+
+      //Global Quadruple Vector
+
+      vector<Quadruple*> quadupleSet;
+
+      
       
 
 %}
@@ -215,10 +224,10 @@ assignment : ID
                   } 
              array EQ {stackOperator.push(EQ_);} expression
                                                             {
-                                                                  if(stackOperator.empty() == false){
-                                                                        if(stackOperator.top() == EQ_){
-                                                                              performSemantics();
-                                                                        }
+                                                                  if(stackOperator.empty() == false && stackOperator.top() == EQ_ ){
+                                                                        
+                                                                        performSemanticsAssignment();
+                                                                        
                                                                   }
                                                              }
              SEMICOLON
@@ -255,19 +264,15 @@ cycle : WHILE L_PARENTHESIS expression R_PARENTHESIS block
 expression : NOT {stackOperator.push(NOT_);} relation {performSemanticsNot();}
              expression_1
                         {
-                              if(stackOperator.empty() == false){
-                                    if(stackOperator.top() == AND_ || stackOperator.top() == OR_){
+                              if(stackOperator.empty() == false && (stackOperator.top() == AND_ || stackOperator.top() == OR_) ){
                                           performSemantics();
-                                    }
                               }
                         } 
 
            | relation expression_1 
                         {
-                              if(stackOperator.empty() == false){
-                                    if(stackOperator.top() == AND_ || stackOperator.top() == OR_){
-                                          performSemantics();
-                                    }
+                              if(stackOperator.empty() == false && (stackOperator.top() == AND_ || stackOperator.top() == OR_)){
+                                    performSemantics();   
                               }
                         } 
            ;
@@ -302,10 +307,8 @@ relation_1  : GT {stackOperator.push(GT_);} exp
 
 exp : term  
             {
-                  if(stackOperator.empty() == false){
-                        if( stackOperator.top() == ADD_ || stackOperator.top() == SUBS_ ){
-                              performSemantics();
-                        }
+                  if(stackOperator.empty() == false && ( stackOperator.top() == ADD_ || stackOperator.top() == SUBS_ )){
+                        performSemantics();
                   }
             } 
       exp_1
@@ -318,10 +321,8 @@ exp_1 : ADD {stackOperator.push(ADD_);} exp
 
 term  : factor
             {
-                  if(stackOperator.empty() == false){
-                        if(stackOperator.top() == MULT_ || stackOperator.top() == DIV_  ){
-                              performSemantics();
-                        }
+                  if(stackOperator.empty() == false && (stackOperator.top() == MULT_ || stackOperator.top() == DIV_  )){
+                        performSemantics();
                   }
             } 
             term_1
@@ -400,11 +401,36 @@ void performSemantics(){
             int result = memFrame->declareValue(resultType);
             stackOperand.push(result);
 
-            cout << "Right " << rightOperand<< " ";
-            cout << " RightType "<< rightType<<" ";
-            cout << "Left " << leftOperand<<"  ";
-            cout << " LefType "<< leftType<<endl;
+            //Creating quadruple for action
+            quadupleSet.push_back(new Quadruple(op, leftOperand, rightOperand, result));
       }
+
+}
+
+void performSemanticsAssignment(){
+
+      MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
+      int rightOperand = stackOperand.top();
+      Type rightType = memFrame->getType(rightOperand);
+      stackOperand.pop();
+      
+      int leftOperand = stackOperand.top();
+      Type leftType = memFrame->getType(leftOperand);
+      stackOperand.pop();
+      
+      Operator op = stackOperator.top();
+      stackOperator.pop();
+
+      Type resultType = semantics->isAllowed(rightType,leftType, op);
+      if(resultType == VOID_){
+            callForTypeMismatchError("Mismatch error, cannot perform operation");                      
+      }else{                        
+            //Creating quadruple for action
+            quadupleSet.push_back(new Quadruple(op, rightOperand, -1, leftOperand));
+      }
+
+
 }
 
 void performSemanticsNot(){
@@ -428,11 +454,9 @@ void performSemanticsNot(){
                   }else{
                         int result = memFrame->declareValue(resultType);
                         stackOperand.push(result);
-                        
-                        cout << "Right " << rightOperand<< " ";
-                        cout << " RightType "<< rightType<<" ";
-                        cout << "Left " << leftOperand<<"  ";
-                        cout << " LefType "<< leftType<<endl;
+
+                        //Creating quadruple for action
+                        quadupleSet.push_back(new Quadruple(op, leftOperand, rightOperand, result));
                   }
             }
       }
