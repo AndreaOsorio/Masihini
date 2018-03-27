@@ -11,8 +11,8 @@
 #include <unordered_set>
 #include <iostream>
 #include <string>
-#include "VarTable.hpp"
-#include "FuncNode.hpp"
+#include "./VarTable.hpp"
+#include "./FuncNode.hpp"
 
 
 

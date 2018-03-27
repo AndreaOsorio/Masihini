@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 #include "MemoryDispatcher.hpp"
-#include "Type.hpp"
+#include "../Semantics/Type.hpp"
 
 using namespace std;
 

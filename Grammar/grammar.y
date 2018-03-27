@@ -5,9 +5,9 @@
     #include <string>
     #include <iostream>
     #include <stack>
-    #include "FuncDir.hpp"
-    #include "MemoryFrame.hpp"
-    #include "SemanticRuleSet.hpp"
+    #include "Semantics/FuncDir.hpp"
+    #include "Memory/MemoryFrame.hpp"
+    #include "Semantics/SemanticRuleSet.hpp"
 
     using namespace std;
 

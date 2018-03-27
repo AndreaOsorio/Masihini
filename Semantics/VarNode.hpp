@@ -12,7 +12,7 @@
 #include <string>
 #include <iostream>
 #include "Type.hpp"
-#endif /* VarNode_hpp */
+#endif 
 
 using namespace std;
 

@@ -11,9 +11,9 @@
 
 #include <stdio.h>
 #include <string>
-#include "Type.hpp"
-#include "VarTable.hpp"
-#include "MemoryFrame.hpp"
+#include "./Type.hpp"
+#include "./VarTable.hpp"
+#include "../Memory/MemoryFrame.hpp"
 
 
 
