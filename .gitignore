@@ -4,6 +4,12 @@ Grammar/lexgram.a
 Grammar/grammar.output
 Grammar/grammar.tab.h
 Grammar/grammar.tab.o
+makefile
+Makefile
+batexe.bat
+clean.bat
+run.bat
+output.txt
 
 
 # Maven build folders
