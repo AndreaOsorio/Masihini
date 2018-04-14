@@ -72,6 +72,7 @@ private:
         return t;
     }
 
+
     //This means AND OR operations
     Type isTier4Alowed(Type rightOperand, Type leftOperand){
 
@@ -106,6 +107,19 @@ private:
     }
 
 
+
+    //This means equals equals operator
+    Type isTier7Alowed(Type rightOperand, Type leftOperand){
+
+        if(rightOperand == INTEGER_ && leftOperand == INTEGER_) return BOOLEAN_;
+        if(rightOperand == FLOAT_ && leftOperand == FLOAT_) return BOOLEAN_;
+        if(rightOperand == STRING_ && leftOperand == STRING_) return BOOLEAN_;
+        if(rightOperand == BOOLEAN_ && leftOperand == BOOLEAN_) return BOOLEAN_;
+
+
+    }
+
+
     
     
     
@@ -125,11 +139,11 @@ public:
             case LT_ : p = isTier3Alowed(rightOperand, leftOperand);  break;
             case LE_ : p = isTier3Alowed(rightOperand, leftOperand);  break;
             case GE_ : p = isTier3Alowed(rightOperand, leftOperand);  break;
-            case EE_ : p = isTier3Alowed(rightOperand, leftOperand);  break;
             case AND_: p = isTier4Alowed(rightOperand, leftOperand);  break;
             case OR_ : p = isTier4Alowed(rightOperand, leftOperand);  break;
             case NOT_: p = isTier5Alowed(rightOperand);  break;
             case EQ_ : p = isTier6Alowed(rightOperand, leftOperand);  break;
+            case EE_ : p = isTier7Alowed(rightOperand, leftOperand);  break;
         }
 
 

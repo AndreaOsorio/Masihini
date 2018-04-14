@@ -9,7 +9,15 @@ func void myFunc (myVar10 : string, myvar12 : float)
 
 {
 
-    a = 10+20;
+    b = 10>29;
+
+    if(b == true){
+
+        b = false;
+
+    }else{
+        a = 5 + 10;
+    }
 
 
 }

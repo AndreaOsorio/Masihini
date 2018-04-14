@@ -22,6 +22,7 @@
     void performSemanticsNot();
     void performSemanticsAssignment();
     void manageMemoryVarCte(Type type, char value);
+    void printQuads();
 
 
     //Functions that handle errors
@@ -46,13 +47,13 @@
 
       stack <int> stackOperand;
       stack <Operator> stackOperator;
+      stack <int> pendingJumps;
 
       //Set of global semantic considerations
       SemanticRuleSet *semantics ;
 
       //Global Quadruple Vector
-
-      vector<Quadruple*> quadupleSet;
+      vector<Quadruple*> quadrupleSet;
 
       
       
@@ -233,11 +234,58 @@ assignment : ID
              SEMICOLON
            ;
 
-condition : IF L_PARENTHESIS expression R_PARENTHESIS block condition_1
+condition : IF L_PARENTHESIS expression R_PARENTHESIS {
+                                                            MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
+                                                            int expressionResult = stackOperand.top();
+                                                            Type type = memFrame->getType(expressionResult);
+                                                            if(type == BOOLEAN_){
+
+                                                                  stackOperand.pop();
+                                                                  quadrupleSet.push_back(new Quadruple(GOTOF_,expressionResult, -1, -1));
+                                                                  pendingJumps.push(quadrupleSet.size()-1);
+
+                                                                  
+
+                                                                  
+                                                                                     
+                                                            }else{                        
+                                                                 
+                                                                 cout<<"my type is "<<type<<endl;
+                                                                   callForTypeMismatchError("Mismatch error, cannot perform operation");  
+                                                            }
+
+                                                      } block condition_1
           ;
 
-condition_1 : ELSE block
-            |
+condition_1 : ELSE
+                  {
+                        int index = pendingJumps.top();
+                        pendingJumps.pop();
+
+                        quadrupleSet.at(index)->setResult(quadrupleSet.size()+1);
+
+                        quadrupleSet.push_back(new Quadruple(GOTO_,-1, -1, -1));
+
+                        pendingJumps.push(quadrupleSet.size()-1);
+
+                  } 
+                  block
+                  {
+                        int index = pendingJumps.top();
+                        pendingJumps.pop();
+
+                        quadrupleSet.at(index)->setResult(quadrupleSet.size());
+                        printQuads();
+
+                  }
+            | 
+            {
+                  int index = pendingJumps.top();
+                  pendingJumps.pop();
+                  quadrupleSet.at(index)->setResult(quadrupleSet.size());
+
+            }
             ;
 
 func_call : ID L_PARENTHESIS func_call_1 R_PARENTHESIS
@@ -402,7 +450,7 @@ void performSemantics(){
             stackOperand.push(result);
 
             //Creating quadruple for action
-            quadupleSet.push_back(new Quadruple(op, leftOperand, rightOperand, result));
+            quadrupleSet.push_back(new Quadruple(op, leftOperand, rightOperand, result));
       }
 
 }
@@ -427,7 +475,7 @@ void performSemanticsAssignment(){
             callForTypeMismatchError("Mismatch error, cannot perform operation");                      
       }else{                        
             //Creating quadruple for action
-            quadupleSet.push_back(new Quadruple(op, rightOperand, -1, leftOperand));
+            quadrupleSet.push_back(new Quadruple(op, rightOperand, -1, leftOperand));
       }
 
 
@@ -456,10 +504,23 @@ void performSemanticsNot(){
                         stackOperand.push(result);
 
                         //Creating quadruple for action
-                        quadupleSet.push_back(new Quadruple(op, leftOperand, rightOperand, result));
+                        quadrupleSet.push_back(new Quadruple(op, leftOperand, rightOperand, result));
                   }
             }
       }
+}
+
+
+void printQuads(){
+
+int count = 0;
+      for ( auto &i : quadrupleSet ) {
+
+            cout <<count<< ".- ";
+            i->print();
+            count++;
+      }
+
 }
 
 void manageMemoryVarCte(Type type, char value){

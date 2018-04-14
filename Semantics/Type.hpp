@@ -26,7 +26,10 @@ enum Operator
     NOT_,
     AND_,
     OR_,
-    EQ_
+    EQ_,
+    //Non Expression-Related Operators
+    GOTOF_,
+    GOTO_
 };
 
 enum DeclarationState
