@@ -243,12 +243,7 @@ condition : IF L_PARENTHESIS expression R_PARENTHESIS {
 
                                                                   stackOperand.pop();
                                                                   quadrupleSet.push_back(new Quadruple(GOTOF_,expressionResult, -1, -1));
-                                                                  pendingJumps.push(quadrupleSet.size()-1);
-
-                                                                  
-
-                                                                  
-                                                                                     
+                                                                  pendingJumps.push(quadrupleSet.size()-1);                    
                                                             }else{                        
                                                                  
                                                                  cout<<"my type is "<<type<<endl;
@@ -276,7 +271,7 @@ condition_1 : ELSE
                         pendingJumps.pop();
 
                         quadrupleSet.at(index)->setResult(quadrupleSet.size());
-                        printQuads();
+
 
                   }
             | 
@@ -305,7 +300,40 @@ system_func_1 : expression
               |
               ;
 
-cycle : WHILE L_PARENTHESIS expression R_PARENTHESIS block
+cycle : WHILE 
+            {
+                  pendingJumps.push(quadrupleSet.size());
+            }
+            L_PARENTHESIS expression R_PARENTHESIS
+            {
+                   MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
+                  int expressionResult = stackOperand.top();
+                  Type type = memFrame->getType(expressionResult);
+                  if(type == BOOLEAN_){
+
+                        stackOperand.pop();
+                        quadrupleSet.push_back(new Quadruple(GOTOF_,expressionResult, -1, -1));
+                        pendingJumps.push(quadrupleSet.size()-1);                    
+                  }else{                        
+                        
+                        cout<<"my type is "<<type<<endl;
+                              callForTypeMismatchError("Mismatch error, cannot perform operation");  
+                  }
+
+            } 
+            block
+            {
+
+                        int index = pendingJumps.top();
+                        pendingJumps.pop();
+                        quadrupleSet.at(index)->setResult(quadrupleSet.size()+1);
+
+                        index = pendingJumps.top();
+                        pendingJumps.pop();
+                        quadrupleSet.push_back(new Quadruple(GOTO_,-1, -1, index));
+                  
+            }
       ;
 
 

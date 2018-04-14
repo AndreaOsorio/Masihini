@@ -9,14 +9,13 @@ func void myFunc (myVar10 : string, myvar12 : float)
 
 {
 
-    b = 10>29;
+    a=10;
+    while (b==true){
+        a = a+1;
 
-    if(b == true){
-
-        b = false;
-
-    }else{
-        a = 5 + 10;
+        while (myVar4==true){
+            a = 10+10;
+        }
     }
 
 
