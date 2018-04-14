@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <vector>
 #include "./Type.hpp"
 #include "./VarTable.hpp"
 #include "../Memory/MemoryFrame.hpp"
@@ -26,7 +27,8 @@ private:
     string id;
     Type type;
     VarTable *symbolTable;
-    MemoryFrame *memoryFrame;
+    MemoryFrame *memoryFrame = new MemoryFrame();
+    vector<int> parameters;
     
     
     
@@ -39,7 +41,11 @@ public:
         memoryFrame = memFrame;
         
     }
-    
+
+    void addParameter(int param){
+        parameters.push_back(param);
+    }
+
     string getId() const{
         return id;
     }
@@ -51,6 +57,7 @@ public:
     MemoryFrame* getMemoryFrame(){
         return memoryFrame;
     }
+    
     
 };
 

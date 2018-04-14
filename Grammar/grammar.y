@@ -135,7 +135,8 @@ declaration : VAR ID COLON type array SEMICOLON
                                                             int memDir = globalMemoryFrame->declareValue(currentDeclaredtype);
                                                             callForLocalRedefinitionError(globalSymbolTable->insertNode(new VarNode($2, currentDeclaredtype, memDir))); 
                                                       }else{
-                                                            int memDir = globalMemoryFrame->declareValue(currentDeclaredtype);
+                                                            MemoryFrame *frame = currentDeclaredFunction->getMemoryFrame();
+                                                            int memDir = frame->declareValue(currentDeclaredtype);
                                                             VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
                                                             callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype, memDir))); 
                                                             callForGlobalRedefinitionError(globalSymbolTable->isContained($2, currentDeclaredtype));
@@ -161,9 +162,12 @@ func_0 :    ID    {
             L_PARENTHESIS func_1 R_PARENTHESIS local_declaration 
        ;
 
-func_1 : ID COLON type {
-                              int memDir = globalMemoryFrame->declareValue(currentDeclaredtype);
+func_1 : ID COLON type {            
+                              //Parameter definition                                             
+                              MemoryFrame *frame = currentDeclaredFunction->getMemoryFrame();
+                              int memDir = frame->declareValue(currentDeclaredtype);
                               VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
+                              currentDeclaredFunction->addParameter(memDir);
                               callForLocalRedefinitionError( symbolTable->insertNode(new VarNode($1, currentDeclaredtype,memDir))); 
                               callForGlobalRedefinitionError(globalSymbolTable->isContained($1, currentDeclaredtype));
                         }
@@ -172,9 +176,13 @@ func_1 : ID COLON type {
        ;
 
 func_2 : COMMA ID COLON type {
-                                    int memDir = globalMemoryFrame->declareValue(currentDeclaredtype);
+                                    //Parameter definition
+                                    MemoryFrame *frame = currentDeclaredFunction->getMemoryFrame();
+                                    int memDir = frame->declareValue(currentDeclaredtype);
                                     VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
-                                    callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype,memDir)));   
+                                    currentDeclaredFunction->addParameter(memDir);
+                                    callForLocalRedefinitionError( symbolTable->insertNode(new VarNode($2, currentDeclaredtype,memDir))); 
+                                    callForGlobalRedefinitionError(globalSymbolTable->isContained($2, currentDeclaredtype));
                               } 
       func_2 
        |
@@ -431,7 +439,12 @@ var_cte : func_call
 
              } array
         | INT     {manageMemoryVarCte(INTEGER_, $1);}
-        | FLOAT   {manageMemoryVarCte(FLOAT_, $1);}
+        | FLOAT   {
+                        float temp = $1;
+                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+                        int memDir = memFrame->registerValue(temp);
+                        stackOperand.push(memDir);
+                   }
         | STRING  {
                         string literal($1);
                         MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
@@ -494,9 +507,11 @@ void performSemanticsAssignment(){
       int leftOperand = stackOperand.top();
       Type leftType = memFrame->getType(leftOperand);
       stackOperand.pop();
-      
+
       Operator op = stackOperator.top();
       stackOperator.pop();
+
+
 
       Type resultType = semantics->isAllowed(rightType,leftType, op);
       if(resultType == VOID_){
@@ -554,7 +569,7 @@ int count = 0;
 void manageMemoryVarCte(Type type, char value){
       MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
       int memDir;
-      if(type == INTEGER_ || type == FLOAT_){
+      if(type == INTEGER_){
             memDir = memFrame->registerValue(value);
       }
       else if(type == BOOLEAN_){
