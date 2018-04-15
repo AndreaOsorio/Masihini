@@ -28,6 +28,10 @@ public:
 
     }
 
+    Operator getOperator(){
+        return operator_;
+    }
+
     void setResult(int res){
         result = res;
     }
@@ -51,6 +55,11 @@ public:
             case EQ_: cout<< "= "; break;
             case GOTOF_: cout << "GOTOF "; break;
             case GOTO_: cout << "GOTO "; break;
+            case ENDPROC_: cout << "ENDPROC "; break;
+            case RETURN_: cout << "RETURN "; break;
+            case ERA_: cout << "ERA_ "; break;
+            case PARAMETER_: cout << "PARAMETER_ "; break;
+            case GOSUB_: cout << "GOSUB_ "; break;
         }
 
         cout <<leftOperand<<" , "<<rightOperand<<" , "<<result<<endl;

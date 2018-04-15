@@ -23,6 +23,9 @@
     void performSemanticsAssignment();
     void manageMemoryVarCte(Type type, char value);
     void printQuads();
+    void performReturn();
+    void checkForReturn();
+    void performParamAssignment();
 
 
     //Functions that handle errors
@@ -55,8 +58,9 @@
       //Global Quadruple Vector
       vector<Quadruple*> quadrupleSet;
 
-      
-      
+      //Parameter used to store functions being called
+      FuncNode* currentCalledFunction;
+      int parameterCounter;
 
 %}
 
@@ -117,16 +121,17 @@
 %token SYSTEM_PREFIX
 
 
-%start global_declaration
+%start start
 
 
 %%
 
 /* Grammar Rules */
 
+start : { quadrupleSet.push_back(new Quadruple(GOTO_,-1, -1, -1));} global_declaration
 
-global_declaration : STATIC declaration global_declaration  {declarationState = GLOBAL_;}
-                    |  func_declaration
+global_declaration : STATIC declaration global_declaration 
+                    | func_declaration
                     ;
 
 declaration : VAR ID COLON type array SEMICOLON 
@@ -156,6 +161,7 @@ func_0 :    ID    {
                         //Function definition
                         currentDeclaredFunction = new FuncNode($1, currentDeclaredtype, new VarTable(), new MemoryFrame());
                         callForLocalRedefinitionError(functionDirectory->insertNode(currentDeclaredFunction));
+                        currentDeclaredFunction->setStartingInstruction(quadrupleSet.size());
                   }
 
 
@@ -189,14 +195,16 @@ func_2 : COMMA ID COLON type {
        ;
 
 local_declaration : declaration local_declaration
-                  | block
+                  | block {checkForReturn(); quadrupleSet.push_back(new Quadruple(ENDPROC_,-1, -1, -1));}
                   ;
 
 run : STATIC FUNC VOID RUN L_PARENTHESIS R_PARENTHESIS      {
                                                                   currentDeclaredFunction = new FuncNode("run", VOID_, new VarTable(), new MemoryFrame());
                                                                   callForLocalRedefinitionError(functionDirectory->insertNode(currentDeclaredFunction));
+                                                                  currentDeclaredFunction->setStartingInstruction(quadrupleSet.size());
+                                                                  quadrupleSet.at(0)->setResult(quadrupleSet.size());
                                                             } 
-      local_declaration
+      local_declaration {printQuads();}
     ;
 
 block : L_BRACE block_1
@@ -206,10 +214,12 @@ block_1 : statement block_1
         | block_2
         ;
 
-block_2 : RETURN expression SEMICOLON block_2
-        | R_BRACE
+block_2 : RETURN expression SEMICOLON {performReturn();}block_3
+        | block_3
         ;
 
+block_3 : R_BRACE
+        ;
 
 statement : assignment
           | cycle
@@ -291,13 +301,40 @@ condition_1 : ELSE
             }
             ;
 
-func_call : ID L_PARENTHESIS func_call_1 R_PARENTHESIS
+func_call : ID
+            {
+                  string id ($1);
+                  int result = functionDirectory->search(id);
+                  if (result == -1){
+                        string message;
+                        message = "Function \"" + id + "\" "+"has not been declared";
+                        callForNonDeclaredVariableError(message);
+                  }else{
+
+                        currentCalledFunction = functionDirectory->getFunc(result);
+                        quadrupleSet.push_back(new Quadruple(ERA_,-1, -1, result));
+                        parameterCounter = 0;
+
+                  }
+            }
+            L_PARENTHESIS func_call_1 R_PARENTHESIS 
+            {
+                  string id ($1);
+                  int result = functionDirectory->search(id);
+                  int numberOfParameters = currentCalledFunction->getNumberOfParameters();
+                  if (parameterCounter < numberOfParameters ){
+                       callForTypeMismatchError("Missing parameters for call of function\"" + id + "\""); 
+                  }else{
+                      quadrupleSet.push_back(new Quadruple(GOSUB_,-1, -1, result)); 
+                  }
+
+            }
           ;
-func_call_1 :  expression func_call_2
+func_call_1 :  expression {performParamAssignment();}  func_call_2
             |
             ;
 
-func_call_2 : COMMA expression func_call_2
+func_call_2 : COMMA expression {performParamAssignment();} func_call_2
             |
             ;
 
@@ -492,6 +529,67 @@ void performSemantics(){
 
             //Creating quadruple for action
             quadrupleSet.push_back(new Quadruple(op, leftOperand, rightOperand, result));
+      }
+
+}
+
+void performReturn(){
+      MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+      int result = stackOperand.top();
+      Type resultType = memFrame->getType(result);
+      stackOperand.pop();
+
+      Type functionType = currentDeclaredFunction->getType();
+
+      if(resultType == functionType){
+            quadrupleSet.push_back(new Quadruple(RETURN_, -1, -1, result));
+      }else{
+             callForTypeMismatchError("Return mismatch error, cannot perform operation"); 
+      }
+
+}
+
+void checkForReturn(){
+      Operator operator_ = quadrupleSet.at(quadrupleSet.size()-1)->getOperator();
+      Type functionType = currentDeclaredFunction->getType();
+
+
+
+      if(operator_ != RETURN_ && functionType != VOID_){
+            string message;
+            callForTypeMismatchError(" \"return\" statement is required at the end of function"); 
+      }
+}
+
+void performParamAssignment(){
+
+      int numberOfParameters = currentCalledFunction->getNumberOfParameters();
+      string name = currentCalledFunction->getId();
+      if(numberOfParameters==0){
+            callForTypeMismatchError("No parameters expected in call of function \""+name+"\"" ); 
+      }else{
+
+            if(numberOfParameters==parameterCounter){
+                  callForTypeMismatchError("Function \""+name+"\" requires " +to_string( numberOfParameters)+ " parameters"  ); 
+            }else{
+            
+                  MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+                  int result = stackOperand.top();
+                  Type resultType = memFrame->getType(result);
+                  stackOperand.pop();
+
+                  Type parameterType = currentCalledFunction->getParameterType(parameterCounter);
+
+                  if(parameterType==resultType){
+                        quadrupleSet.push_back(new Quadruple(PARAMETER_, -1, result, parameterCounter));
+                  }else{
+                         callForTypeMismatchError("Parameter mismatch error, cannot perform operation"); 
+                  }
+
+                  parameterCounter++;
+
+            }
+
       }
 
 }

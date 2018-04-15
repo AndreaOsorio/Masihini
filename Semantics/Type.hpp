@@ -29,7 +29,12 @@ enum Operator
     EQ_,
     //Non Expression-Related Operators
     GOTOF_,
-    GOTO_
+    GOTO_,
+    ENDPROC_,
+    RETURN_,
+    ERA_,
+    PARAMETER_,
+    GOSUB_
 };
 
 enum DeclarationState

@@ -26,6 +26,7 @@ class FuncNode{
 private:
     string id;
     Type type;
+    int startingInstruction;
     VarTable *symbolTable;
     MemoryFrame *memoryFrame = new MemoryFrame();
     vector<int> parameters;
@@ -46,6 +47,16 @@ public:
         parameters.push_back(param);
     }
 
+    int getNumberOfParameters(){
+        return parameters.size();
+    }
+
+    Type getParameterType(int index){
+        int memDir = parameters.at(index);
+
+        return memoryFrame->getType(memDir);
+    }
+
     string getId() const{
         return id;
     }
@@ -56,6 +67,18 @@ public:
 
     MemoryFrame* getMemoryFrame(){
         return memoryFrame;
+    }
+
+    Type getType(){
+        return type;
+    }
+
+    int getStartingInstruction(){
+        return startingInstruction;
+    }
+
+    void setStartingInstruction(int index){
+        startingInstruction = index;
     }
     
     

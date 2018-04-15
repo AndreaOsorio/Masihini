@@ -1,15 +1,21 @@
-func void myFunc ()
-    var a: float;
+
+
+func int myFunc (c:int, b:int, d:float )
+    var a: int;
 {
 
-    a = 10.5f + 10.0f;
+    a = 10;
 
+    return 0;
 
 }
 
 static func void run ()
 {
 
+    myFunc(10,10,10.0f);
+    myFunc(10,10,10.0f);
+    myFunc(10,10,10.0f);
 
 
 
