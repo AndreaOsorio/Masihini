@@ -18,25 +18,25 @@ enum Operator
     SUBS_,//Ready
     MULT_,//Ready
     DIV_,//Ready
-    GT_,
-    LT_,
-    LE_,
-    GE_,
-    EE_,
-    NOT_,
-    AND_,
-    OR_,
+    GT_,//Ready
+    LT_,//Ready
+    LE_,//Ready
+    GE_,//Ready
+    EE_,//Ready
+    NOT_,//Ready
+    AND_,//Ready
+    OR_,//Ready
     EQ_,//Ready
-    FAKE_BTTM_,
+    FAKE_BTTM_,//Doesn't apply
     //Non Expression-Related Operators
-    GOTOF_,
-    GOTO_,
+    GOTOF_,//Ready
+    GOTO_,//Ready
     ENDPROC_,
     RETURN_,
     ERA_,
     PARAMETER_,
     GOSUB_,
-    ENDPROG_
+    ENDPROG_//Ready
 };
 
 enum DeclarationState

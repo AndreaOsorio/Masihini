@@ -310,6 +310,223 @@ public:
     }
 
 
+    void greaterThanOperation(Quadruple* quad){
+
+        int leftOperand = quad->getLeftOperand();
+        int rightOperand = quad->getRightOperand();
+        int memDir = quad->getResult();
+
+        Type leftType = getTypeFromContext(leftOperand);
+        Type rightType = getTypeFromContext(rightOperand);
+
+
+        if(leftType==INTEGER_ && rightType == INTEGER_){
+            bool result = retrieveIntegerValueFromContext(leftOperand) > retrieveIntegerValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==INTEGER_ && rightType == FLOAT_){
+            bool result = retrieveIntegerValueFromContext(leftOperand) > retrieveFloatValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==FLOAT_ && rightType == INTEGER_){
+            bool result = retrieveFloatValueFromContext(leftOperand) > retrieveIntegerValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==FLOAT_ && rightType == FLOAT_){
+            bool result = retrieveFloatValueFromContext(leftOperand) > retrieveFloatValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+    }
+
+      void lessThanOperation(Quadruple* quad){
+
+        int leftOperand = quad->getLeftOperand();
+        int rightOperand = quad->getRightOperand();
+        int memDir = quad->getResult();
+
+        Type leftType = getTypeFromContext(leftOperand);
+        Type rightType = getTypeFromContext(rightOperand);
+
+
+        if(leftType==INTEGER_ && rightType == INTEGER_){
+            bool result = retrieveIntegerValueFromContext(leftOperand) < retrieveIntegerValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==INTEGER_ && rightType == FLOAT_){
+            bool result = retrieveIntegerValueFromContext(leftOperand) < retrieveFloatValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==FLOAT_ && rightType == INTEGER_){
+            bool result = retrieveFloatValueFromContext(leftOperand) < retrieveIntegerValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==FLOAT_ && rightType == FLOAT_){
+            bool result = retrieveFloatValueFromContext(leftOperand) < retrieveFloatValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+    }
+
+     void lessOrEqualsOperation(Quadruple* quad){
+
+        int leftOperand = quad->getLeftOperand();
+        int rightOperand = quad->getRightOperand();
+        int memDir = quad->getResult();
+
+        Type leftType = getTypeFromContext(leftOperand);
+        Type rightType = getTypeFromContext(rightOperand);
+
+
+        if(leftType==INTEGER_ && rightType == INTEGER_){
+            bool result = retrieveIntegerValueFromContext(leftOperand) <= retrieveIntegerValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==INTEGER_ && rightType == FLOAT_){
+            bool result = retrieveIntegerValueFromContext(leftOperand) <= retrieveFloatValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==FLOAT_ && rightType == INTEGER_){
+            bool result = retrieveFloatValueFromContext(leftOperand) <= retrieveIntegerValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==FLOAT_ && rightType == FLOAT_){
+            bool result = retrieveFloatValueFromContext(leftOperand) <= retrieveFloatValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+    }
+
+    void greaterOrEqualsOperation(Quadruple* quad){
+
+        int leftOperand = quad->getLeftOperand();
+        int rightOperand = quad->getRightOperand();
+        int memDir = quad->getResult();
+
+        Type leftType = getTypeFromContext(leftOperand);
+        Type rightType = getTypeFromContext(rightOperand);
+
+
+        if(leftType==INTEGER_ && rightType == INTEGER_){
+            bool result = retrieveIntegerValueFromContext(leftOperand) >= retrieveIntegerValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==INTEGER_ && rightType == FLOAT_){
+            bool result = retrieveIntegerValueFromContext(leftOperand) >= retrieveFloatValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==FLOAT_ && rightType == INTEGER_){
+            bool result = retrieveFloatValueFromContext(leftOperand) >= retrieveIntegerValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==FLOAT_ && rightType == FLOAT_){
+            bool result = retrieveFloatValueFromContext(leftOperand) >= retrieveFloatValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+    }
+
+    void equalsEqualsOperation(Quadruple* quad){
+
+        int leftOperand = quad->getLeftOperand();
+        int rightOperand = quad->getRightOperand();
+        int memDir = quad->getResult();
+
+        Type leftType = getTypeFromContext(leftOperand);
+        Type rightType = getTypeFromContext(rightOperand);
+
+
+        if(leftType==INTEGER_ && rightType == INTEGER_){
+            bool result = retrieveIntegerValueFromContext(leftOperand) == retrieveIntegerValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==INTEGER_ && rightType == FLOAT_){
+            bool result = retrieveIntegerValueFromContext(leftOperand) == retrieveFloatValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==FLOAT_ && rightType == INTEGER_){
+            bool result = retrieveFloatValueFromContext(leftOperand) == retrieveIntegerValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+
+        if(leftType==FLOAT_ && rightType == FLOAT_){
+            bool result = retrieveFloatValueFromContext(leftOperand) == retrieveFloatValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+    }
+
+    void notOperation(Quadruple* quad){
+
+        int leftOperand = quad->getLeftOperand();
+        int rightOperand = quad->getRightOperand();
+        int memDir = quad->getResult();
+
+        Type leftType = getTypeFromContext(leftOperand);
+        Type rightType = getTypeFromContext(rightOperand);
+
+
+        if(rightType==BOOLEAN_){
+            bool result = !retrieveBooleanValueFromContext(rightOperand);
+            setValueFromContext(memDir, result);
+        }
+    }
+
+    void andOperation(Quadruple* quad){
+
+        int leftOperand = quad->getLeftOperand();
+        int rightOperand = quad->getRightOperand();
+        int memDir = quad->getResult();
+
+        Type leftType = getTypeFromContext(leftOperand);
+        Type rightType = getTypeFromContext(rightOperand);
+
+        if(leftType==BOOLEAN_ && rightType == BOOLEAN_){
+            bool result = retrieveFloatValueFromContext(leftOperand) && retrieveFloatValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+    }
+
+    void orOperation(Quadruple* quad){
+
+        int leftOperand = quad->getLeftOperand();
+        int rightOperand = quad->getRightOperand();
+        int memDir = quad->getResult();
+
+        Type leftType = getTypeFromContext(leftOperand);
+        Type rightType = getTypeFromContext(rightOperand);
+
+        if(leftType==BOOLEAN_ && rightType == BOOLEAN_){
+            bool result = retrieveFloatValueFromContext(leftOperand) || retrieveFloatValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
+        }
+    }
+
+    int gotoFOperation(Quadruple* quad){
+
+        int leftOperand = quad->getLeftOperand();
+        int result= quad->getResult();
+        Type leftType = getTypeFromContext(leftOperand);
+
+        if(leftOperand==BOOLEAN_){
+            if(retrieveBooleanValueFromContext(leftOperand) == false){
+                return result;
+            }
+        }
+
+        return -1
+    }
+
+
     
 };
 

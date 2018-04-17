@@ -42,6 +42,13 @@ private:
 
     }
 
+    void gotoF_(Quadruple* quad){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        execPointer = helper.gotoFOperation(quad);
+
+    }
+
     void exitExec(){
 
         cout<<"Execution Sucessful!"<<endl;
@@ -76,17 +83,73 @@ private:
 
     }
 
-     void multiplication(Quadruple* quad){
+    void multiplication(Quadruple* quad){
 
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.multiplicationOperation(quad);
 
     }
 
-      void division(Quadruple* quad){
+    void division(Quadruple* quad){
 
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.divisionOperation(quad);
+
+    }
+
+    void greaterThan(Quadruple* quad){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.greaterThanOperation(quad);
+
+    }
+
+    void lessThan(Quadruple* quad){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.lessThanOperation(quad);
+
+    }
+
+    void lessOrEquals(Quadruple* quad){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.lessOrEqualsOperation(quad);
+
+    }
+
+    void greaterOrEquals(Quadruple* quad){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.greaterOrEqualsOperation(quad);
+
+    }
+
+    void equalsEquals(Quadruple* quad){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.equalsEqualsOperation(quad);
+
+    }
+
+    void notOp(Quadruple* quad){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.notOperation(quad);
+
+    }
+
+    void andOp(Quadruple* quad){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.andOperation(quad);
+
+    }
+
+    void orOp(Quadruple* quad){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.orOperation(quad);
 
     }
 
@@ -123,6 +186,15 @@ public:
                 case SUBS_: substraction(quad); execPointer++; break;
                 case MULT_: multiplication(quad); execPointer++; break;
                 case DIV_: division(quad); execPointer++; break;
+                case GT_: greaterThan(quad); execPointer++; break;
+                case LT_: greaterThan(quad); execPointer++; break;
+                case LE_: lessOrEquals(quad); execPointer++; break;
+                case GE_: greaterOrEquals(quad); execPointer++; break;
+                case EE_: equalsEquals(quad); execPointer++; break;
+                case NOT_: notOp(quad); execPointer++; break;
+                case AND_: andOp(quad); execPointer++; break;
+                case OR_: orOp(quad); execPointer++; break;
+                case GOTOF_: gotoF_(quad); break; 
                 case GOTO_: goto_(quad); break; 
                 case ENDPROG_: exitExec(); break;
             }

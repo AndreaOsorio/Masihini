@@ -40,8 +40,8 @@ linefeed           \n
 
 
 
-"&"                         { return AND; }
-"|"                         { return OR; }
+"&&"                         { return AND; }
+"||"                         { return OR; }
 "!"                         { return NOT; }
 ";"                         { return SEMICOLON; }
 ":"                         { return COLON; }

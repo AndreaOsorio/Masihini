@@ -14,5 +14,9 @@ static func void run ()
 
     a = 10.0f/10.0f;
 
+    if(!true){
+        
+    }
+
 }
 

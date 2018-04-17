@@ -668,7 +668,7 @@ void performSemanticsNot(){
                   Type rightType = getTypeFromContext(rightOperand );
                   stackOperand.pop();
                                                                                    
-                  int leftOperand = 0;
+                  int leftOperand = -1;
                   Type leftType = VOID_;
 
                   Operator op = stackOperator.top();
