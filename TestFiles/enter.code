@@ -1,23 +1,20 @@
 
+static var a : float;
 
-func int myFunc (c:int, b:int, d:float )
-    var a: int;
+func int myFunc ()
+    var b: int;
 {
 
-    a = 10;
-
+    b = 10-10;
     return 0;
-
 }
 
 static func void run ()
+    var b : int;
 {
 
-    myFunc(10,10,10.0f);
-    myFunc(10,10,10.0f);
-    myFunc(10,10,10.0f);
-
-
+    b = 10-10;
+    a = 10/b;
 
 }
 

@@ -34,7 +34,8 @@ enum Operator
     RETURN_,
     ERA_,
     PARAMETER_,
-    GOSUB_
+    GOSUB_,
+    ENDPROG_
 };
 
 enum DeclarationState

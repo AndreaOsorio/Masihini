@@ -10,6 +10,7 @@
     #include "Memory/MemoryFrame.hpp"
     #include "Semantics/SemanticRuleSet.hpp"
     #include "Quadruples/Quadruple.hpp"
+    #include "VirtualMachine/VirtualMachine.hpp"
 
     using namespace std;
 
@@ -26,6 +27,7 @@
     void performReturn();
     void checkForReturn();
     void performParamAssignment();
+    Type getTypeFromContext(int value);
 
 
     //Functions that handle errors
@@ -34,6 +36,9 @@
     void callForGlobalRedefinitionError(string message);
     void callForNonDeclaredVariableError(string message);
     void callForTypeMismatchError(string message);
+
+    //Functions used to run code
+    void run();
 
       //Parameters used to store values in Func Directory
       DeclarationState declarationState = GLOBAL_;
@@ -44,7 +49,7 @@
 
       //Parameters used to assign memory to items;
 
-      MemoryFrame *globalMemoryFrame = new MemoryFrame();
+      MemoryFrame *globalMemoryFrame = new MemoryFrame(0,5000);
 
       //Stack used for Code Generation
 
@@ -61,6 +66,11 @@
       //Parameter used to store functions being called
       FuncNode* currentCalledFunction;
       int parameterCounter;
+
+      //Settings for memory management 
+
+      int globalMemoryOffset = 25000;
+      int localMemoryFrameSize = 10000;
 
 %}
 
@@ -159,7 +169,7 @@ func : FUNC VOID {currentDeclaredtype = VOID_;}  func_0
 
 func_0 :    ID    {
                         //Function definition
-                        currentDeclaredFunction = new FuncNode($1, currentDeclaredtype, new VarTable(), new MemoryFrame());
+                        currentDeclaredFunction = new FuncNode($1, currentDeclaredtype, new VarTable(), new MemoryFrame(globalMemoryOffset, localMemoryFrameSize));
                         callForLocalRedefinitionError(functionDirectory->insertNode(currentDeclaredFunction));
                         currentDeclaredFunction->setStartingInstruction(quadrupleSet.size());
                   }
@@ -199,12 +209,16 @@ local_declaration : declaration local_declaration
                   ;
 
 run : STATIC FUNC VOID RUN L_PARENTHESIS R_PARENTHESIS      {
-                                                                  currentDeclaredFunction = new FuncNode("run", VOID_, new VarTable(), new MemoryFrame());
+                                                                  currentDeclaredFunction = new FuncNode("run", VOID_, new VarTable(), new MemoryFrame(globalMemoryOffset, localMemoryFrameSize));
                                                                   callForLocalRedefinitionError(functionDirectory->insertNode(currentDeclaredFunction));
                                                                   currentDeclaredFunction->setStartingInstruction(quadrupleSet.size());
                                                                   quadrupleSet.at(0)->setResult(quadrupleSet.size());
                                                             } 
-      local_declaration {printQuads();}
+      local_declaration 
+      {
+            quadrupleSet.push_back(new Quadruple(ENDPROG_, -1, -1, -1));
+            run();
+      }
     ;
 
 block : L_BRACE block_1
@@ -253,18 +267,17 @@ assignment : ID
            ;
 
 condition : IF L_PARENTHESIS expression R_PARENTHESIS {
-                                                            MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
 
+      
                                                             int expressionResult = stackOperand.top();
-                                                            Type type = memFrame->getType(expressionResult);
+                                                            Type type = getTypeFromContext(expressionResult);
+
                                                             if(type == BOOLEAN_){
 
                                                                   stackOperand.pop();
                                                                   quadrupleSet.push_back(new Quadruple(GOTOF_,expressionResult, -1, -1));
                                                                   pendingJumps.push(quadrupleSet.size()-1);                    
                                                             }else{                        
-                                                                 
-                                                                 cout<<"my type is "<<type<<endl;
                                                                    callForTypeMismatchError("Mismatch error, cannot perform operation");  
                                                             }
 
@@ -351,10 +364,12 @@ cycle : WHILE
             }
             L_PARENTHESIS expression R_PARENTHESIS
             {
-                   MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
 
                   int expressionResult = stackOperand.top();
-                  Type type = memFrame->getType(expressionResult);
+                  Type type = getTypeFromContext(expressionResult);
+
+
                   if(type == BOOLEAN_){
 
                         stackOperand.pop();
@@ -506,15 +521,32 @@ type :  TYPE_STRING     {currentDeclaredtype = STRING_;}
 
 %%
 
+Type getTypeFromContext(int value){
+
+      Type type;
+
+      if(value<globalMemoryOffset){
+            type = globalMemoryFrame->getType(value);
+
+      }else{
+            MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+            type = memFrame->getType(value);
+
+      }
+
+      return type;
+}
+
 void performSemantics(){
       MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
 
+
       int rightOperand = stackOperand.top();
-      Type rightType = memFrame->getType(rightOperand);
+      Type rightType = getTypeFromContext(rightOperand);
       stackOperand.pop();
       
       int leftOperand = stackOperand.top();
-      Type leftType = memFrame->getType(leftOperand);
+      Type leftType = getTypeFromContext(leftOperand );
       stackOperand.pop();
       
       Operator op = stackOperator.top();
@@ -536,7 +568,7 @@ void performSemantics(){
 void performReturn(){
       MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
       int result = stackOperand.top();
-      Type resultType = memFrame->getType(result);
+      Type resultType = getTypeFromContext(result);
       stackOperand.pop();
 
       Type functionType = currentDeclaredFunction->getType();
@@ -575,7 +607,7 @@ void performParamAssignment(){
             
                   MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
                   int result = stackOperand.top();
-                  Type resultType = memFrame->getType(result);
+                  Type resultType =getTypeFromContext(result);
                   stackOperand.pop();
 
                   Type parameterType = currentCalledFunction->getParameterType(parameterCounter);
@@ -599,11 +631,11 @@ void performSemanticsAssignment(){
       MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
 
       int rightOperand = stackOperand.top();
-      Type rightType = memFrame->getType(rightOperand);
+      Type rightType = getTypeFromContext(rightOperand );
       stackOperand.pop();
       
       int leftOperand = stackOperand.top();
-      Type leftType = memFrame->getType(leftOperand);
+      Type leftType = getTypeFromContext(leftOperand );
       stackOperand.pop();
 
       Operator op = stackOperator.top();
@@ -628,7 +660,7 @@ void performSemanticsNot(){
                   MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
 
                   int rightOperand = stackOperand.top();
-                  Type rightType = memFrame->getType(rightOperand);
+                  Type rightType = getTypeFromContext(rightOperand );
                   stackOperand.pop();
                                                                                    
                   int leftOperand = 0;
@@ -654,7 +686,7 @@ void performSemanticsNot(){
 
 void printQuads(){
 
-int count = 0;
+      int count = 0;
       for ( auto &i : quadrupleSet ) {
 
             cout <<count<< ".- ";
@@ -716,4 +748,10 @@ void yyerror(char const *x)
 
     cout <<yylineno<<" ERROR: "<<x<<endl;
     exit (0);
+}
+
+void run(){
+
+      VirtualMachine virtualMachin (&quadrupleSet, functionDirectory->getFuncList(), globalMemoryFrame);
+
 }

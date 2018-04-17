@@ -28,7 +28,7 @@ private:
     Type type;
     int startingInstruction;
     VarTable *symbolTable;
-    MemoryFrame *memoryFrame = new MemoryFrame();
+    MemoryFrame *memoryFrame;
     vector<int> parameters;
     
     
@@ -61,12 +61,13 @@ public:
         return id;
     }
 
-    VarTable* getSymbolTable(){
-        return symbolTable;
+    MemoryFrame* getMemoryFrame(){
+
+        return memoryFrame;
     }
 
-    MemoryFrame* getMemoryFrame(){
-        return memoryFrame;
+    VarTable* getSymbolTable(){
+        return symbolTable;
     }
 
     Type getType(){

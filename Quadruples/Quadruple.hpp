@@ -32,6 +32,18 @@ public:
         return operator_;
     }
 
+    int getLeftOperand(){
+        return leftOperand;
+    }
+
+    int getRightOperand(){
+        return rightOperand;
+    }
+
+    int getResult(){
+        return result;
+    }
+
     void setResult(int res){
         result = res;
     }
@@ -60,6 +72,7 @@ public:
             case ERA_: cout << "ERA_ "; break;
             case PARAMETER_: cout << "PARAMETER_ "; break;
             case GOSUB_: cout << "GOSUB_ "; break;
+            case ENDPROG_: cout << "ENDPROG_ "; break;
         }
 
         cout <<leftOperand<<" , "<<rightOperand<<" , "<<result<<endl;

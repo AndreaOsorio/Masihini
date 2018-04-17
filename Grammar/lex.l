@@ -1,13 +1,14 @@
 %option noyywrap
 %{
     #include "grammar.tab.h"
+        #include <iostream>
+            using namespace std;
 %}
 
 
 float_num          [0-9]+"."[0-9]+"f"
 int_num            ([0]|[1-9][0-9]*)
-id                 [a-zA-Z][_a-zA-Z0-9]*
-string_literal      \"(([^\"]|\\\")*[^\\])?\"
+id                 [a-zA-Z][_a-zA-Z0-9]* 
 whitespace         [\t\v\f ]
 linefeed           \n
 
@@ -61,11 +62,12 @@ linefeed           \n
 "<="                       {return LE;}
 ">="                       {return GE;}
 "=="                       { return EE; }
+'(\\.|[^\\'])+'            { yylval.stringValue = strdup(yytext); return STRING; }
 
 {float_num}                 { yylval.floatValue = atof(yytext); return FLOAT; }
 {int_num}                   { yylval.intValue = atoi(yytext); return INT; }
 {id}                        { yylval.stringValue = strdup(yytext); return ID; }
-{string_literal}            { return STRING; }
+
 
 {whitespace}
 {linefeed}                  ++yylineno;

@@ -46,6 +46,10 @@ public:
         return funcList.at(index);
     }
 
+    vector <FuncNode*>* getFuncList(){
+        return &funcList;
+    }
+
     int search(string name){
         
         int count =0;
