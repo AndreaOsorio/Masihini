@@ -5,7 +5,6 @@ func int myFunc ()
     var b: int;
 {
 
-    b = 10-10;
     return 0;
 }
 
@@ -13,8 +12,7 @@ static func void run ()
     var b : int;
 {
 
-    b = 10-10;
-    a = 10/b;
+    a = 10.0f/10.0f;
 
 }
 

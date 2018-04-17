@@ -17,7 +17,7 @@ private:
     MemoryFrame* currentFrame;
 
     void callForDivisionbyCeroError(){
-        cout<<"ERROR: Division by 0"<<endl;
+        cout<<"RUNTIME ERROR: Division by 0"<<endl;
         exit(0);
     }
 
@@ -259,7 +259,8 @@ public:
         }
 
         if(leftType==INTEGER_ && rightType == FLOAT_){
-            if (retrieveIntegerValueFromContext(rightOperand) == 0.0f)
+
+            if (retrieveFloatValueFromContext(rightOperand) == 0.0f)
             callForDivisionbyCeroError();
 
             float result = retrieveIntegerValueFromContext(leftOperand) / retrieveFloatValueFromContext(rightOperand);
@@ -267,6 +268,7 @@ public:
         }
 
         if(leftType==FLOAT_ && rightType == INTEGER_){
+
             if (retrieveIntegerValueFromContext(rightOperand) == 0)
             callForDivisionbyCeroError();
             float result = retrieveFloatValueFromContext(leftOperand) / retrieveIntegerValueFromContext(rightOperand);
@@ -274,14 +276,39 @@ public:
         }
 
         if(leftType==FLOAT_ && rightType == FLOAT_){
-            if (retrieveIntegerValueFromContext(rightOperand) == 0.0f)
+            if (retrieveFloatValueFromContext(rightOperand) == 0.0f)
             callForDivisionbyCeroError();
             float result = retrieveFloatValueFromContext(leftOperand) / retrieveFloatValueFromContext(rightOperand);
             setValueFromContext(memDir,result );
         }
     }
 
-    
+    void assignation(Quadruple* quad){
+
+        int leftOperand = quad->getLeftOperand();
+        int memDir = quad->getResult();
+
+        Type leftType = getTypeFromContext(leftOperand);
+
+
+        if(leftType==INTEGER_){
+            setValueFromContext(memDir , retrieveIntegerValueFromContext(leftOperand));
+        }
+
+        if(leftType==FLOAT_){
+            setValueFromContext(memDir , retrieveFloatValueFromContext(leftOperand));
+        }
+
+        if(leftType==BOOLEAN_){
+            setValueFromContext(memDir , retrieveBooleanValueFromContext(leftOperand));
+        }
+
+        if(leftType==STRING_){
+            setValueFromContext(memDir , retrieveStringValueFromContext(leftOperand));
+        }
+
+    }
+
 
     
 };

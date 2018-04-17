@@ -469,7 +469,12 @@ term_1 : MULT {stackOperator.push(MULT_);} term
        |
        ;
 
-factor : L_PARENTHESIS  expression R_PARENTHESIS 
+factor : L_PARENTHESIS {stackOperator.push(FAKE_BTTM_);}   expression R_PARENTHESIS  
+            {
+                  if (stackOperator.top() ==  FAKE_BTTM_)
+                  stackOperator.pop();
+
+            }
        | var_cte 
        ;
 

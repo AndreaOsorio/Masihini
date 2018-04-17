@@ -14,10 +14,10 @@ enum Type
 
 enum Operator
 {
-    ADD_,
-    SUBS_,
-    MULT_,
-    DIV_,
+    ADD_,//Ready
+    SUBS_,//Ready
+    MULT_,//Ready
+    DIV_,//Ready
     GT_,
     LT_,
     LE_,
@@ -26,7 +26,8 @@ enum Operator
     NOT_,
     AND_,
     OR_,
-    EQ_,
+    EQ_,//Ready
+    FAKE_BTTM_,
     //Non Expression-Related Operators
     GOTOF_,
     GOTO_,
