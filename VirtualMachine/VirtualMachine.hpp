@@ -235,7 +235,7 @@ public:
                 case MULT_: multiplication(quad); execPointer++; break;
                 case DIV_: division(quad); execPointer++; break;
                 case GT_: greaterThan(quad); execPointer++; break;
-                case LT_: greaterThan(quad); execPointer++; break;
+                case LT_: lessThan(quad); execPointer++; break;
                 case LE_: lessOrEquals(quad); execPointer++; break;
                 case GE_: greaterOrEquals(quad); execPointer++; break;
                 case EE_: equalsEquals(quad); execPointer++; break;

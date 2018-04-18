@@ -350,7 +350,6 @@ public:
         Type leftType = getTypeFromContext(leftOperand);
         Type rightType = getTypeFromContext(rightOperand);
 
-
         if(leftType==INTEGER_ && rightType == INTEGER_){
             bool result = retrieveIntegerValueFromContext(leftOperand) < retrieveIntegerValueFromContext(rightOperand);
             setValueFromContext(memDir,result );
@@ -513,12 +512,16 @@ public:
 
     int gotoFOperation(Quadruple* quad){
 
+
         int leftOperand = quad->getLeftOperand();
         int result= quad->getResult();
         Type leftType = getTypeFromContext(leftOperand);
 
-        if(leftOperand==BOOLEAN_){
-            if(retrieveBooleanValueFromContext(leftOperand) == false){
+        if(leftType==BOOLEAN_){
+            bool value = retrieveBooleanValueFromContext(leftOperand);
+            if( value == false){
+
+                cout<<"Hey, I'm false"<<endl;
                 return result;
             }
         }
