@@ -50,7 +50,7 @@
 
       //Parameters used to assign memory to items;
 
-      MemoryFrame *globalMemoryFrame = new MemoryFrame(0,5000);
+      MemoryFrame *globalMemoryFrame = new MemoryFrame(1,5000);
 
       //Stack used for Code Generation
 
@@ -504,7 +504,13 @@ factor : L_PARENTHESIS {stackOperator.push(FAKE_BTTM_);}   expression R_PARENTHE
 
 
 
-var_cte : func_call
+var_cte : func_call{
+
+                        int index = quadrupleSet.at(quadrupleSet.size()-1)->getResult() * -1;
+                        stackOperand.push(index);
+
+
+                  }
         | ID {
                   VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
                   int memDir = symbolTable->search($1);
@@ -554,14 +560,24 @@ Type getTypeFromContext(int value){
 
       Type type;
 
-      if(value<globalMemoryOffset){
-            type = globalMemoryFrame->getType(value);
+
+      if (value > 0){
+
+            if(value<globalMemoryOffset){
+                  type = globalMemoryFrame->getType(value);
+
+            }else{
+                  MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+                  type = memFrame->getType(value);
+
+            }
 
       }else{
-            MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
-            type = memFrame->getType(value);
+            FuncNode* node = functionDirectory->getFuncList()->at(value*-1);
+            type = node->getType();
 
       }
+
 
       return type;
 }
@@ -721,7 +737,8 @@ void performSemanticsAssignment(){
       Operator op = stackOperator.top();
       stackOperator.pop();
 
-
+      cout<<"right type: "<<rightType<<" "<<rightOperand<<endl;
+      cout<<"left type: "<<leftType<< " "<< leftOperand<<endl;
 
       Type resultType = semantics->isAllowed(rightType,leftType, op);
       if(resultType == VOID_){
@@ -832,6 +849,6 @@ void yyerror(char const *x)
 
 void run(){
 
-      VirtualMachine virtualMachin (&quadrupleSet, functionDirectory->getFuncList(), globalMemoryFrame);
+      VirtualMachine virtualMachin (&quadrupleSet, functionDirectory->getFuncList(), globalMemoryFrame, globalMemoryOffset);
 
 }

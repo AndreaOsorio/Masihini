@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <iostream>
 #include "../Semantics/Type.hpp"
+#include "../Semantics/FuncDir.hpp"
 #include "../Memory/MemoryFrame.hpp"
 #include "../Quadruples/Quadruple.hpp"
 
@@ -12,6 +13,7 @@ class OperationHelper{
 private:
 
     int globalMemoryOffset;
+    
 
     MemoryFrame* globalFrame;
     MemoryFrame* currentFrame;
@@ -25,15 +27,26 @@ private:
 
         Type type;
 
-        if(value<globalMemoryOffset){
-                type = globalFrame->getType(value);
 
-        }else{
-                type = currentFrame->getType(value);
+      if (value > 0){
 
-        }
+            if(value<globalMemoryOffset){
+                  type = globalFrame->getType(value);
 
-        return type;
+            }else{
+                
+                  type = currentFrame->getType(value);
+
+            }
+
+      }else{
+            
+            //Replace later
+
+      }
+
+
+      return type;
     }
 
 
@@ -520,8 +533,6 @@ public:
         if(leftType==BOOLEAN_){
             bool value = retrieveBooleanValueFromContext(leftOperand);
             if( value == false){
-
-                cout<<"Hey, I'm false"<<endl;
                 return result;
             }
         }
@@ -583,6 +594,41 @@ public:
         cout<<"STOP "<<endl;
     }
 
+
+    void assignParameter(FuncNode* functionCalled, MemoryFrame* frameCalled, Quadruple* quad){
+
+        int valueDir = quad->getRightOperand();
+        Type typeValue = getTypeFromContext(valueDir);
+
+        int index = quad->getResult();
+        int paramDir = functionCalled->getParameterDirAt(index);
+        
+
+        if(typeValue == INTEGER_){
+            int value = retrieveIntegerValueFromContext(valueDir);
+            currentFrame = frameCalled;
+            setValueFromContext(paramDir, value);
+        }
+
+        if(typeValue == FLOAT_){
+            float value = retrieveFloatValueFromContext(valueDir);
+            currentFrame = frameCalled;
+            setValueFromContext(paramDir, value);
+        }
+
+         if(typeValue == STRING_){
+            string value = retrieveStringValueFromContext(valueDir);
+            currentFrame = frameCalled;
+            setValueFromContext(paramDir, value);
+        }
+
+         if(typeValue == BOOLEAN_){
+            bool value = retrieveBooleanValueFromContext(valueDir);
+            currentFrame = frameCalled;
+            setValueFromContext(paramDir, value);
+        }
+
+    }
 
     
 };

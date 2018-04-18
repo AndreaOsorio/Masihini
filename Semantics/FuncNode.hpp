@@ -47,6 +47,10 @@ public:
         parameters.push_back(param);
     }
 
+    int getParameterDirAt(int index){
+        return parameters.at(index);
+    }
+
     int getNumberOfParameters(){
         return parameters.size();
     }

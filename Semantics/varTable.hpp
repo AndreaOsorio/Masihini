@@ -65,8 +65,7 @@ class VarTable{
 
         if(isContainedInTable(id)){
             VarNode elem (id, VOID_);
-            auto it = varTable.find(elem);
-
+            auto it = this->varTable.find(elem);
             return it->getMemDir();
 
         }

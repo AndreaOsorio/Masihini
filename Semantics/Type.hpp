@@ -28,11 +28,11 @@ enum Operator
     OR_,//Ready
     EQ_,//Ready
     FAKE_BTTM_,//Doesn't apply
-    SPEAK_,
-    ACCEL_,
-    JUMP_,
-    STOP_,
-    ROT_,
+    SPEAK_,//Ready
+    ACCEL_,//Ready
+    JUMP_,//Ready
+    STOP_,//Ready
+    ROT_,//Ready
     //Non Expression-Related Operators
     GOTOF_,//Ready
     GOTO_,//Ready

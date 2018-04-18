@@ -24,16 +24,23 @@ private:
     vector<Quadruple*>* quadrupleSet;
     vector<FuncNode*>* functionDirectory;
     int execPointer = 0;
+    stack<int> execPointerPositionStack;
     stack <MemoryFrame*> memoryStack;
     MemoryFrame* globalMemoryFrame;
     MemoryFrame* currentFrame;
-    int globalMemoryOffset = 25000;
+    MemoryFrame* calledFrame;
+    FuncNode* calledFunction;
+
+    int globalMemoryOffset;
 
     void init(){
         FuncNode* mainFuncNode = functionDirectory->at(functionDirectory->size()-1);
         memoryStack.push(mainFuncNode->getMemoryFrame());
         currentFrame = memoryStack.top();
     }
+
+
+
 
     void goto_(Quadruple* quad){
 
@@ -201,17 +208,38 @@ private:
 
     }
 
+    void eraOp(Quadruple* quad){
+        int index = quad->getResult();
+        calledFunction = functionDirectory->at(index);
+        calledFrame = new MemoryFrame(calledFunction->getMemoryFrame());
+    }
+
+    void parameterOp(Quadruple* quad){
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.assignParameter(calledFunction, calledFrame, quad);
+    }
+
+    void gosubOp(){
+        memoryStack.push(calledFrame);
+        currentFrame = memoryStack.top();
+        execPointerPositionStack.push(execPointer);
+        execPointer = calledFunction->getStartingInstruction();
+        
+    }
+
+
 
     
     
     
 public:
     
-    VirtualMachine(vector <Quadruple*>* quadSet, vector<FuncNode*>* funcDir, MemoryFrame* globalMemFrame ){
+    VirtualMachine(vector <Quadruple*>* quadSet, vector<FuncNode*>* funcDir, MemoryFrame* globalMemFrame, int offset ){
        
             quadrupleSet = quadSet;
             functionDirectory = funcDir;
             globalMemoryFrame = globalMemFrame;
+            globalMemoryOffset = offset;
 
             cout<<"------------------------ Exec output---------------------"<<endl;
             printQuads();
@@ -227,6 +255,7 @@ public:
 
             Quadruple* quad = quadrupleSet->at(execPointer);
             Operator operator_ = quad->getOperator();
+
 
             //Any action that alters exec pointer does not add to the counter
             switch (operator_){
@@ -248,6 +277,9 @@ public:
                 case JUMP_: jump(); execPointer++; break;
                 case STOP_: stopOp(); execPointer++; break;
                 case EQ_: assignment(quad); execPointer++; break;
+                case ERA_: eraOp(quad); execPointer++; break;
+                case PARAMETER_: parameterOp(quad); execPointer++; break;
+                case GOSUB_: gosubOp(); break;
                 case GOTOF_: gotoF_(quad); break; 
                 case GOTO_: goto_(quad); break; 
                 case ENDPROC_: exitExec(); break;

@@ -1,28 +1,28 @@
-
 static var a : float;
+static var c : float;
 
-func int myFunc ()
+func float myFunc(f1:int, f2:int)
     var b: int;
 {
+    b=10;
+    speak(f1);
+    speak(b);
+    return 0.0f;
+}
 
+func int myFunc2()
+    var b: int;
+{
     return 0;
 }
 
 static func void run ()
-    var b : int;
+    var b : float;
+    var i : int;
 {
-
-    b = 0;
-
-    while (b < 10){  
-        stop();
-        jump();
-        speak(b);
-        accel(10.0f + 10.0f);
-        rot(10.0f + 20 * (40+50));
-        b = b+1;
-    }
+    a = 20.0f;
+    myFunc(10,10);
     
 
-}
 
+}

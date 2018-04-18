@@ -25,6 +25,8 @@ class MemoryFrame{
         floatMemoryDispatcher = new MemoryDispatcher<float>(memFrame->getFloatDispatcher());
         stringMemoryDispatcher = new MemoryDispatcher<string>(memFrame->getStringDispatcher());
         booleanMemoryDispatcher = new MemoryDispatcher<bool>(memFrame->getBooleanDispatcher());
+        this->offset = memFrame->offset;
+        this->frame = memFrame->frame;
     }
 
     MemoryFrame(int offsetValue, int frameSize){
