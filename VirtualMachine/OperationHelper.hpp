@@ -283,7 +283,7 @@ public:
         }
     }
 
-    void assignation(Quadruple* quad){
+    void assignmentOperation(Quadruple* quad){
 
         int leftOperand = quad->getLeftOperand();
         int memDir = quad->getResult();
@@ -523,7 +523,61 @@ public:
             }
         }
 
-        return -1
+        return -1;
+    }
+
+    void speakOperation(Quadruple* quad){
+
+        int result= quad->getResult();
+        Type type = getTypeFromContext(result);
+
+        if(type == STRING_)
+        cout<<"SPEAK "<<retrieveStringValueFromContext(result)<<endl;
+
+        if(type == FLOAT_)
+        cout<<"SPEAK "<<retrieveFloatValueFromContext(result)<<endl;
+
+        if(type == INTEGER_)
+        cout<<"SPEAK "<<retrieveIntegerValueFromContext(result)<<endl;
+
+        if(type == BOOLEAN_)
+        cout<<"SPEAK "<<retrieveBooleanValueFromContext(result)<<endl;
+
+    }
+
+
+    void accelOperation(Quadruple* quad){
+
+        int result= quad->getResult();
+        Type type = getTypeFromContext(result);
+
+        if(type == FLOAT_)
+        cout<<"ACCEL "<<retrieveFloatValueFromContext(result)<<endl;
+
+        if(type == INTEGER_)
+        cout<<"ACCEL "<<retrieveIntegerValueFromContext(result)<<endl;
+
+    }
+
+    void rotOperation(Quadruple* quad){
+
+        int result= quad->getResult();
+        Type type = getTypeFromContext(result);
+
+        if(type == FLOAT_)
+        cout<<"ROT "<<retrieveFloatValueFromContext(result)<<endl;
+
+        if(type == INTEGER_)
+        cout<<"ROT "<<retrieveIntegerValueFromContext(result)<<endl;
+
+    }
+
+    void jumpOperation(){
+        cout<<"JUMP "<<endl;
+    }
+
+    void stopOperation(){
+        cout<<"STOP "<<endl;
     }
 
 

@@ -117,10 +117,7 @@ private:
         if(rightOperand == BOOLEAN_ && leftOperand == BOOLEAN_) return BOOLEAN_;
 
 
-    }
-
-
-    
+    }    
     
     
     

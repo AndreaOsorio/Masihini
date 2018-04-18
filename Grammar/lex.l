@@ -40,8 +40,8 @@ linefeed           \n
 
 
 
-"&&"                         { return AND; }
-"||"                         { return OR; }
+"&&"                        { return AND; }
+"||"                        { return OR; }
 "!"                         { return NOT; }
 ";"                         { return SEMICOLON; }
 ":"                         { return COLON; }
@@ -55,7 +55,7 @@ linefeed           \n
 "accel" |
 "jump"  |
 "stop"  |
-"rot"                       { return SYSTEM_PREFIX; }
+"rot"                       { yylval.stringValue = strdup(yytext); return SYSTEM_PREFIX; }
 
 ">"                        {return GT;}
 "<"                        {return LT;}

@@ -45,7 +45,13 @@ private:
     void gotoF_(Quadruple* quad){
 
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
-        execPointer = helper.gotoFOperation(quad);
+        int res = helper.gotoFOperation(quad);
+
+        if(res != -1){
+            execPointer = res;
+        }else{
+            execPointer++;
+        }
 
     }
 
@@ -62,7 +68,7 @@ private:
       int count = 0;
       for ( auto &i : *quadrupleSet ) {
 
-            cout <<count<< ".- ";
+            cout <<count<< ".-\t";
             i->print();
             count++;
       }
@@ -153,6 +159,48 @@ private:
 
     }
 
+    void speak(Quadruple* quad){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.speakOperation(quad);
+
+    }
+
+    void accel(Quadruple* quad){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.accelOperation(quad);
+
+    }
+
+    void rot(Quadruple* quad){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.rotOperation(quad);
+
+    }
+
+    void stopOp(){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.stopOperation();
+
+    }
+
+    void jump(){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.jumpOperation();
+
+    }
+
+     void assignment(Quadruple* quad){
+
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.assignmentOperation(quad);
+
+    }
+
 
     
     
@@ -175,7 +223,7 @@ public:
 
     void run(){
 
-        for ( auto &i : *quadrupleSet ) {
+        while (true) {
 
             Quadruple* quad = quadrupleSet->at(execPointer);
             Operator operator_ = quad->getOperator();
@@ -194,9 +242,15 @@ public:
                 case NOT_: notOp(quad); execPointer++; break;
                 case AND_: andOp(quad); execPointer++; break;
                 case OR_: orOp(quad); execPointer++; break;
+                case SPEAK_: speak(quad); execPointer++; break;
+                case ACCEL_: accel(quad); execPointer++; break;
+                case ROT_: rot(quad); execPointer++; break;
+                case JUMP_: jump(); execPointer++; break;
+                case STOP_: stopOp(); execPointer++; break;
+                case EQ_: assignment(quad); execPointer++; break;
                 case GOTOF_: gotoF_(quad); break; 
                 case GOTO_: goto_(quad); break; 
-                case ENDPROG_: exitExec(); break;
+                case ENDPROC_: exitExec(); break;
             }
 
 

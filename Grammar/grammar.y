@@ -22,6 +22,7 @@
     void performSemantics();
     void performSemanticsNot();
     void performSemanticsAssignment();
+    void performSystemFunction(Operator op);
     void manageMemoryVarCte(Type type, char value);
     void printQuads();
     void performReturn();
@@ -90,6 +91,7 @@
 %token <intValue>     INT
 %token <stringValue>  ID
 %token <stringValue>  STRING
+%token <stringValue>  SYSTEM_PREFIX
 %token TRUE
 %token FALSE
 %token IF
@@ -128,7 +130,7 @@
 %token RUN
 %token VOID
 %token LOCAL
-%token SYSTEM_PREFIX
+
 
 
 %start start
@@ -352,6 +354,28 @@ func_call_2 : COMMA expression {performParamAssignment();} func_call_2
             ;
 
 system_func : SYSTEM_PREFIX L_PARENTHESIS system_func_1 R_PARENTHESIS SEMICOLON
+                  {
+
+                        string value($1);
+
+                        if(!value.compare("speak"))
+                        performSystemFunction(SPEAK_);
+
+                        if(!value.compare("accel"))
+                        performSystemFunction(ACCEL_);
+
+                        if(!value.compare("jump"))
+                        performSystemFunction(JUMP_);
+
+                        if(!value.compare("rot"))
+                        performSystemFunction(ROT_);
+
+                        if(!value.compare("stop"))
+                        performSystemFunction(STOP_);
+
+                        
+
+                  }
             ;
 
 system_func_1 : expression 
@@ -543,8 +567,8 @@ Type getTypeFromContext(int value){
 }
 
 void performSemantics(){
-      MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
 
+      MemoryFrame* memFrame = currentDeclaredFunction->getMemoryFrame();
 
       int rightOperand = stackOperand.top();
       Type rightType = getTypeFromContext(rightOperand);
@@ -570,8 +594,60 @@ void performSemantics(){
 
 }
 
+void performSystemFunction( Operator op){
+
+      int operand;
+
+
+      if(!stackOperand.empty())
+      {
+            operand = stackOperand.top();
+            stackOperand.pop();
+            Type type = getTypeFromContext(operand);
+
+            if(op == SPEAK_){
+                  quadrupleSet.push_back(new Quadruple(SPEAK_, -1, -1, operand));
+            }
+
+            if(op == ACCEL_){
+                  if(type == INTEGER_ || type == FLOAT_){
+                        quadrupleSet.push_back(new Quadruple(ACCEL_, -1, -1, operand));
+                  }else{
+                        callForTypeMismatchError("\"accel\" does not support this operation");    
+                  }
+            }
+
+             if(op == ROT_){
+                  if(type == INTEGER_ || type == FLOAT_){
+                        quadrupleSet.push_back(new Quadruple(ROT_, -1, -1, operand));
+                  }else{
+                        callForTypeMismatchError("\"rot\" does not support this operation");    
+                  }
+            }
+
+            if(op == STOP_ || op == JUMP_)
+                  callForTypeMismatchError("This action does not call for a parameter");   
+
+      }else{
+
+            if(op == STOP_){
+                  quadrupleSet.push_back(new Quadruple(STOP_, -1, -1, -1));
+            }else if(op == JUMP_){
+                  quadrupleSet.push_back(new Quadruple(JUMP_, -1, -1, -1));
+            }else{
+                  callForTypeMismatchError("This operation requires an expression");  
+            }
+     
+
+      }
+
+
+
+
+}
+
 void performReturn(){
-      MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
       int result = stackOperand.top();
       Type resultType = getTypeFromContext(result);
       stackOperand.pop();
@@ -609,8 +685,7 @@ void performParamAssignment(){
             if(numberOfParameters==parameterCounter){
                   callForTypeMismatchError("Function \""+name+"\" requires " +to_string( numberOfParameters)+ " parameters"  ); 
             }else{
-            
-                  MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
                   int result = stackOperand.top();
                   Type resultType =getTypeFromContext(result);
                   stackOperand.pop();

@@ -73,9 +73,16 @@ public:
             case PARAMETER_: cout << "PARAMETER_ "; break;
             case GOSUB_: cout << "GOSUB_ "; break;
             case ENDPROG_: cout << "ENDPROG_ "; break;
+            case SPEAK_: cout << "SPEAK_ "; break;
+            case ACCEL_: cout << "ACCEL_ "; break;
+            case ROT_: cout << "ROT_ "; break;
+            case STOP_: cout << "STOP_ "; break;
+            case JUMP_: cout << "JUMP_ "; break;
         }
 
-        cout <<leftOperand<<" , "<<rightOperand<<" , "<<result<<endl;
+        cout<<"\t\t";
+
+        cout <<leftOperand<<"\t"<<rightOperand<<"\t"<<result<<endl;
         
     }
     

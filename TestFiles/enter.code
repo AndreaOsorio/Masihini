@@ -9,14 +9,22 @@ func int myFunc ()
 }
 
 static func void run ()
-    var b : int;
+    var b : boolean;
 {
 
     a = 10.0f/10.0f;
 
-    if(!true){
+    b = true;
+
+    if (b){
         
-    }
+    stop();
+    jump();
+    speak(10);
+    accel(10.0f + 10.0f);
+    rot(10.0f + 20 * (40+50));
+  }
+    
 
 }
 
