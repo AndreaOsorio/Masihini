@@ -1,8 +1,31 @@
 
 
+func int recursive(num:int){
+
+    if(num==0 || num == 1){
+        return num;
+    }else{
+        return recursive(num-1) + recursive(num-2);
+    }
+}
+
+func float factorial(num:float){
+    
+    if (num == 0.0f || num==1.0f){
+        return 1.0f;
+    }else{
+        return factorial(num-1) * num;
+    }
+}
+
 static func void run ()
     var a : int;
+    var b : float;
 {
-    rot(10000000);
+    a = recursive(10);
+    speak(a);
+
+    b = factorial(3.0f);
+    speak(b);
 
 }

@@ -301,9 +301,15 @@ private:
 
         MemoryFrame* oldMem = memoryStack.top();
         memoryStack.pop();
+
+
+
         delete oldMem;
 
         currentFrame = memoryStack.top();
+
+
+
         execPointer = execPointerPositionStack.top();
         execPointerPositionStack.pop();
         execPointer++;
@@ -349,6 +355,7 @@ public:
 
             Quadruple* quad = quadrupleSet->at(execPointer);
             Operator operator_ = quad->getOperator();
+
 
 
             //Any action that alters exec pointer does not add to the counter

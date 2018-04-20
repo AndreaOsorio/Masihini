@@ -453,6 +453,7 @@ public:
 
 
         if(leftType==INTEGER_ && rightType == INTEGER_){
+           
             bool result = retrieveIntegerValueFromContext(leftOperand) == retrieveIntegerValueFromContext(rightOperand);
             setValueFromContext(memDir,result );
         }
@@ -515,10 +516,13 @@ public:
 
         if(leftType==BOOLEAN_ || rightType == BOOLEAN_){
             bool result = retrieveBooleanValueFromContext(leftOperand) || retrieveBooleanValueFromContext(rightOperand);
+            setValueFromContext(memDir,result );
         }
     }
 
     int gotoFOperation(Quadruple* quad){
+
+     
 
 
         int leftOperand = quad->getLeftOperand();
@@ -528,6 +532,7 @@ public:
         if(leftType==BOOLEAN_){
             bool value = retrieveBooleanValueFromContext(leftOperand);
             if( value == false){
+
                 return result;
             }
         }
