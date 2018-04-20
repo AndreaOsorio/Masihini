@@ -39,10 +39,6 @@ private:
 
             }
 
-      }else{
-            
-            //Replace later
-
       }
 
 
@@ -503,7 +499,7 @@ public:
         Type rightType = getTypeFromContext(rightOperand);
 
         if(leftType==BOOLEAN_ && rightType == BOOLEAN_){
-            bool result = retrieveFloatValueFromContext(leftOperand) && retrieveFloatValueFromContext(rightOperand);
+            bool result = retrieveBooleanValueFromContext(leftOperand) && retrieveBooleanValueFromContext(rightOperand);
             setValueFromContext(memDir,result );
         }
     }
@@ -517,9 +513,8 @@ public:
         Type leftType = getTypeFromContext(leftOperand);
         Type rightType = getTypeFromContext(rightOperand);
 
-        if(leftType==BOOLEAN_ && rightType == BOOLEAN_){
-            bool result = retrieveFloatValueFromContext(leftOperand) || retrieveFloatValueFromContext(rightOperand);
-            setValueFromContext(memDir,result );
+        if(leftType==BOOLEAN_ || rightType == BOOLEAN_){
+            bool result = retrieveBooleanValueFromContext(leftOperand) || retrieveBooleanValueFromContext(rightOperand);
         }
     }
 
@@ -627,6 +622,34 @@ public:
             currentFrame = frameCalled;
             setValueFromContext(paramDir, value);
         }
+
+    }
+
+    int returnOperation(Quadruple* quad){
+
+        int result = quad->getResult();
+        Type type = getTypeFromContext(result);
+
+        if(type == INTEGER_){
+            int value = retrieveIntegerValueFromContext(result);
+            return globalFrame->registerValue(value);
+        }
+
+        if(type == FLOAT_){
+            float value = retrieveFloatValueFromContext(result);
+            return globalFrame->registerValue(value);
+        }
+
+        if(type == STRING_){
+            string value = retrieveStringValueFromContext(result);
+            return globalFrame->registerValue(value);
+        }
+
+         if(type == BOOLEAN_){
+            bool value = retrieveBooleanValueFromContext(result);
+            return globalFrame->registerValue(value);
+        }
+
 
     }
 

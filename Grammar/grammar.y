@@ -332,8 +332,9 @@ func_call : ID
 
                   }
             }
-            L_PARENTHESIS func_call_1 R_PARENTHESIS 
+            L_PARENTHESIS{stackOperator.push(FAKE_BTTM_);} func_call_1 R_PARENTHESIS 
             {
+                  stackOperator.pop();
                   string id ($1);
                   int result = functionDirectory->search(id);
                   int numberOfParameters = currentCalledFunction->getNumberOfParameters();
@@ -525,7 +526,10 @@ var_cte : func_call{
                   stackOperand.push(memDir);
 
              } array
-        | INT     {manageMemoryVarCte(INTEGER_, $1);}
+        | INT     {     int temp = $1;
+                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+                        int memDir = memFrame->registerValue(temp);
+                        stackOperand.push(memDir);}
         | FLOAT   {
                         float temp = $1;
                         MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
@@ -669,9 +673,11 @@ void performReturn(){
       stackOperand.pop();
 
       Type functionType = currentDeclaredFunction->getType();
+      string id = currentDeclaredFunction->getId();
+      int index = functionDirectory->search(id);
 
       if(resultType == functionType){
-            quadrupleSet.push_back(new Quadruple(RETURN_, -1, -1, result));
+            quadrupleSet.push_back(new Quadruple(RETURN_, -1,index, result));
       }else{
              callForTypeMismatchError("Return mismatch error, cannot perform operation"); 
       }
@@ -796,10 +802,7 @@ void printQuads(){
 void manageMemoryVarCte(Type type, char value){
       MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
       int memDir;
-      if(type == INTEGER_){
-            memDir = memFrame->registerValue(value);
-      }
-      else if(type == BOOLEAN_){
+      if(type == BOOLEAN_){
             if(value == 1){
                   memDir = memFrame->registerValue(true);
             }else{

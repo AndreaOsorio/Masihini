@@ -82,15 +82,81 @@ private:
 
     }
 
+    Quadruple* getReturnValueFromFunc( Quadruple* quad){
+
+            if (quad->getLeftOperand()>0 && quad->getRightOperand()>0){
+                return quad;
+            }else{
+
+                Operator op = quad->getOperator();
+                int left = quad->getLeftOperand();
+                int right = quad->getRightOperand();
+                int result = quad->getResult();
+
+                
+                if(quad->getLeftOperand()<=0 && quad->getRightOperand()<=0){
+                    int indexL = quad->getLeftOperand()*-1;
+                    FuncNode* funcL = functionDirectory->at(indexL);
+                    int memDirL = funcL->getReturnValue();
+
+                    int indexR = quad->getRightOperand()*-1;
+                    FuncNode* funcR = functionDirectory->at(indexR);
+                    int memDirR = funcR->getReturnValue();
+
+                    return new Quadruple(op, memDirL, memDirR, result);
+
+                }
+
+                if(quad->getLeftOperand()<=0 ){
+
+                    int indexL = quad->getLeftOperand()*-1;
+                    FuncNode* funcL = functionDirectory->at(indexL);
+                    int memDirL = funcL->getReturnValue();
+
+                    return new Quadruple(op, memDirL, right, result);
+
+                }
+
+                if(quad->getRightOperand()<=0 ){
+
+                    int indexR = quad->getRightOperand()*-1;
+                    FuncNode* funcR = functionDirectory->at(indexR);
+                    int memDirR = funcR->getReturnValue();
+
+                    return new Quadruple(op, left, memDirR, result);
+
+                }
+            }
+    }
+
+
+    void assignment(Quadruple* quad){
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+         if (quad->getLeftOperand()>0){
+            helper.assignmentOperation(quad);
+         }else{
+            int index = quad->getLeftOperand()*-1;
+            FuncNode* func = functionDirectory->at(index);
+            int memDir = func->getReturnValue();
+            Quadruple* tempQuad = new Quadruple(EQ_,memDir, -1, quad->getResult());
+            helper.assignmentOperation(tempQuad);
+            delete tempQuad;
+         }
+
+    }
+
     void addition(Quadruple* quad){
 
-        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
-        helper.additionOperation(quad);
+            quad = getReturnValueFromFunc(quad);
+            OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+            helper.additionOperation(quad);
+
 
     }
 
     void substraction(Quadruple* quad){
 
+        quad = getReturnValueFromFunc(quad);
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.substractionOperation(quad);
 
@@ -98,6 +164,7 @@ private:
 
     void multiplication(Quadruple* quad){
 
+        quad = getReturnValueFromFunc(quad);
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.multiplicationOperation(quad);
 
@@ -105,6 +172,7 @@ private:
 
     void division(Quadruple* quad){
 
+        quad = getReturnValueFromFunc(quad);
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.divisionOperation(quad);
 
@@ -112,6 +180,7 @@ private:
 
     void greaterThan(Quadruple* quad){
 
+        quad = getReturnValueFromFunc(quad);
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.greaterThanOperation(quad);
 
@@ -119,6 +188,7 @@ private:
 
     void lessThan(Quadruple* quad){
 
+        quad = getReturnValueFromFunc(quad);
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.lessThanOperation(quad);
 
@@ -126,6 +196,7 @@ private:
 
     void lessOrEquals(Quadruple* quad){
 
+        quad = getReturnValueFromFunc(quad);
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.lessOrEqualsOperation(quad);
 
@@ -133,6 +204,7 @@ private:
 
     void greaterOrEquals(Quadruple* quad){
 
+        quad = getReturnValueFromFunc(quad);
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.greaterOrEqualsOperation(quad);
 
@@ -140,6 +212,7 @@ private:
 
     void equalsEquals(Quadruple* quad){
 
+        quad = getReturnValueFromFunc(quad);
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.equalsEqualsOperation(quad);
 
@@ -154,6 +227,7 @@ private:
 
     void andOp(Quadruple* quad){
 
+        quad = getReturnValueFromFunc(quad);
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.andOperation(quad);
 
@@ -161,6 +235,7 @@ private:
 
     void orOp(Quadruple* quad){
 
+        quad = getReturnValueFromFunc(quad);
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.orOperation(quad);
 
@@ -201,12 +276,6 @@ private:
 
     }
 
-     void assignment(Quadruple* quad){
-
-        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
-        helper.assignmentOperation(quad);
-
-    }
 
     void eraOp(Quadruple* quad){
         int index = quad->getResult();
@@ -226,6 +295,31 @@ private:
         execPointer = calledFunction->getStartingInstruction();
         
     }
+
+    void endProc(){
+
+
+        MemoryFrame* oldMem = memoryStack.top();
+        memoryStack.pop();
+        delete oldMem;
+
+        currentFrame = memoryStack.top();
+        execPointer = execPointerPositionStack.top();
+        execPointerPositionStack.pop();
+        execPointer++;
+        
+    }
+
+    void retOp(Quadruple* quad){
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        int memDir = helper.returnOperation(quad);
+        int index = quad->getRightOperand();
+
+        FuncNode* func = functionDirectory->at(index);
+        func->setReturnValue(memDir);
+        endProc();
+    }
+
 
 
 
@@ -259,29 +353,30 @@ public:
 
             //Any action that alters exec pointer does not add to the counter
             switch (operator_){
-                case ADD_: addition(quad); execPointer++; break;
-                case SUBS_: substraction(quad); execPointer++; break;
-                case MULT_: multiplication(quad); execPointer++; break;
-                case DIV_: division(quad); execPointer++; break;
-                case GT_: greaterThan(quad); execPointer++; break;
-                case LT_: lessThan(quad); execPointer++; break;
-                case LE_: lessOrEquals(quad); execPointer++; break;
-                case GE_: greaterOrEquals(quad); execPointer++; break;
-                case EE_: equalsEquals(quad); execPointer++; break;
+                case ADD_: addition(quad); execPointer++; break; //Return ready
+                case SUBS_: substraction(quad); execPointer++; break;//Return ready
+                case MULT_: multiplication(quad); execPointer++; break;//Return ready
+                case DIV_: division(quad); execPointer++; break;//Return ready
+                case GT_: greaterThan(quad); execPointer++; break;//Return ready
+                case LT_: lessThan(quad); execPointer++; break;//Return ready
+                case LE_: lessOrEquals(quad); execPointer++; break;//Return ready
+                case GE_: greaterOrEquals(quad); execPointer++; break;//Return ready
+                case EE_: equalsEquals(quad); execPointer++; break;//Return ready
                 case NOT_: notOp(quad); execPointer++; break;
-                case AND_: andOp(quad); execPointer++; break;
+                case AND_: andOp(quad); execPointer++; break;//Return ready
                 case OR_: orOp(quad); execPointer++; break;
                 case SPEAK_: speak(quad); execPointer++; break;
                 case ACCEL_: accel(quad); execPointer++; break;
                 case ROT_: rot(quad); execPointer++; break;
                 case JUMP_: jump(); execPointer++; break;
                 case STOP_: stopOp(); execPointer++; break;
-                case EQ_: assignment(quad); execPointer++; break;
+                case EQ_: assignment(quad); execPointer++; break;//Return ready
                 case ERA_: eraOp(quad); execPointer++; break;
                 case PARAMETER_: parameterOp(quad); execPointer++; break;
                 case GOSUB_: gosubOp(); break;
                 case GOTOF_: gotoF_(quad); break; 
                 case GOTO_: goto_(quad); break; 
+                case RETURN_: retOp(quad); break; 
                 case ENDPROC_: exitExec(); break;
             }
 

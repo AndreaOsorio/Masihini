@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include <stack>
 #include "./Type.hpp"
 #include "./VarTable.hpp"
 #include "../Memory/MemoryFrame.hpp"
@@ -30,6 +31,7 @@ private:
     VarTable *symbolTable;
     MemoryFrame *memoryFrame;
     vector<int> parameters;
+    stack<int> returnValueStack;
     
     
     
@@ -41,6 +43,19 @@ public:
         symbolTable = symbTable;
         memoryFrame = memFrame;
         
+    }
+
+    void setReturnValue(int value ){
+        returnValueStack.push(value);
+    }
+
+    int getReturnValue(){
+        
+        int returnValue = returnValueStack.top();
+        returnValueStack.pop();
+        return returnValue;
+
+
     }
 
     void addParameter(int param){

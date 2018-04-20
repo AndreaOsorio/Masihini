@@ -40,25 +40,32 @@ class MemoryFrame{
         booleanMemoryDispatcher = new MemoryDispatcher<bool>(offset+(3*frame)+3,frame);
     }
 
+    void dumpMemory(){
+        integerMemoryDispatcher->dumpMemory();
+        floatMemoryDispatcher->dumpMemory();
+        stringMemoryDispatcher->dumpMemory();
+        booleanMemoryDispatcher->dumpMemory();
+    }
+
 
 //Registering values
     int registerValue(int value){
-        int res =  integerMemoryDispatcher->insert(value);
+        int res =  integerMemoryDispatcher->insert<int>(value);
         return res;
     }
 
     int registerValue(float value){
-        int res =  floatMemoryDispatcher->insert(value);
+        int res =  floatMemoryDispatcher->insert<float>(value);
         return res;
     }
 
     int registerValue(string value){
-        int res =  stringMemoryDispatcher->insert(value);
+        int res =  stringMemoryDispatcher->insert<string>(value);
         return res;
     }
 
     int registerValue(bool value){
-        int res =  booleanMemoryDispatcher->insert(value);
+        int res =  booleanMemoryDispatcher->insert<bool>(value);
         return res;
     }
 
@@ -71,10 +78,10 @@ class MemoryFrame{
         switch(type){
 
             //set default values for a new variable
-            case INTEGER_ : return integerMemoryDispatcher->insert(0);
-            case FLOAT_ : return floatMemoryDispatcher->insert(0.0f); 
-            case STRING_ : return stringMemoryDispatcher->insert("");
-            case BOOLEAN_: return booleanMemoryDispatcher->insert(true);
+            case INTEGER_ : return integerMemoryDispatcher->insert<int>(0);
+            case FLOAT_ : return floatMemoryDispatcher->insert<float>(0.0f); 
+            case STRING_ : return stringMemoryDispatcher->insert<string>("");
+            case BOOLEAN_: return booleanMemoryDispatcher->insert<bool>(true);
             default : return -1;
 
         }
@@ -114,19 +121,19 @@ Type getType(int memDir){
 
 //Get value from memory  direction    
     int getIntegerValue(int memDir){
-        return integerMemoryDispatcher->getValue(memDir);
+        return integerMemoryDispatcher->getValue<int>(memDir);
     }
 
     float getFloatValue(int memDir){
-        return floatMemoryDispatcher->getValue(memDir);
+        return floatMemoryDispatcher->getValue<float>(memDir);
     }
 
     string getStringValue(int memDir){
-         return stringMemoryDispatcher->getValue(memDir);
+         return stringMemoryDispatcher->getValue<string>(memDir);
     }
 
     bool getBooleanValue(int memDir){
-        return booleanMemoryDispatcher->getValue(memDir);
+        return booleanMemoryDispatcher->getValue<bool>(memDir);
     }
 
 

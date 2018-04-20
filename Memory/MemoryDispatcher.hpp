@@ -22,6 +22,8 @@ class MemoryDispatcher{
             mem[p->first] = p->second;
     }
 
+
+
     public:
     //Memory map
     map<int,T> mem;
@@ -37,8 +39,16 @@ class MemoryDispatcher{
     MemoryDispatcher(MemoryDispatcher *memDispatcher){
         copyMemory(memDispatcher);
     }
+
+    void dumpMemory(){
+        typedef typename std::map<int,T>::const_iterator It;
+            for (It p = mem.begin(); p!=mem.end(); ++p) 
+            cout<<p->first<<"--->"<<p->second<<endl;
+
+    }
     
-    int insert(T value){
+    template <class X>
+    int insert(X value){
         mem[memCounter] = value;
         int memDir = memCounter;
         memCounter++;
@@ -54,7 +64,8 @@ class MemoryDispatcher{
         mem[memDir] = value;
     }
 
-    T getValue(int memDir){
+    template <class Y>
+    Y getValue(int memDir){
         return mem[memDir];
     }
 

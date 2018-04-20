@@ -1,28 +1,8 @@
-static var a : float;
-static var c : float;
 
-func float myFunc(f1:int, f2:int)
-    var b: int;
-{
-    b=10;
-    speak(f1);
-    speak(b);
-    return 0.0f;
-}
-
-func int myFunc2()
-    var b: int;
-{
-    return 0;
-}
 
 static func void run ()
-    var b : float;
-    var i : int;
+    var a : int;
 {
-    a = 20.0f;
-    myFunc(10,10);
-    
-
+    rot(10000000);
 
 }
