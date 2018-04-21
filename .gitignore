@@ -115,3 +115,9 @@ Grammar/grammar.tab.c
 Grammar/Makefile
 Grammar/varTable.hpp.gch
 *.gch
+lexgram.a
+grammar.tab.o
+grammar.tab.c
+lex.yy.c
+lex.yy.o
+grammar.tab.h

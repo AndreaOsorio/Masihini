@@ -5,12 +5,15 @@
     #include <string>
     #include <iostream>
     #include <stack>
+    #include <queue>
     #include <vector>
     #include "Semantics/FuncDir.hpp"
     #include "Memory/MemoryFrame.hpp"
     #include "Semantics/SemanticRuleSet.hpp"
     #include "Quadruples/Quadruple.hpp"
     #include "VirtualMachine/VirtualMachine.hpp"
+    #include "Semantics/ArrayInfo.hpp"
+    
 
     using namespace std;
 
@@ -48,6 +51,13 @@
       FuncNode *currentDeclaredFunction ;
       VarTable *globalSymbolTable = new VarTable();
       FuncDir *functionDirectory = new FuncDir();
+
+      //Parameters used for arrays management
+      bool hasDimensions = false;
+      bool isConstant = false;
+      bool isDeclaring = false;
+      int dimSize = 1;
+      queue <int> dimensions;
 
       //Parameters used to assign memory to items;
 
@@ -145,18 +155,45 @@ global_declaration : STATIC declaration global_declaration
                     | func_declaration
                     ;
 
-declaration : VAR ID COLON type array SEMICOLON 
+declaration : { isDeclaring = true; } VAR ID COLON type array SEMICOLON 
                                                 { 
                                                       if(declarationState == GLOBAL_){
-                                                            int memDir = globalMemoryFrame->declareValue(currentDeclaredtype);
-                                                            callForLocalRedefinitionError(globalSymbolTable->insertNode(new VarNode($2, currentDeclaredtype, memDir))); 
+                                                            int memDir;
+                                                            if (hasDimensions)
+                                                            {
+                                                                  memDir = globalMemoryFrame->declareArr(currentDeclaredtype, dimSize);
+                                                                  callForLocalRedefinitionError(globalSymbolTable->insertNode(new VarNode($3, currentDeclaredtype, memDir, dimensions)));
+                                                                  hasDimensions = false; 
+                                                                  queue<int> empty;
+                                                                  swap( dimensions, empty );
+                                                                  dimSize = 1;
+                                                            }
+                                                            else{
+                                                                  memDir = globalMemoryFrame->declareValue(currentDeclaredtype);
+                                                                  callForLocalRedefinitionError(globalSymbolTable->insertNode(new VarNode($3, currentDeclaredtype, memDir))); 
+                                                            }
                                                       }else{
                                                             MemoryFrame *frame = currentDeclaredFunction->getMemoryFrame();
-                                                            int memDir = frame->declareValue(currentDeclaredtype);
+                                                            int memDir;
                                                             VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
-                                                            callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype, memDir))); 
-                                                            callForGlobalRedefinitionError(globalSymbolTable->isContained($2, currentDeclaredtype));
+
+                                                            if (hasDimensions)
+                                                            {
+                                                                  memDir = globalMemoryFrame->declareArr(currentDeclaredtype, dimSize);
+                                                                  callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($3, currentDeclaredtype, memDir, dimensions)));
+                                                                  hasDimensions = false;
+                                                                  queue<int> empty;
+                                                                  swap( dimensions, empty );
+                                                                  dimSize = 1;
+                                                            }
+                                                            else{
+                                                                  memDir = frame->declareValue(currentDeclaredtype);
+                                                                  callForLocalRedefinitionError(globalSymbolTable->insertNode(new VarNode($3, currentDeclaredtype, memDir))); 
+                                                            }                                                            
+                                                            callForGlobalRedefinitionError(globalSymbolTable->isContained($3, currentDeclaredtype));
+                                                            
                                                       }
+                                                      isDeclaring = false;
                                                 }
             ;
 
@@ -165,8 +202,12 @@ func_declaration : {declarationState = LOCAL_;} func func_declaration
                  ;
 
 func : FUNC VOID {currentDeclaredtype = VOID_;}  func_0 
-     | FUNC type func_0
+     | FUNC type type_1 func_0
      ;
+
+type_1 : L_BRACKET R_BRACKET type_1
+       |
+       ;
 
 func_0 :    ID    {
                         //Function definition
@@ -179,7 +220,7 @@ func_0 :    ID    {
             L_PARENTHESIS func_1 R_PARENTHESIS local_declaration 
        ;
 
-func_1 : ID COLON type {            
+func_1 : ID COLON type type_1 {            
                               //Parameter definition                                             
                               MemoryFrame *frame = currentDeclaredFunction->getMemoryFrame();
                               int memDir = frame->declareValue(currentDeclaredtype);
@@ -192,7 +233,7 @@ func_1 : ID COLON type {
        |
        ;
 
-func_2 : COMMA ID COLON type {
+func_2 : COMMA ID COLON type type_1 {
                                     //Parameter definition
                                     MemoryFrame *frame = currentDeclaredFunction->getMemoryFrame();
                                     int memDir = frame->declareValue(currentDeclaredtype);
@@ -525,9 +566,21 @@ var_cte : func_call{
                   stackOperand.push(memDir);
 
              } array
-        | INT     {     int temp = $1;
+        | INT     {     
+                        if(hasDimensions)
+                        {
+                             isConstant = true;
+                             if(isDeclaring)
+                              {
+                                    dimensions.push($1);
+                                    dimSize *= ($1 + 1);
+                              }
+                        }
+                        int temp = $1;
                         MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
                         int memDir = memFrame->registerValue(temp);
+                        
+                        
                         stackOperand.push(memDir);}
         | FLOAT   {
                         float temp = $1;
@@ -546,18 +599,84 @@ var_cte : func_call{
         ;
 
 
-array : L_BRACKET expression R_BRACKET array 
+array : L_BRACKET 
+            
+            {
+                  hasDimensions = true; 
+                  isConstant=false;
+            }
+
+      expression R_BRACKET
+
+            {
+                  int expressionResult = stackOperand.top();
+                  Type type = getTypeFromContext(expressionResult);
+
+                  if(type == INTEGER_){
+                        if(isDeclaring && !isConstant){
+                              callForTypeMismatchError("Mismatch error, index of array is not an Integer constant");
+                        }
+                        else{
+                              if(!isConstant)
+                              {
+                                    VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
+                                    int memDir = symbolTable->search($2);
+                                    if(memDir == -1){
+                                          memDir = globalSymbolTable->search($2);
+                                          if(memDir==-1){
+                                                string id ($2);
+                                                callForNonDeclaredVariableError("Variable \"" +id+ "\" has not been declared");
+                                          }
+                                    }
+                              
+                              }
+                              else{
+                                    
+                              }
+                              stackOperand.push(memDir); 
+                              //quadrupleSet.push_back(new Quadruple(VERIFY_,memDir, 0, 0));    
+                        }
+                        isConstant = false;
+                  }
+                  else{
+                        callForTypeMismatchError("Mismatch error, index of array is not an Integer constant");
+                  }
+                  /**
+                  int value = stackOperand.top();
+                  stackOperand.pop(); 
+                  int lim = 0;
+                  if(getTypeFromContext(value)==INTEGER_ && isConstant)
+                  {
+                        if (declarationState == GLOBAL_){
+                              lim = globalMemoryFrame->getIntegerValue(value);
+                        }else{
+                              MemoryFrame* frame = currentDeclaredFunction->getMemoryFrame();
+                              lim = frame->getIntegerValue(value);
+                        }
+                        
+                        
+
+                        isConstant = false;
+                  }
+                  */          
+            }
+
+
+      array  
+                                              
       |
       ;
 
 
-type :  TYPE_STRING     {currentDeclaredtype = STRING_;}
-      | TYPE_INT        {currentDeclaredtype = INTEGER_;}  
-      | TYPE_FLOAT      {currentDeclaredtype = FLOAT_;}
-      | TYPE_BOOLEAN    {currentDeclaredtype = BOOLEAN_;}
+type :  TYPE_STRING   {currentDeclaredtype = STRING_;}
+      | TYPE_INT      {currentDeclaredtype = INTEGER_;}  
+      | TYPE_FLOAT    {currentDeclaredtype = FLOAT_;}
+      | TYPE_BOOLEAN  {currentDeclaredtype = BOOLEAN_;}
       ;
 
 %%
+
+
 
 Type getTypeFromContext(int value){
 

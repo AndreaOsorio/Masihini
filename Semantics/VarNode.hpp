@@ -11,8 +11,8 @@
 
 #include <string>
 #include <iostream>
+#include <queue>
 #include "Type.hpp"
-#include "ArrayInfo.hpp"
 #endif 
 
 using namespace std;
@@ -25,7 +25,7 @@ class VarNode{
         string id;
         Type type;
         int memDir;
-        ArrayInfo* dimensions;
+        queue<int> dimensions;
     
     
     public:
@@ -34,10 +34,9 @@ class VarNode{
         id = identifier;
         type = dataType;
         memDir = memoryDirection;
-        dimensions = NULL;
     }
 
-    VarNode( string identifier, Type dataType, int memoryDirection, ArrayInfo* dimension){
+    VarNode( string identifier, Type dataType, int memoryDirection, queue<int> dimension){
         id = identifier;
         type = dataType;
         memDir = memoryDirection;
@@ -52,8 +51,8 @@ class VarNode{
         return memDir;
     }
 
-    ArrayInfo getArrayInfo(){
-        return *dimensions;
+    queue<int> getArrayInfo(){
+        return dimensions;
     }
 
 };
