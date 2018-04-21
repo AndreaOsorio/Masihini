@@ -1,8 +1,10 @@
-#pragma once
 
+#ifndef Type_hpp
+#define Type_hpp
 #include <iostream>
+/**
 
-
+*/
 enum Type
 {
     STRING_, 
@@ -33,7 +35,7 @@ enum Operator
     JUMP_,//Ready
     STOP_,//Ready
     ROT_,//Ready
-    //Non Expression-Related Operators
+    /** Non Expression-Related Operators */
     GOTOF_,//Ready
     GOTO_,//Ready
     ENDPROC_,
@@ -41,6 +43,8 @@ enum Operator
     ERA_,
     PARAMETER_,
     GOSUB_,
+    /** Array related Operators */
+    VERIFY_,
     ENDPROG_//Ready
 };
 
@@ -50,3 +54,5 @@ enum DeclarationState
     LOCAL_
 
 };
+
+#endif

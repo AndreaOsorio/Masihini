@@ -12,6 +12,7 @@
 #include <string>
 #include <iostream>
 #include "Type.hpp"
+#include "ArrayInfo.hpp"
 #endif 
 
 using namespace std;
@@ -24,24 +25,23 @@ class VarNode{
         string id;
         Type type;
         int memDir;
-    
+        ArrayInfo* dimensions;
     
     
     public:
-    VarNode( string identifier, Type dataType){
-        
-        id = identifier;
-        type = dataType;
-        memDir = -1;
-        
-    }
 
     VarNode( string identifier, Type dataType, int memoryDirection){
-        
         id = identifier;
         type = dataType;
         memDir = memoryDirection;
-        
+        dimensions = NULL;
+    }
+
+    VarNode( string identifier, Type dataType, int memoryDirection, ArrayInfo* dimension){
+        id = identifier;
+        type = dataType;
+        memDir = memoryDirection;
+        dimensions = dimension;
     }
     
     string getId() const{
@@ -50,6 +50,10 @@ class VarNode{
 
     int getMemDir() const{
         return memDir;
+    }
+
+    ArrayInfo getArrayInfo(){
+        return *dimensions;
     }
 
 };

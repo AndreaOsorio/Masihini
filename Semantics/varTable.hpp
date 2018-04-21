@@ -7,7 +7,9 @@
 //
 
 
-#pragma once
+#ifndef VarTable_hpp
+#define VarTable_hpp
+
 #include <stdio.h>
 #include <unordered_set>
 #include <iostream>
@@ -24,7 +26,7 @@ class VarTable{
 
     bool isContainedInTable(string id)
     {
-        VarNode elem (id, VOID_);
+        VarNode elem (id, VOID_, -1);
         const bool result = varTable.find(elem) != varTable.end();
         return result;
     }
@@ -51,7 +53,7 @@ class VarTable{
     
     string isContained(string id, Type type)
     {
-        VarNode elem (id, type);
+        VarNode elem (id, type, -1);
         string message = "";
         const bool result = varTable.find(elem) != varTable.end();
 
@@ -64,7 +66,7 @@ class VarTable{
     int search(string id){
 
         if(isContainedInTable(id)){
-            VarNode elem (id, VOID_);
+            VarNode elem (id, VOID_, -1);
             auto it = this->varTable.find(elem);
             return it->getMemDir();
 
@@ -82,4 +84,4 @@ class VarTable{
 
 };
 
-
+#endif

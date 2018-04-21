@@ -6,7 +6,8 @@
 //  Copyright © 2018 Ruben Hidalgo. All rights reserved.
 //
 
-#pragma once
+#ifndef FuncDir_hpp
+#define FuncDir_hpp
 #include <stdio.h>
 #include <unordered_set>
 #include <iostream>
@@ -71,5 +72,5 @@ public:
     
 };
 
-
+#endif
 

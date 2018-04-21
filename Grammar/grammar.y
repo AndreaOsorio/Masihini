@@ -22,6 +22,7 @@
     void performSemantics();
     void performSemanticsNot();
     void performSemanticsAssignment();
+    void performSemanticsArrays();
     void performSystemFunction(Operator op);
     void manageMemoryVarCte(Type type, char value);
     void printQuads();
@@ -75,8 +76,7 @@
 
 %}
 
-/*UNIONS DEFINITION*/
-
+/* UNIONS DEFINITION */
 %union
 {
     int intValue;
@@ -86,7 +86,6 @@
 
 
 /* TOKENS */
-
 %token <floatValue>   FLOAT
 %token <intValue>     INT
 %token <stringValue>  ID
@@ -362,7 +361,7 @@ system_func : SYSTEM_PREFIX L_PARENTHESIS system_func_1 R_PARENTHESIS SEMICOLON
                         if(!value.compare("speak"))
                         performSystemFunction(SPEAK_);
 
-                        if(!value.compare("accel"))
+                        if(!value.compare("move"))
                         performSystemFunction(ACCEL_);
 
                         if(!value.compare("jump"))
@@ -547,7 +546,7 @@ var_cte : func_call{
         ;
 
 
-array : L_BRACKET expression R_BRACKET array
+array : L_BRACKET expression R_BRACKET array 
       |
       ;
 
@@ -754,6 +753,10 @@ void performSemanticsAssignment(){
             quadrupleSet.push_back(new Quadruple(op, rightOperand, -1, leftOperand));
       }
 
+
+}
+
+void performSemanticsArrays(){
 
 }
 

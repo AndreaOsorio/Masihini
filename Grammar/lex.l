@@ -6,8 +6,8 @@
 %}
 
 
-float_num          [0-9]+"."[0-9]+"f"
-int_num            ([0]|[1-9][0-9]*)
+float_num          "-"?[0-9]+"."[0-9]+"f"
+int_num            "-"?([0]|[1-9][0-9]*)
 id                 [a-zA-Z][_a-zA-Z0-9]* 
 whitespace         [\t\v\f ]
 linefeed           \n
@@ -52,7 +52,7 @@ linefeed           \n
 "void"                      { return VOID; }
 
 "speak" |
-"accel" |
+"move"  |
 "jump"  |
 "stop"  |
 "rot"                       { yylval.stringValue = strdup(yytext); return SYSTEM_PREFIX; }

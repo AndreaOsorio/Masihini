@@ -1,4 +1,6 @@
-#pragma once
+#ifndef MemoryFrame_hpp
+#define MemoryFrame_hpp
+
 #include <stdio.h>
 #include <map>
 #include <string>
@@ -160,4 +162,5 @@ Type getType(int memDir){
 
 };
 
+#endif
 
