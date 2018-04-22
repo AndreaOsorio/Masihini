@@ -79,7 +79,6 @@ class MemoryDispatcher{
         return mem[memDir];
     }
 
-
     void triggerOutOfMemoryError(){
         cout<<"System out of memory"<<endl;
         exit(0);

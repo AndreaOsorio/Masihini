@@ -145,7 +145,6 @@ private:
     }
 
     void addition(Quadruple* quad){
-
             quad = getReturnValueFromFunc(quad);
             OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
             helper.additionOperation(quad);
@@ -275,6 +274,13 @@ private:
 
     }
 
+    void verify(Quadruple* quad){
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.verifyOperation(quad);
+
+
+    }
+
 
     void eraOp(Quadruple* quad){
         int index = quad->getResult();
@@ -376,6 +382,7 @@ public:
                 case ROT_: rot(quad); execPointer++; break;
                 case JUMP_: jump(); execPointer++; break;
                 case STOP_: stopOp(); execPointer++; break;
+                case VER_: verify(quad); execPointer++; break;
                 case EQ_: assignment(quad); execPointer++; break;//Return ready
                 case ERA_: eraOp(quad); execPointer++; break;
                 case PARAMETER_: parameterOp(quad); execPointer++; break;

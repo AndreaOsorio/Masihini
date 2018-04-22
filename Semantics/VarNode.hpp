@@ -51,7 +51,7 @@ class VarNode{
         return memDir;
     }
 
-    queue<int> getArrayInfo(){
+    queue<int> getArrayInfo() const{
         return dimensions;
     }
 

@@ -26,6 +26,8 @@
     void performSemanticsNot();
     void performSemanticsAssignment();
     void performSemanticsArrays();
+    void getDimensions();
+    void calculateArrayIndex();
     void performSystemFunction(Operator op);
     void manageMemoryVarCte(Type type, char value);
     void printQuads();
@@ -58,6 +60,8 @@
       bool isDeclaring = false;
       int dimSize = 1;
       queue <int> dimensions;
+      string idArray = "";
+
 
       //Parameters used to assign memory to items;
 
@@ -294,10 +298,19 @@ assignment : ID
                                     string id ($1);
                                     callForNonDeclaredVariableError("Variable \"" +id+ "\" has not been declared");
                               }
-                        }
+                        } 
+                        idArray = $1;
                         stackOperand.push(memDir);
                   } 
-             array EQ {stackOperator.push(EQ_);} expression
+             array EQ {stackOperator.push(EQ_); 
+                        int s = stackOperand.top();
+                        MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+                        int s1 =  memFrame->getIntegerValue(s);
+                        cout<<s<<" "<<s1<<endl;
+                        } 
+             
+             
+             expression
                                                             {
                                                                   if(stackOperator.empty() == false && stackOperator.top() == EQ_ ){
                                                                         
@@ -572,8 +585,14 @@ var_cte : func_call{
                              isConstant = true;
                              if(isDeclaring)
                               {
-                                    dimensions.push($1);
-                                    dimSize *= ($1 + 1);
+                                    if($1 > 0)
+                                    {
+                                          dimensions.push($1);
+                                          dimSize *= ($1 + 1);
+                                    }
+                                    else{
+                                          callForTypeMismatchError("Mismatch error, index of array should be greater than 0");
+                                    }
                               }
                         }
                         int temp = $1;
@@ -606,62 +625,42 @@ array : L_BRACKET
                   isConstant=false;
             }
 
-      expression R_BRACKET
-
-            {
+      expression R_BRACKET 
+      
+      {
                   int expressionResult = stackOperand.top();
                   Type type = getTypeFromContext(expressionResult);
-
                   if(type == INTEGER_){
                         if(isDeclaring && !isConstant){
                               callForTypeMismatchError("Mismatch error, index of array is not an Integer constant");
                         }
-                        else{
-                              if(!isConstant)
+                        else if(!isDeclaring){
+
+                              if(dimensions.empty())
                               {
-                                    VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
-                                    int memDir = symbolTable->search($2);
-                                    if(memDir == -1){
-                                          memDir = globalSymbolTable->search($2);
-                                          if(memDir==-1){
-                                                string id ($2);
-                                                callForNonDeclaredVariableError("Variable \"" +id+ "\" has not been declared");
-                                          }
-                                    }
-                              
+                                    getDimensions();
                               }
                               else{
-                                    
+                                    //swap 
+                                    int expr = stackOperand.top();
+                                    stackOperand.pop();
+                                    int r = stackOperand.top();
+                                    stackOperand.pop();
+                                    stackOperand.push(expr);
+                                    stackOperand.push(r);
                               }
-                              stackOperand.push(memDir); 
-                              //quadrupleSet.push_back(new Quadruple(VERIFY_,memDir, 0, 0));    
+                              stackOperator.push(VER_);
+                              performSemanticsArrays();
+                              calculateArrayIndex();
+
                         }
                         isConstant = false;
                   }
                   else{
                         callForTypeMismatchError("Mismatch error, index of array is not an Integer constant");
-                  }
-                  /**
-                  int value = stackOperand.top();
-                  stackOperand.pop(); 
-                  int lim = 0;
-                  if(getTypeFromContext(value)==INTEGER_ && isConstant)
-                  {
-                        if (declarationState == GLOBAL_){
-                              lim = globalMemoryFrame->getIntegerValue(value);
-                        }else{
-                              MemoryFrame* frame = currentDeclaredFunction->getMemoryFrame();
-                              lim = frame->getIntegerValue(value);
-                        }
-                        
-                        
-
-                        isConstant = false;
-                  }
-                  */          
+                  }  
             }
-
-
+      
       array  
                                               
       |
@@ -851,23 +850,30 @@ void performSemanticsAssignment(){
       MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
 
       int rightOperand = stackOperand.top();
-      Type rightType = getTypeFromContext(rightOperand );
+      Type rightType = getTypeFromContext( rightOperand );
       stackOperand.pop();
       
       int leftOperand = stackOperand.top();
-      Type leftType = getTypeFromContext(leftOperand );
+      Type leftType = getTypeFromContext( leftOperand );
       stackOperand.pop();
+      cout<<"lOpe = "<<leftOperand<<endl;
 
       Operator op = stackOperator.top();
       stackOperator.pop();
 
-      cout<<"right type: "<<rightType<<" "<<rightOperand<<endl;
-      cout<<"left type: "<<leftType<< " "<< leftOperand<<endl;
-
       Type resultType = semantics->isAllowed(rightType,leftType, op);
+
       if(resultType == VOID_){
             callForTypeMismatchError("Mismatch error, cannot perform operation");                      
-      }else{                        
+      }else{                  
+            if(hasDimensions)
+            {
+                  int newDir = memFrame->getIntegerValue(leftOperand); 
+                  cout<<"dir = "<<newDir<<endl;
+                  leftType = getTypeFromContext( newDir );
+                  leftOperand = newDir;
+                  hasDimensions = false;  
+            }
             //Creating quadruple for action
             quadrupleSet.push_back(new Quadruple(op, rightOperand, -1, leftOperand));
       }
@@ -875,8 +881,133 @@ void performSemanticsAssignment(){
 
 }
 
-void performSemanticsArrays(){
+void getDimensions(){
+      //Con la memoria del id sacamos la dimension de la tabla de variables
+      VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
+      int memDir = symbolTable->search(idArray);
+      if(memDir == -1){
+            dimensions = globalSymbolTable->getDimension(idArray);
+      }
+      else{
+            dimensions = symbolTable->getDimension(idArray);
+      }
+      queue<int> tempArray = dimensions;
+      int r = 1;
+      dimSize = 1;
+      while(!tempArray.empty())
+      {
+            r *= (tempArray.front() + 1);
+            tempArray.pop();
+      }
+      stackOperand.push(r);
 
+}
+
+void performSemanticsArrays()
+{
+      
+      //Pop the VER_ op
+      Operator op = stackOperator.top();
+      stackOperator.pop();
+
+      
+      int r = stackOperand.top();
+      stackOperand.pop();
+
+      // array[index] expr
+      int index = stackOperand.top();
+
+      int sizeArray = dimensions.front();
+      dimensions.pop();
+
+      if(!dimensions.empty())
+      {
+            r = r / (sizeArray + 1); //CALCULATE CURRENT Mn
+            stackOperand.push(r);
+      }
+
+      //Create VERIFY quadruple
+      quadrupleSet.push_back(new Quadruple(op, index, 0, sizeArray));
+}
+
+void calculateArrayIndex(){
+
+      MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
+      if(!dimensions.empty())
+      {
+            int currentMn = memFrame->declareValue(INTEGER_);
+            int r = stackOperand.top();
+            memFrame->setValue(currentMn, r);
+            stackOperand.pop();
+            
+            int index = stackOperand.top();
+            stackOperand.pop();
+
+            int result = memFrame->declareValue(INTEGER_);
+            stackOperand.push(result);
+
+            quadrupleSet.push_back(new Quadruple(MULT_, index, currentMn, result));
+
+            if(dimSize > 1)
+            {
+
+                  // This is the value we just calculated (index * Mn)
+                  int newRes = stackOperand.top();
+                  stackOperand.pop();
+
+                  // This is the value of the previous (index * Mn)
+                  int currentSum = stackOperand.top();
+                  stackOperand.pop();
+
+                  int suma = memFrame->declareValue(INTEGER_);
+                  stackOperand.push(suma);
+
+                  quadrupleSet.push_back(new Quadruple(ADD_, currentSum, newRes, suma));
+            }
+            stackOperand.push(r);
+            dimSize++;
+
+      }
+      else{
+
+            //When we reached the last dimension:
+
+            //Current arr[index]
+            int index = stackOperand.top();
+            stackOperand.pop();
+
+            //Last addition of previous dimensions accumulated
+            int currentSum = stackOperand.top();
+            stackOperand.pop();
+
+            //Result of the quadruple
+            int suma = memFrame->declareValue(INTEGER_);
+            stackOperand.push(suma);
+
+            //Add dimensions
+            quadrupleSet.push_back(new Quadruple(ADD_, currentSum, index, suma));
+
+            dimSize = 1;  //Reset value
+
+            // T
+            int temp = stackOperand.top();
+            stackOperand.pop();
+
+            // dirBase(Array)
+            int memBase = stackOperand.top(); //this is a memDir, not a direction
+            stackOperand.pop(); 
+            //translate into direction with value
+            int dirBase = memFrame->declareValue(INTEGER_); 
+            memFrame->setValue(dirBase, memBase);
+
+            // Resulting direction
+            int newBase = memFrame->declareValue(INTEGER_);
+            stackOperand.push(newBase);
+
+            //Add T + dirBase(Array)
+            quadrupleSet.push_back(new Quadruple(ADD_, temp, dirBase, newBase));
+      }
 }
 
 void performSemanticsNot(){

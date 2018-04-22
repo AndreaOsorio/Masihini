@@ -25,6 +25,13 @@ private:
         exit(0);
     }
 
+    void callForIndexOutOfBounds(){
+        cout<<"RUNTIME ERROR: Index out of bounds"<<endl;
+        exit(0);
+    }
+
+    
+
     Type getTypeFromContext(int value){
 
         Type type;
@@ -94,7 +101,7 @@ private:
     //Set Values
 
     void setValueFromContext(int memDir, int store){
-        
+        cout<<memDir<<" "<<store<<endl;
         if(getScope(memDir) == GLOBAL_){
             return globalFrame->setValue(memDir,store);
         }else{
@@ -230,7 +237,7 @@ public:
 
 
         if(leftType==INTEGER_ && rightType == INTEGER_){
-            float result = retrieveIntegerValueFromContext(leftOperand) * retrieveIntegerValueFromContext(rightOperand);
+            int result = retrieveIntegerValueFromContext(leftOperand) * retrieveIntegerValueFromContext(rightOperand);
             setValueFromContext(memDir,result );
         }
 
@@ -656,9 +663,20 @@ public:
             bool value = retrieveBooleanValueFromContext(result);
             return globalFrame->registerValue(value);
         }
+    }
 
+    
+    void verifyOperation(Quadruple* quad){
+        int leftOperand = quad->getLeftOperand();
+        int rightOperand = quad->getResult();
+        int aux = retrieveIntegerValueFromContext(leftOperand);
+        
+        if(aux >= rightOperand || aux < 0){
+            callForIndexOutOfBounds();
+        }
 
     }
+
 
     
 };

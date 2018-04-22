@@ -14,6 +14,7 @@
 #include <unordered_set>
 #include <iostream>
 #include <string>
+#include <queue>
 #include "VarNode.hpp"
 
 
@@ -74,6 +75,18 @@ class VarTable{
 
         return -1;
 
+    }
+
+    queue<int> getDimension(string id)
+    {   
+        if(isContainedInTable(id)){
+            VarNode elem (id, VOID_, -1);
+            auto it = this->varTable.find(elem);
+            return it->getArrayInfo();
+        }
+
+        queue<int> empty;
+        return empty;
     }
     
 

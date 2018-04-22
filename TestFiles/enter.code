@@ -3,9 +3,11 @@
 static func void run ()
     var a : int;
     var b : float;
-    var arr : int [10][10];
+    var arr : int [5][10];
     var c : int;
 {
+    arr[1][2] = 10;
+
 	move(-10 + 1.5f);
 	rot(-50 + -50);	
 

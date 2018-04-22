@@ -7,11 +7,11 @@
 */
 enum Type
 {
-    STRING_, 
-    BOOLEAN_,
-    INTEGER_,
-    FLOAT_,
-    VOID_
+    STRING_,  //0
+    BOOLEAN_, //1
+    INTEGER_, //2
+    FLOAT_,   //3
+    VOID_     //4
 };
 
 enum Operator
@@ -44,7 +44,7 @@ enum Operator
     PARAMETER_,
     GOSUB_,
     /** Array related Operators */
-    VERIFY_,
+    VER_,
     ENDPROG_//Ready
 };
 
