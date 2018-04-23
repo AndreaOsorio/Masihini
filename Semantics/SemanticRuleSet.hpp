@@ -11,7 +11,7 @@ using namespace std;
 class SemanticRuleSet{
 private:
 
-    //This means multiplication and division
+    //This means division
     Type isTier0Alowed(Type rightOperand, Type leftOperand){
 
         Type t = VOID_;
@@ -125,7 +125,7 @@ public:
         Type p = VOID_;
 
         switch (op){
-            case MULT_: p = isTier0Alowed(rightOperand, leftOperand); break;
+            case MULT_: p = isTier2Alowed(rightOperand, leftOperand); break;
             case DIV_: p = isTier0Alowed(rightOperand, leftOperand);  break;
             case ADD_: p = isTier1Alowed(rightOperand, leftOperand);  break;
             case SUBS_: p = isTier2Alowed(rightOperand, leftOperand); break;

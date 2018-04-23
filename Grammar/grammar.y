@@ -27,6 +27,7 @@
     void performSemanticsAssignment();
     void performSemanticsArrays();
     void getDimensions();
+    void calculateArrayAccum();
     void calculateArrayIndex();
     void performSystemFunction(Operator op);
     void manageMemoryVarCte(Type type, char value);
@@ -625,9 +626,9 @@ array : L_BRACKET
                   isConstant=false;
             }
 
-      expression R_BRACKET 
+      expression 
       
-      {
+            {
                   int expressionResult = stackOperand.top();
                   Type type = getTypeFromContext(expressionResult);
                   if(type == INTEGER_){
@@ -651,19 +652,20 @@ array : L_BRACKET
                               }
                               stackOperator.push(VER_);
                               performSemanticsArrays();
-                              calculateArrayIndex();
-
+                              calculateArrayAccum();
                         }
-                        isConstant = false;
                   }
                   else{
                         callForTypeMismatchError("Mismatch error, index of array is not an Integer constant");
-                  }  
+                  }
             }
+      
+      R_BRACKET 
+      
       
       array  
                                               
-      |
+      | { if(hasDimensions && !isDeclaring){calculateArrayIndex();} isConstant = false; }
       ;
 
 
@@ -856,7 +858,6 @@ void performSemanticsAssignment(){
       int leftOperand = stackOperand.top();
       Type leftType = getTypeFromContext( leftOperand );
       stackOperand.pop();
-      cout<<"lOpe = "<<leftOperand<<endl;
 
       Operator op = stackOperator.top();
       stackOperator.pop();
@@ -910,7 +911,6 @@ void performSemanticsArrays()
       Operator op = stackOperator.top();
       stackOperator.pop();
 
-      
       int r = stackOperand.top();
       stackOperand.pop();
 
@@ -930,7 +930,7 @@ void performSemanticsArrays()
       quadrupleSet.push_back(new Quadruple(op, index, 0, sizeArray));
 }
 
-void calculateArrayIndex(){
+void calculateArrayAccum(){
 
       MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
 
@@ -948,6 +948,7 @@ void calculateArrayIndex(){
             stackOperand.push(result);
 
             quadrupleSet.push_back(new Quadruple(MULT_, index, currentMn, result));
+            
 
             if(dimSize > 1)
             {
@@ -969,9 +970,14 @@ void calculateArrayIndex(){
             dimSize++;
 
       }
-      else{
 
-            //When we reached the last dimension:
+}
+
+void calculateArrayIndex(){
+            
+      MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
+
+      //When we reached the last dimension:
 
             //Current arr[index]
             int index = stackOperand.top();
@@ -1007,7 +1013,9 @@ void calculateArrayIndex(){
 
             //Add T + dirBase(Array)
             quadrupleSet.push_back(new Quadruple(ADD_, temp, dirBase, newBase));
-      }
+
+            memFrame->dumpMemory();
+
 }
 
 void performSemanticsNot(){
