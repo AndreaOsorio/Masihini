@@ -184,7 +184,7 @@ declaration : { isDeclaring = true; } VAR ID COLON type array SEMICOLON
 
                                                             if (hasDimensions)
                                                             {
-                                                                  memDir = globalMemoryFrame->declareArr(currentDeclaredtype, dimSize);
+                                                                  memDir = frame->declareArr(currentDeclaredtype, dimSize);
                                                                   callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($3, currentDeclaredtype, memDir, dimensions)));
                                                                   hasDimensions = false;
                                                                   queue<int> empty;
@@ -193,7 +193,7 @@ declaration : { isDeclaring = true; } VAR ID COLON type array SEMICOLON
                                                             }
                                                             else{
                                                                   memDir = frame->declareValue(currentDeclaredtype);
-                                                                  callForLocalRedefinitionError(globalSymbolTable->insertNode(new VarNode($3, currentDeclaredtype, memDir))); 
+                                                                  callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($3, currentDeclaredtype, memDir))); 
                                                             }                                                            
                                                             callForGlobalRedefinitionError(globalSymbolTable->isContained($3, currentDeclaredtype));
                                                             
