@@ -1,15 +1,25 @@
 
 
+func void uno()
+    var arr1 : int [10];
+    var arr2 : int [5][10];
+    var arr3 : int [2][2][2];
+    var i : int;
+{
+    i = 12;
+    arr1[1] = 10;
+    arr2[1][2] = 20;
+    speak(i);
+    speak(arr1[1]);
+    speak(arr2[1][2]);
+}
+
 static func void run ()
     var a : int;
     var b : float;
-    var arr : int [5][10];
     var c : int;
+    var e : int [10];
+
 {
-    arr[1][2] = 10;
-
-	move(-10 + 1.5f);
-	rot(-50 + -50);	
-
-
+    uno();
 }

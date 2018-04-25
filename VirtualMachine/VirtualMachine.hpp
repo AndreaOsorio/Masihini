@@ -277,8 +277,36 @@ private:
     void verify(Quadruple* quad){
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.verifyOperation(quad);
+    }
 
+    void dir(Quadruple* quad){
 
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        if (quad->getLeftOperand()>0){
+            helper.dirOperation(quad);
+        }else{
+            int index = quad->getLeftOperand()*-1;
+            FuncNode* func = functionDirectory->at(index);
+            int memDir = func->getReturnValue();
+            Quadruple* tempQuad = new Quadruple(DIR_,memDir, -1, quad->getResult());
+            helper.dirOperation(tempQuad);
+            delete tempQuad;
+        }
+    
+    }
+
+    void arr(Quadruple* quad){
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        if (quad->getLeftOperand()>0){
+            helper.arrOperation(quad);
+        }else{
+            int index = quad->getLeftOperand()*-1;
+            FuncNode* func = functionDirectory->at(index);
+            int memDir = func->getReturnValue();
+            Quadruple* tempQuad = new Quadruple(DIR_,memDir, -1, quad->getResult());
+            helper.arrOperation(tempQuad);
+            delete tempQuad;
+        }
     }
 
 
@@ -383,6 +411,8 @@ public:
                 case JUMP_: jump(); execPointer++; break;
                 case STOP_: stopOp(); execPointer++; break;
                 case VER_: verify(quad); execPointer++; break;
+                case DIR_: dir(quad); execPointer++; break;
+                case ARR_: arr(quad); execPointer++; break;
                 case EQ_: assignment(quad); execPointer++; break;//Return ready
                 case ERA_: eraOp(quad); execPointer++; break;
                 case PARAMETER_: parameterOp(quad); execPointer++; break;

@@ -80,6 +80,8 @@ public:
             case STOP_: cout << "STOP_ "; break;
             case JUMP_: cout << "JUMP_ "; break;
             case VER_: cout << "VER_ "; break;
+            case DIR_: cout << "= "; break;
+            case ARR_: cout << "ARR_ "; break;
         }
 
         cout<<"\t\t";

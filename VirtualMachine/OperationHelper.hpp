@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <iostream>
+#include <string>
 #include "../Semantics/Type.hpp"
 #include "../Semantics/FuncDir.hpp"
 #include "../Memory/MemoryFrame.hpp"
@@ -27,6 +28,12 @@ private:
 
     void callForIndexOutOfBounds(){
         cout<<"RUNTIME ERROR: Index out of bounds"<<endl;
+        exit(0);
+    }
+
+    void callForSystemMismatchError(string oper)
+    {
+        cout<<oper<<" does not support this operation"<<endl;
         exit(0);
     }
 
@@ -101,7 +108,6 @@ private:
     //Set Values
 
     void setValueFromContext(int memDir, int store){
-        cout<<memDir<<" "<<store<<endl;
         if(getScope(memDir) == GLOBAL_){
             return globalFrame->setValue(memDir,store);
         }else{
@@ -160,6 +166,7 @@ public:
     }
 
     void additionOperation(Quadruple* quad){
+
 
         int leftOperand = quad->getLeftOperand();
         int rightOperand = quad->getRightOperand();
@@ -552,7 +559,15 @@ public:
     void speakOperation(Quadruple* quad){
 
         int result= quad->getResult();
+
+        int dimension = quad->getLeftOperand();
+        if(dimension == 1)
+        {
+            result = retrieveIntegerValueFromContext(result);
+        }
+
         Type type = getTypeFromContext(result);
+
 
         if(type == STRING_)
         cout<<"SPEAK "<<retrieveStringValueFromContext(result)<<endl;
@@ -572,6 +587,13 @@ public:
     void accelOperation(Quadruple* quad){
 
         int result= quad->getResult();
+
+        int dimension = quad->getLeftOperand();
+        if(dimension = 1)
+        {
+            result = retrieveIntegerValueFromContext(result);
+        }
+
         Type type = getTypeFromContext(result);
 
         if(type == FLOAT_)
@@ -580,11 +602,21 @@ public:
         if(type == INTEGER_)
         cout<<"ACCEL "<<retrieveIntegerValueFromContext(result)<<endl;
 
+        if(type == BOOLEAN_ || type == STRING_)
+        callForSystemMismatchError("Move");
+
     }
 
     void rotOperation(Quadruple* quad){
 
         int result= quad->getResult();
+
+        int dimension = quad->getLeftOperand();
+        if(dimension = 1)
+        {
+            result = retrieveIntegerValueFromContext(result);
+        }
+
         Type type = getTypeFromContext(result);
 
         if(type == FLOAT_)
@@ -592,6 +624,9 @@ public:
 
         if(type == INTEGER_)
         cout<<"ROT "<<retrieveIntegerValueFromContext(result)<<endl;
+        
+        if(type == BOOLEAN_ || type == STRING_)
+        callForSystemMismatchError("Rot");
 
     }
 
@@ -673,6 +708,60 @@ public:
         
         if(aux >= rightOperand || aux < 0){
             callForIndexOutOfBounds();
+        }
+    }
+
+    void dirOperation(Quadruple* quad){
+        
+        int leftOperand = quad->getLeftOperand();
+        int rightOperand = quad->getResult();
+        int memDir = retrieveIntegerValueFromContext(rightOperand);
+
+        Type leftType = getTypeFromContext(leftOperand);
+
+        if(leftType==INTEGER_){
+            setValueFromContext(memDir, retrieveIntegerValueFromContext(leftOperand));
+        }
+
+        if(leftType==FLOAT_){
+            setValueFromContext(memDir , retrieveFloatValueFromContext(leftOperand));
+        }
+
+        if(leftType==BOOLEAN_){
+            setValueFromContext(memDir , retrieveBooleanValueFromContext(leftOperand));
+        }
+
+        if(leftType==STRING_){
+            setValueFromContext(memDir , retrieveStringValueFromContext(leftOperand));
+        }
+    }
+
+    void arrOperation(Quadruple* quad){
+        
+        int leftOperand = quad->getLeftOperand();
+        int memDir = quad->getResult();
+
+        int value = retrieveIntegerValueFromContext(leftOperand);
+        Type type = getTypeFromContext(leftOperand);
+
+        if(type==INTEGER_){
+            int res = retrieveIntegerValueFromContext(value);
+            setValueFromContext(memDir, res);
+        }
+
+        if(type==FLOAT_){
+            float res = retrieveFloatValueFromContext(value);
+            setValueFromContext(memDir, res);
+        }
+
+        if(type==BOOLEAN_){
+            bool res = retrieveBooleanValueFromContext(value);
+            setValueFromContext(memDir , res);
+        }
+
+        if(type==STRING_){
+            string res = retrieveStringValueFromContext(value);
+            setValueFromContext(memDir , res);
         }
 
     }
