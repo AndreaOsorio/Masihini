@@ -703,10 +703,10 @@ public:
     
     void verifyOperation(Quadruple* quad){
         int leftOperand = quad->getLeftOperand();
-        int rightOperand = quad->getResult();
-        int aux = retrieveIntegerValueFromContext(leftOperand);
-        
-        if(aux >= rightOperand || aux < 0){
+        int index = retrieveIntegerValueFromContext(leftOperand);
+        int size = quad->getResult();
+        //cout<<" Verify "<< index << " in "<< size<<endl;
+        if(index >= size || index < 0){
             callForIndexOutOfBounds();
         }
     }

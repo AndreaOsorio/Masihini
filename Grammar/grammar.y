@@ -12,7 +12,6 @@
     #include "Semantics/SemanticRuleSet.hpp"
     #include "Quadruples/Quadruple.hpp"
     #include "VirtualMachine/VirtualMachine.hpp"
-    #include "Semantics/ArrayInfo.hpp"
     
 
     using namespace std;
@@ -27,11 +26,9 @@
     void performSemanticsAssignment();
     void performSemanticsArrays();
     void getDimensions();
-    void calculateArrayAccum();
     void calculateArrayIndex();
     void getArrayValue();
     void performArrayAssignment();
-    void performArrayOperation();
     void performSystemFunction(Operator op);
     void manageMemoryVarCte(Type type, char value);
     void printQuads();
@@ -62,8 +59,10 @@
       bool hasDimensions = false;
       bool isConstant = false;
       bool isDeclaring = false;
-      int dimSize = 1;
-      int dimNum = 0;
+      int dimSize = 1; //for declaring arrays (R)
+      int currentDimension = 0; //for indexing arrays
+      int dimNum = 0; //# of dims in array
+      int r = 0;
       queue <int> dimensions;
       string idArray = "";
 
@@ -455,8 +454,6 @@ cycle : WHILE
                         quadrupleSet.push_back(new Quadruple(GOTOF_,expressionResult, -1, -1));
                         pendingJumps.push(quadrupleSet.size()-1);                    
                   }else{                        
-                        
-                        cout<<"my type is "<<type<<endl;
                               callForTypeMismatchError("Mismatch error, cannot perform operation");  
                   }
 
@@ -606,8 +603,6 @@ var_cte : func_call{
                         int temp = $1;
                         MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
                         int memDir = memFrame->registerValue(temp);
-                        
-                        
                         stackOperand.push(memDir);}
         | FLOAT   {
                         float temp = $1;
@@ -635,24 +630,11 @@ array : L_BRACKET {isConstant=false; hasDimensions = true;} expression
                               callForTypeMismatchError("Mismatch error, index of array is not an Integer constant");
                         }
                         else if(!isDeclaring){
-                              if(dimensions.empty())
+                              if(!idArray.empty())
                               {
-                                    if(dimSize == dimNum){
-                                          callForTypeMismatchError("1 Array has no such dimensions");
-                                    }
                                     getDimensions();
                               }
-                              else{
-                                    //swap 
-                                    int expr = stackOperand.top();
-                                    stackOperand.pop();
-                                    int r = stackOperand.top();
-                                    stackOperand.pop();
-                                    stackOperand.push(expr);
-                                    stackOperand.push(r);
-                              }
                               performSemanticsArrays();
-                              calculateArrayAccum();
                         }
                   }
                   else{
@@ -660,12 +642,9 @@ array : L_BRACKET {isConstant=false; hasDimensions = true;} expression
                   }
             }
       
-      R_BRACKET 
-      
-      
-      array  
-                                              
-      | { if(hasDimensions && !isDeclaring){calculateArrayIndex();} isConstant = false; }
+      R_BRACKET { if(hasDimensions && !isDeclaring && (currentDimension == dimNum)){calculateArrayIndex();}  isConstant = false; }
+      array                                         
+      |
       ;
 
 
@@ -712,10 +691,6 @@ void performSemantics(){
       Operator op = stackOperator.top();
       stackOperator.pop();
 
-      if(stackOperator.empty() == false && stackOperator.top() == ARR_){ 
-            getArrayValue();
-      }
-
       int rightOperand = stackOperand.top();
       Type rightType = getTypeFromContext(rightOperand);
       stackOperand.pop();
@@ -723,6 +698,11 @@ void performSemantics(){
       int leftOperand = stackOperand.top();
       Type leftType = getTypeFromContext(leftOperand );
       stackOperand.pop();
+
+      
+      int aux = memFrame->getIntegerValue(rightOperand);
+      int aux2 = memFrame->getIntegerValue(leftOperand);
+      //cout<<aux2<<op<<aux<<endl;
 
       Type resultType = semantics->isAllowed(rightType,leftType, op);
       if(resultType == VOID_){
@@ -879,7 +859,6 @@ void performSemanticsAssignment(){
             quadrupleSet.push_back(new Quadruple(EQ_, rightOperand, -1, leftOperand));
       }
 
-
 }
 
 void performArrayAssignment()
@@ -894,6 +873,7 @@ void performArrayAssignment()
       int tempDir = stackOperand.top();
       stackOperand.pop();
 
+      //Init memory direction for semantics check
       int initialOperand = stackOperand.top();
       Type initialType = getTypeFromContext( initialOperand );
       stackOperand.pop();
@@ -905,7 +885,7 @@ void performArrayAssignment()
       }else{ 
             //Creating quadruple for action
             quadrupleSet.push_back(new Quadruple(DIR_, result, -1, tempDir));
-            stackOperator.pop();
+            stackOperator.pop(); //pop of ARR_
       }
 }
 
@@ -933,7 +913,7 @@ void getArrayValue()
 
 void getDimensions(){
 
-      //Con la memoria del id sacamos la dimension de la tabla de variables
+      //With the id of the array we get the dimensions information
       VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
       int memDir = symbolTable->search(idArray);
       if(memDir == -1){
@@ -942,30 +922,21 @@ void getDimensions(){
       else{
             dimensions = symbolTable->getDimension(idArray);
       }
-
-      if(dimensions.empty()){
-            return;
-      }
-
+      idArray = "";
       queue<int> tempArray = dimensions;
-      int r = 1;
-      dimSize = 0;
+      r = 1;
+      currentDimension = 0;
       dimNum = dimensions.size();
       while(!tempArray.empty())
       {
             r *= (tempArray.front() + 1);
             tempArray.pop();
       }
-      stackOperand.push(r);
 
 }
 
 void performSemanticsArrays()
 {
-
-      int r = stackOperand.top();
-      stackOperand.pop();
-
       // array[index] expr
       int index = stackOperand.top();
 
@@ -975,24 +946,19 @@ void performSemanticsArrays()
       if(!dimensions.empty())
       {
             r = r / (sizeArray + 1); //CALCULATE CURRENT Mn
-            stackOperand.push(r);
       }
 
       //Create VERIFY quadruple
       quadrupleSet.push_back(new Quadruple(VER_, index, 0, sizeArray));
-}
-
-void calculateArrayAccum(){
 
       MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
 
       if(!dimensions.empty())
       {
-            int currentMn = memFrame->declareValue(INTEGER_);
-            int r = stackOperand.top();
-            memFrame->setValue(currentMn, r);
-            stackOperand.pop();
+            // multiply current index by the Mn
+            int currentMn = memFrame->registerValue(r);
             
+            //array[index] expr
             int index = stackOperand.top();
             stackOperand.pop();
 
@@ -1002,9 +968,8 @@ void calculateArrayAccum(){
             quadrupleSet.push_back(new Quadruple(MULT_, index, currentMn, result));
             
 
-            if(dimSize > 0)
+            if(currentDimension > 0)
             {
-
                   // This is the value we just calculated (index * Mn)
                   int newRes = stackOperand.top();
                   stackOperand.pop();
@@ -1018,22 +983,25 @@ void calculateArrayAccum(){
                   
                   quadrupleSet.push_back(new Quadruple(ADD_, currentSum, newRes, suma));
             }
-            stackOperand.push(r);
       }
-      dimSize++;
+      currentDimension++;
+      if(currentDimension > dimNum){
+            callForTypeMismatchError("Array has no such dimensions");
+      }
+
 
 }
 
+
 void calculateArrayIndex(){
 
-      if(dimSize < dimNum){
-            callForTypeMismatchError("2 Array has no such dimensions");
+      if(currentDimension < dimNum){
+            callForTypeMismatchError("Array has no such dimensions");
       }
 
       MemoryFrame *memFrame = currentDeclaredFunction->getMemoryFrame();
 
       //When we reached the last dimension:
-
       if(dimNum > 1)
       {
             //Current arr[index]
@@ -1052,37 +1020,31 @@ void calculateArrayIndex(){
             quadrupleSet.push_back(new Quadruple(ADD_, currentSum, index, suma));
       }
       
-      // T
-      int temp = stackOperand.top();
-      stackOperand.pop();
+      if(currentDimension == dimNum){
+            // T
+            int temp = stackOperand.top();
+            stackOperand.pop();
 
-      // dirBase(Array)
-      int memBase = stackOperand.top(); //this is a memDir, not a direction
-      stackOperand.pop();
-      //translate into direction with value
-      int dirBase = memFrame->declareValue(INTEGER_); 
-      memFrame->setValue(dirBase, memBase);
+            // dirBase(Array)
+            int memBase = stackOperand.top(); //this is a memDir, not a direction
+      
+            //translate into direction with value
+            int dirBase = memFrame->registerValue(memBase);
 
-      // Resulting direction
-      int newBase = memFrame->declareValue(INTEGER_);
-      stackOperand.push(newBase);
+            // Resulting direction
+            int newBase = memFrame->declareValue(INTEGER_);
+            stackOperand.push(newBase);
 
-      //Add T + dirBase(Array)
-      quadrupleSet.push_back(new Quadruple(ADD_, temp, dirBase, newBase));
+            //Add T + dirBase(Array)
+            quadrupleSet.push_back(new Quadruple(ADD_, temp, dirBase, newBase));
 
-      dimSize = 1;
-      dimNum = 0;
-      hasDimensions = false;
-      idArray = "";
-
-      stackOperator.push(ARR_);
-
-}
-
-
-void performArrayOperation()
-{
-
+            //Set values to cero
+            currentDimension = 0;
+            dimNum = 0;
+            hasDimensions = false;
+      
+            stackOperator.push(ARR_);
+      }
 }
 
 void performSemanticsNot(){
