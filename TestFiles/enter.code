@@ -12,19 +12,7 @@ func void uno()
 
     speak(a[1]);
     
-    i = 0;
-
-
-    while(i<5){
-
-        a[i] = i;
-
-        speak(a[i]);
-
-        i = i+1;
-
-    }
-
+    i = a[1]+b[1][2];
 
     speak(i);
 

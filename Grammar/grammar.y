@@ -526,7 +526,7 @@ exp : term
       exp_1
     ;
 
-exp_1 : ADD  {stackOperator.push(ADD_); } exp
+exp_1 : ADD  {stackOperator.push(ADD_);}  exp
       | SUBS {stackOperator.push(SUBS_);} exp
       |
       ;
@@ -574,12 +574,12 @@ var_cte : func_call{
                         }
                         else{
                               queue <int> temp = globalSymbolTable->getDimension($1);
-                              if(!temp.empty()){ idArray = $1; }
+                              if(!temp.empty()){ idArray = $1; stackOperator.push(FAKE_BTTM_); }
                         }
                   }
                   else{
                         queue <int> temp = symbolTable->getDimension($1);
-                        if(!temp.empty()){ idArray = $1; }
+                        if(!temp.empty()){ idArray = $1; stackOperator.push(FAKE_BTTM_); }
                   }
                   stackOperand.push(memDir);
 
@@ -698,11 +698,6 @@ void performSemantics(){
       int leftOperand = stackOperand.top();
       Type leftType = getTypeFromContext(leftOperand );
       stackOperand.pop();
-
-      
-      int aux = memFrame->getIntegerValue(rightOperand);
-      int aux2 = memFrame->getIntegerValue(leftOperand);
-      //cout<<aux2<<op<<aux<<endl;
 
       Type resultType = semantics->isAllowed(rightType,leftType, op);
       if(resultType == VOID_){
@@ -909,6 +904,11 @@ void getArrayValue()
       stackOperand.push(value);
                   
       quadrupleSet.push_back(new Quadruple(op, tempDir, -1, value));
+
+      if(stackOperator.empty() == false && stackOperator.top() == FAKE_BTTM_){
+            stackOperator.pop();
+      }
+
 }
 
 void getDimensions(){
@@ -1042,8 +1042,15 @@ void calculateArrayIndex(){
             currentDimension = 0;
             dimNum = 0;
             hasDimensions = false;
-      
-            stackOperator.push(ARR_);
+
+            if(!stackOperator.empty() && stackOperator.top() == FAKE_BTTM_){
+                  stackOperator.push(ARR_);
+                  getArrayValue();
+            }
+            else{
+                  stackOperator.push(ARR_);
+            }
+
       }
 }
 
