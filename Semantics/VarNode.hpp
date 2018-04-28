@@ -27,7 +27,6 @@ class VarNode{
         int memDir;
         queue<int> dimensions;
     
-    
     public:
 
     VarNode( string identifier, Type dataType, int memoryDirection){

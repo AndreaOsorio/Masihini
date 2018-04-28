@@ -11,6 +11,7 @@
 #include <stack>
 #include "../Quadruples/Quadruple.hpp"
 #include "../Semantics/FuncDir.hpp"
+#include "../Semantics/Dimension.hpp"
 #include "OperationHelper.hpp"
 
 
@@ -137,11 +138,26 @@ private:
             int index = quad->getLeftOperand()*-1;
             FuncNode* func = functionDirectory->at(index);
             int memDir = func->getReturnValue();
-            Quadruple* tempQuad = new Quadruple(EQ_,memDir, -1, quad->getResult());
-            helper.assignmentOperation(tempQuad);
-            delete tempQuad;
-         }
+            Dimension* tempDimension = func->getDimensionProperties();
+            if(tempDimension->getNumberOfDimensions() > 0){
+                int result = quad->getResult();
+                //Get dimensions from the result memDir
+                
+                
 
+                /*
+                std::unordered_set<T> mySet;
+                for (auto itr = mySet.begin(); itr != mySet.end(); ++itr) {
+                // check here
+                }
+                */
+            }
+            else{
+                Quadruple* tempQuad = new Quadruple(EQ_,memDir, -1, quad->getResult());
+                helper.assignmentOperation(tempQuad);
+                delete tempQuad;
+            }
+         }
     }
 
     void addition(Quadruple* quad){
@@ -358,11 +374,6 @@ private:
         func->setReturnValue(memDir);
         endProc();
     }
-
-
-
-
-    
     
     
 public:
@@ -419,7 +430,7 @@ public:
                 case GOSUB_: gosubOp(); break;
                 case GOTOF_: gotoF_(quad); break; 
                 case GOTO_: goto_(quad); break; 
-                case RETURN_: retOp(quad); break; 
+                case RETURN_: retOp(quad); break;
                 case ENDPROC_: exitExec(); break;
             }
 

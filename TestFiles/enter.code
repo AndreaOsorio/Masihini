@@ -1,25 +1,33 @@
 
 
-func void uno()
-    var a : int [12];
-    var b : int [5][10];
-    var c : int [2][2][2];
-    var i : int;
+func int getArray()
+    var arrF : int [4];
+    var j : int;
 {
-    a[1] = 10;
-    b[1][2] = 20;
-    c[1][0][1] = 15;
+    arrF[0] = 1;
+    arrF[1] = 10;
+    arrF[2] = 100;
+    arrF[3] = 1000;
 
-    speak(a[1]);
-    
-    i = a[1]+b[1][2];
-
-    speak(i);
-
-
+    return 5;
 }
 
 static func void run ()
+    var x : int [5];
+    var y : int [4];
+    var i : int;
 {
-    uno();
+    speak(z[1]);
+
+    x[0] = 1;
+    x[1] = 2;
+    x[2] = 3;
+    x[3] = 4;
+    i = getArray();
+    
+    i = 0;
+    while(i<4){
+        speak(y[i]);
+        i = i + 1;
+    }
 }

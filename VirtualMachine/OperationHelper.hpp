@@ -678,27 +678,43 @@ public:
 
         int result = quad->getResult();
         Type type = getTypeFromContext(result);
+        int memOffset = quad->getLeftOperand();
 
-        if(type == INTEGER_){
-            int value = retrieveIntegerValueFromContext(result);
-            return globalFrame->registerValue(value);
+        int memDir = 0;
+
+        for(int i = 0; i<memOffset; i++){
+
+            int res = 0;
+
+            if(type == INTEGER_){
+                int value = retrieveIntegerValueFromContext(result);
+                res = globalFrame->registerValue(value);
+            }
+
+            if(type == FLOAT_){
+                float value = retrieveFloatValueFromContext(result);
+                res = globalFrame->registerValue(value);
+            }
+
+            if(type == STRING_){
+                string value = retrieveStringValueFromContext(result);
+                res = globalFrame->registerValue(value);
+            }
+
+            if(type == BOOLEAN_){
+                bool value = retrieveBooleanValueFromContext(result);
+                res = globalFrame->registerValue(value);
+            }
+
+            if(i == 0){ memDir = res; }
+
         }
 
-        if(type == FLOAT_){
-            float value = retrieveFloatValueFromContext(result);
-            return globalFrame->registerValue(value);
-        }
+        return memDir;
 
-        if(type == STRING_){
-            string value = retrieveStringValueFromContext(result);
-            return globalFrame->registerValue(value);
-        }
-
-         if(type == BOOLEAN_){
-            bool value = retrieveBooleanValueFromContext(result);
-            return globalFrame->registerValue(value);
-        }
     }
+
+
 
     
     void verifyOperation(Quadruple* quad){

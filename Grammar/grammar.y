@@ -29,6 +29,7 @@
     void calculateArrayIndex();
     void getArrayValue();
     void performArrayAssignment();
+    void populateArray();
     void performSystemFunction(Operator op);
     void manageMemoryVarCte(Type type, char value);
     void printQuads();
@@ -36,6 +37,7 @@
     void checkForReturn();
     void performParamAssignment();
     Type getTypeFromContext(int value);
+    int getDimensionNumberFromContext(int value);
 
 
     //Functions that handle errors
@@ -51,11 +53,12 @@
       //Parameters used to store values in Func Directory
       DeclarationState declarationState = GLOBAL_;
       Type currentDeclaredtype = VOID_;
+      int functionDimensions = 0;
       FuncNode *currentDeclaredFunction ;
       VarTable *globalSymbolTable = new VarTable();
       FuncDir *functionDirectory = new FuncDir();
 
-      //Parameters used for arrays management
+      //Variables used for arrays management
       bool hasDimensions = false;
       bool isConstant = false;
       bool isDeclaring = false;
@@ -209,15 +212,18 @@ func : FUNC VOID {currentDeclaredtype = VOID_;}  func_0
      | FUNC type type_1 func_0
      ;
 
-type_1 : L_BRACKET R_BRACKET type_1
+type_1 : L_BRACKET R_BRACKET { isDeclaring = true; hasDimensions = true; functionDimensions++; } type_1
        |
        ;
 
 func_0 :    ID    {
                         //Function definition
-                        currentDeclaredFunction = new FuncNode($1, currentDeclaredtype, new VarTable(), new MemoryFrame(globalMemoryOffset, localMemoryFrameSize));
+                        currentDeclaredFunction = new FuncNode($1, currentDeclaredtype, functionDimensions,  new VarTable(), new MemoryFrame(globalMemoryOffset, localMemoryFrameSize));
                         callForLocalRedefinitionError(functionDirectory->insertNode(currentDeclaredFunction));
                         currentDeclaredFunction->setStartingInstruction(quadrupleSet.size());
+                        functionDimensions = 0;
+                        hasDimensions = false;
+                        isDeclaring = false;
                   }
 
 
@@ -230,7 +236,19 @@ func_1 : ID COLON type type_1 {
                               int memDir = frame->declareValue(currentDeclaredtype);
                               VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
                               currentDeclaredFunction->addParameter(memDir);
-                              callForLocalRedefinitionError( symbolTable->insertNode(new VarNode($1, currentDeclaredtype,memDir))); 
+                              if(hasDimensions){
+                                    callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($1, currentDeclaredtype, memDir, dimensions)));
+                              }
+                              else{
+                                    callForLocalRedefinitionError( symbolTable->insertNode(new VarNode($1, currentDeclaredtype, memDir)));
+                              }
+                              isDeclaring = false;
+                              hasDimensions = false; 
+                              functionDimensions = 0;
+                              queue<int> empty;
+                              swap( dimensions, empty );
+                              dimSize = 1;
+
                               callForGlobalRedefinitionError(globalSymbolTable->isContained($1, currentDeclaredtype));
                         }
          func_2 
@@ -243,7 +261,19 @@ func_2 : COMMA ID COLON type type_1 {
                                     int memDir = frame->declareValue(currentDeclaredtype);
                                     VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
                                     currentDeclaredFunction->addParameter(memDir);
-                                    callForLocalRedefinitionError( symbolTable->insertNode(new VarNode($2, currentDeclaredtype,memDir))); 
+                                    if(hasDimensions){
+                                          callForLocalRedefinitionError(symbolTable->insertNode(new VarNode($2, currentDeclaredtype, memDir, dimensions)));
+                                    }
+                                    else{
+                                          callForLocalRedefinitionError( symbolTable->insertNode(new VarNode($2, currentDeclaredtype,memDir)));
+                                    }
+                                    isDeclaring = false;
+                                    hasDimensions = false;
+                                    functionDimensions = 0; 
+                                    queue<int> empty;
+                                    swap( dimensions, empty );
+                                    dimSize = 1;
+                                     
                                     callForGlobalRedefinitionError(globalSymbolTable->isContained($2, currentDeclaredtype));
                               } 
       func_2 
@@ -255,7 +285,7 @@ local_declaration : declaration local_declaration
                   ;
 
 run : STATIC FUNC VOID RUN L_PARENTHESIS R_PARENTHESIS      {
-                                                                  currentDeclaredFunction = new FuncNode("run", VOID_, new VarTable(), new MemoryFrame(globalMemoryOffset, localMemoryFrameSize));
+                                                                  currentDeclaredFunction = new FuncNode("run", VOID_, 0, new VarTable(), new MemoryFrame(globalMemoryOffset, localMemoryFrameSize));
                                                                   callForLocalRedefinitionError(functionDirectory->insertNode(currentDeclaredFunction));
                                                                   currentDeclaredFunction->setStartingInstruction(quadrupleSet.size());
                                                                   quadrupleSet.at(0)->setResult(quadrupleSet.size());
@@ -380,11 +410,9 @@ func_call : ID
                         message = "Function \"" + id + "\" "+"has not been declared";
                         callForNonDeclaredVariableError(message);
                   }else{
-
                         currentCalledFunction = functionDirectory->getFunc(result);
                         quadrupleSet.push_back(new Quadruple(ERA_,-1, -1, result));
                         parameterCounter = 0;
-
                   }
             }
             L_PARENTHESIS{stackOperator.push(FAKE_BTTM_);} func_call_1 R_PARENTHESIS 
@@ -774,15 +802,42 @@ void performSystemFunction( Operator op){
 void performReturn(){
 
       int result = stackOperand.top();
-      Type resultType = getTypeFromContext(result);
       stackOperand.pop();
+      
+      //Check type of return value
+      Type resultType = getTypeFromContext(result);
 
+      //Check if it has dimensions and how many
+      if(!idArray.empty())
+      {
+            getDimensions();
+            resultDimensions = dimNum;
+            dimNum = 0;
+      }
+
+      //Check return type and # of dimensions of current function
       Type functionType = currentDeclaredFunction->getType();
+      int dimensionNumber = currentDeclaredFunction->getDimensionNumber();
       string id = currentDeclaredFunction->getId();
       int index = functionDirectory->search(id);
 
-      if(resultType == functionType){
-            quadrupleSet.push_back(new Quadruple(RETURN_, -1,index, result));
+      //Compare type and # of dimensions
+      if((resultType == functionType) && (resultDimensions == dimensionNumber)){
+            if(dimensionNumber == 0){
+                  quadrupleSet.push_back(new Quadruple(RETURN_, 1, index, result));
+            }
+            else{
+                  //Asignar al stack de return los resultados r veces ya que es el offset de la memoria
+                  quadrupleSet.push_back(new Quadruple(RETURN_, r, index, result));     
+                  r = 1;
+            }
+
+            FuncNode* func = functionDirectory->at(index);
+            func->setReturnValue(memDir);
+            func->setDimensionProperties(dimensionNumber, dimensions);
+            queue<int> empty;
+            swap( dimensions, empty );
+            
       }else{
              callForTypeMismatchError("Return mismatch error, cannot perform operation"); 
       }
@@ -792,8 +847,6 @@ void performReturn(){
 void checkForReturn(){
       Operator operator_ = quadrupleSet.at(quadrupleSet.size()-1)->getOperator();
       Type functionType = currentDeclaredFunction->getType();
-
-
 
       if(operator_ != RETURN_ && functionType != VOID_){
             string message;
@@ -883,6 +936,12 @@ void performArrayAssignment()
             stackOperator.pop(); //pop of ARR_
       }
 }
+
+
+void populateArray(){
+      
+}
+
 
 void getArrayValue()
 {
@@ -1041,6 +1100,7 @@ void calculateArrayIndex(){
             //Set values to cero
             currentDimension = 0;
             dimNum = 0;
+            r = 1;
             hasDimensions = false;
 
             if(!stackOperator.empty() && stackOperator.top() == FAKE_BTTM_){
