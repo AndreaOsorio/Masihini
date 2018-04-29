@@ -6,7 +6,6 @@
 //  Copyright © 2018 Ruben Hidalgo. All rights reserved.
 //
 
-#pragma once
 #include <stdio.h>
 #include <vector>
 #include <stack>
@@ -61,7 +60,7 @@ private:
 
     void exitExec(){
 
-        cout<<"Execution Sucessful!"<<endl;
+        cout<<"Execution Successful!"<<endl;
         exit (0);
 
     }
@@ -348,7 +347,7 @@ public:
             globalMemoryFrame = globalMemFrame;
             globalMemoryOffset = offset;
 
-            cout<<"------------------------ Exec output---------------------"<<endl;
+            cout<<"------------------------ Exec output ---------------------"<<endl;
             printQuads();
             init();
             run();
