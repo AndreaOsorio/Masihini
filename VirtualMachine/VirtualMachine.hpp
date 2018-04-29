@@ -325,6 +325,11 @@ private:
 
     }
 
+    void verify(Quadruple* quad){
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.verifyOperation(quad);
+    }
+
 
 
 
@@ -384,6 +389,7 @@ public:
                 case GOTOF_: gotoF_(quad); break; 
                 case GOTO_: goto_(quad); break; 
                 case RETURN_: retOp(quad); break; 
+                case VER_: verify(quad); execPointer++; break;
                 case ENDPROC_: exitExec(); break;
             }
 

@@ -78,6 +78,7 @@ public:
             case STOP_: cout << "STOP_ "; break;
             case JUMP_: cout << "JUMP_ "; break;
             case POPRES_: cout << "POPRES_"; break;
+            case VER_: cout << "VER_"; break;
         }
 
         cout<<"\t\t";

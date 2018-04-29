@@ -42,12 +42,16 @@ enum Operator
     ERA_,
     PARAMETER_,
     GOSUB_,
+    // Array-Related Operators
+    VER_,
     ENDPROG_
 };
 
 enum DeclarationState
 {
     GLOBAL_,
-    LOCAL_
+    LOCAL_,
+    UNIDIMENSIONAL_,
+    MULTIDIMENSIONAL_
 
 };

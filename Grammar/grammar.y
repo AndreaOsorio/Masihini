@@ -6,8 +6,9 @@
     #include <iostream>
     #include <stack>
     #include <vector>
-    #include "Semantics/SemanticValidationHelper.hpp"
+    #include "Semantics/DimensionalDeclarationHelper.hpp"
     #include "VirtualMachine/VirtualMachine.hpp"
+
     using namespace std;
     int yylex ();
     void yyerror (char const *);
@@ -24,6 +25,10 @@
       vector<Quadruple*> quadrupleSet;
       //Semantic Validation Helper
       SemanticValidationHelper* semanticHelper = new SemanticValidationHelper(declarationHelper, &quadrupleSet);
+
+      DimensionalDeclarationHelper* dimensionalDeclarationHelper = new DimensionalDeclarationHelper(declarationHelper, semanticHelper);
+
+
       
 %}
 
@@ -98,10 +103,12 @@ global_declaration : STATIC declaration global_declaration
                     | func_declaration
                     ;
 
-declaration : VAR ID COLON type array SEMICOLON 
-                                                { 
+declaration : VAR ID COLON type {declarationHelper->switchDimensionalDeclarationState();} array {declarationHelper->switchDimensionalDeclarationState();} SEMICOLON 
+                                                {     
+                                                      //Variable declaration
                                                       string id_value($2);
                                                       declarationHelper->performVariableDeclaration(id_value, false);
+
                                                 }
             ;
 
@@ -258,7 +265,7 @@ factor : L_PARENTHESIS {semanticHelper->pushOperator(FAKE_BTTM_);}  expression R
 
 var_cte : func_call{int index = quadrupleSet.at(quadrupleSet.size()-1)->getResult() * -1; semanticHelper->func_call_as_exp();}
         | ID {string value($1); semanticHelper->manage_var_cte_id(value);} array
-        | INT {semanticHelper->manage_var_cte<int>($1);}
+        | INT {semanticHelper->manage_var_cte<int>($1);    }
         | FLOAT {semanticHelper->manage_var_cte<float>($1);}
         | STRING  {semanticHelper->manage_var_cte<string>($1);}
         | TRUE  {semanticHelper->manage_var_cte<bool>(true);} 
@@ -266,7 +273,22 @@ var_cte : func_call{int index = quadrupleSet.at(quadrupleSet.size()-1)->getResul
         ;
 
 
-array : L_BRACKET expression R_BRACKET array
+array : L_BRACKET
+            {
+
+            } 
+            
+            expression 
+            {
+
+            }
+            
+            R_BRACKET 
+            {
+
+            }
+
+            array
       |
       ;
 

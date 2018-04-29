@@ -3,7 +3,7 @@ func int recursive(num:int){
     if(num==0 || num == 1){
         return num;
     }else{
-        return recursive(num-1) + recursive(num-2);
+        return recursive(num - 1) + recursive(num - 2);
     }
 }
 
@@ -12,7 +12,7 @@ func float factorial(num:float){
     if (num == 0.0f || num==1.0f){
         return 1.0f;
     }else{
-        return factorial(num-1) * num;
+        return factorial(num - 1) * num;
     }
 }
 
@@ -20,7 +20,7 @@ static func void run ()
     var a : int;
     var b : float;
 {
-    a = recursive(11);
+    a = recursive(10);
     speak(a);
 
     b = factorial(3.0f);

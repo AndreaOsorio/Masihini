@@ -13,6 +13,11 @@ class DeclarationHelper{
 
 private:
 
+    //Configuration for Global Frames
+    int globalMemoryOffset = 25000;
+    int localMemoryFrameSize = 10000;
+
+    //Structures that
     DeclarationState declarationState = GLOBAL_;
     Type currentDeclaredType = VOID_;
     FuncNode *currentDeclaredFunction ;
@@ -20,8 +25,11 @@ private:
     FuncDir *functionDirectory ;
     MemoryFrame *globalMemoryFrame;
     CompilationErrorHandler* errorHandler;
-    int globalMemoryOffset = 25000;
-    int localMemoryFrameSize = 10000;
+
+
+
+    Dimension *dimensionInformation;
+    DeclarationState  dimensionalDeclarationState = UNIDIMENSIONAL_;
     
 
     
@@ -35,6 +43,17 @@ public:
         globalMemoryFrame = frame;
     }
 
+    //Functions that handle multidimensional variable declaration
+    void switchDimensionalDeclarationState(){
+        if (dimensionalDeclarationState == UNIDIMENSIONAL_){
+            dimensionalDeclarationState = MULTIDIMENSIONAL_;
+        }else{
+            dimensionalDeclarationState = UNIDIMENSIONAL_;
+        }
+        
+
+    }
+
     //Variable Declaration
 
     void performVariableDeclaration(string id, bool isParam){
@@ -45,6 +64,7 @@ public:
 
 
         }else{
+
             MemoryFrame *frame = currentDeclaredFunction->getMemoryFrame();
             int memDir = frame->declareValue(getCurrentDeclaredType());
             VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
@@ -82,6 +102,10 @@ public:
 
     void setCurrentDeclaredType(Type type){
         currentDeclaredType = type;
+    }
+
+    void setDimensionInformation(Dimension* dimension){
+        dimensionInformation = dimension;
     }
 
     int getGlobalOffset(){

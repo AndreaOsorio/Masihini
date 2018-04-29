@@ -24,8 +24,6 @@ private:
     FuncNode* currentCalledFunction;
 
 
-
-
 Type getTypeFromContext(int value){
 
       Type type;
@@ -388,7 +386,7 @@ public:
         quadrupleSet->at(index)->setResult(quadrupleSet->size());
     }
 
-//Variables that handle function return
+//Functions that handle function return
 
     void perform_return(){
         int result = stackOperand.top();
@@ -416,6 +414,8 @@ public:
         }
         
     }
+
+
 
 
     

@@ -23,6 +23,11 @@ private:
         exit(0);
     }
 
+    void callForIndexOutOfBounds(){
+        cout<<"RUNTIME ERROR: Index Out Of Bounds"<<endl;
+        exit(0);
+    }
+
     Type getTypeFromContext(int value){
 
         Type type;
@@ -654,6 +659,16 @@ public:
         }
 
 
+    }
+
+    void verifyOperation(Quadruple* quad){
+        int index = quad->getLeftOperand();
+        int size = quad->getResult();
+
+        if(index >= size || index < 0 ){
+            callForIndexOutOfBounds();
+        }
+        
     }
 
     

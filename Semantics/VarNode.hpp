@@ -3,7 +3,9 @@
 
 #include <string>
 #include <iostream>
+#include <queue>
 #include "Type.hpp"
+#include "Dimension.hpp"
 #endif 
 
 using namespace std;
@@ -16,11 +18,11 @@ class VarNode{
         string id;
         Type type;
         int memDir;
-    
-    
+        Dimension* dimensionInformation;
     
     public:
-    VarNode( string identifier, Type dataType){
+
+    VarNode( string identifier, Type dataType ){
         
         id = identifier;
         type = dataType;
@@ -28,12 +30,23 @@ class VarNode{
         
     }
 
-    VarNode( string identifier, Type dataType, int memoryDirection){
+    VarNode( string identifier, Type dataType, int memoryDirection ){
         
         id = identifier;
         type = dataType;
         memDir = memoryDirection;
+        queue<int> empty;
+        dimensionInformation = new Dimension(0, empty);
         
+    }
+
+    VarNode( string identifier, Type dataType, int memoryDirection, Dimension* dimensionInfo ){
+        
+        id = identifier;
+        type = dataType;
+        memDir = memoryDirection;
+        dimensionInformation = dimensionInfo;
+
     }
     
     string getId() const{
@@ -42,6 +55,10 @@ class VarNode{
 
     int getMemDir() const{
         return memDir;
+    }
+
+    Dimension* getDimensions() const{
+        return dimensionInformation;
     }
 
 };
