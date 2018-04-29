@@ -1,6 +1,4 @@
-#ifndef MemoryFrame_hpp
-#define MemoryFrame_hpp
-
+#pragma once
 #include <stdio.h>
 #include <map>
 #include <string>
@@ -51,51 +49,25 @@ class MemoryFrame{
 
 
 //Registering values
-
-    /** INTEGER */
     int registerValue(int value){
         int res =  integerMemoryDispatcher->insert<int>(value);
         return res;
     }
-    
-    int registerArr(int value, int memOffset){
-        int res =  integerMemoryDispatcher->insertArr<int>(value, memOffset);
-        return res;
-    }
 
-    /** FLOAT */
     int registerValue(float value){
         int res =  floatMemoryDispatcher->insert<float>(value);
         return res;
     }
 
-    int registerArr(float value, int memOffset){
-        int res =  floatMemoryDispatcher->insertArr<float>(value, memOffset);
-        return res;
-    }
-
-    /** STRING  */
     int registerValue(string value){
         int res =  stringMemoryDispatcher->insert<string>(value);
         return res;
     }
 
-    int registerArr(string value, int memOffset){
-        int res =  stringMemoryDispatcher->insertArr<string>(value, memOffset);
-        return res;
-    }
-
-    /** BOOLEAN */
     int registerValue(bool value){
         int res =  booleanMemoryDispatcher->insert<bool>(value);
         return res;
     }
-
-    int registerArr(bool value, int memOffset){
-        int res =  booleanMemoryDispatcher->insertArr<bool>(value, memOffset);
-        return res;
-    }
-
 
 
 //Declaring values
@@ -114,19 +86,6 @@ class MemoryFrame{
 
         }
 
-    }
-
-    int declareArr(Type type, int memOffset){
-        switch(type){
-
-            //set default values for a new variable
-            case INTEGER_ : return integerMemoryDispatcher->insertArr<int>(0, memOffset);
-            case FLOAT_ : return floatMemoryDispatcher->insertArr<float>(0.0f, memOffset); 
-            case STRING_ : return stringMemoryDispatcher->insertArr<string>("", memOffset);
-            case BOOLEAN_: return booleanMemoryDispatcher->insertArr<bool>(true, memOffset);
-            default : return -1;
-
-        }
     }
 
 //Get type from memory dir
@@ -200,6 +159,3 @@ Type getType(int memDir){
     }
 
 };
-
-#endif
-

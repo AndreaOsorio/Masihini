@@ -1,6 +1,4 @@
-#ifndef OperationHelper_hpp
-#define OperationHelper_hpp
-
+#pragma once
 #include <stdio.h>
 #include <iostream>
 #include "../Semantics/Type.hpp"
@@ -660,6 +658,3 @@ public:
 
     
 };
-
-#endif
-

@@ -1,11 +1,4 @@
-//
-//  FuncDir.hpp
-//  CompilerTestProject
-//
-//  Created by Ruben Hidalgo on 3/9/18.
-//  Copyright © 2018 Ruben Hidalgo. All rights reserved.
-//
-
+#pragma once
 #include <stdio.h>
 #include <vector>
 #include <stack>
@@ -60,7 +53,7 @@ private:
 
     void exitExec(){
 
-        cout<<"Execution Successful!"<<endl;
+        cout<<"Execution Sucessful!"<<endl;
         exit (0);
 
     }
@@ -347,7 +340,7 @@ public:
             globalMemoryFrame = globalMemFrame;
             globalMemoryOffset = offset;
 
-            cout<<"------------------------ Exec output ---------------------"<<endl;
+            cout<<"------------------------ Exec output---------------------"<<endl;
             printQuads();
             init();
             run();
@@ -401,6 +394,3 @@ public:
 
 
 };
-
-
-

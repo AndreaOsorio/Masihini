@@ -1,11 +1,3 @@
-//
-//  FuncNode.hpp
-//  CompilerTestProject
-//
-//  Created by Ruben Hidalgo on 3/9/18.
-//  Copyright © 2018 Ruben Hidalgo. All rights reserved.
-//
-
 #ifndef FuncNode_hpp
 #define FuncNode_hpp
 

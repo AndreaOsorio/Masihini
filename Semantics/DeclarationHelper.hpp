@@ -1,5 +1,3 @@
-
-
 #pragma once
 #include <iostream>
 #include <string>
@@ -114,13 +112,5 @@ public:
         return currentDeclaredFunction;
     }
 
-
-
-
-    
-
     
 };
-
-
-

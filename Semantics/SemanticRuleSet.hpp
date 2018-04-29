@@ -1,11 +1,14 @@
-#ifndef SemanticRuleSet_hpp
-#define SemanticRuleSet_hpp
+#pragma once
 #include <stdio.h>
 #include <unordered_set>
 #include <iostream>
 #include <string>
 #include "./Type.hpp"
-#endif
+
+
+
+
+
 using namespace std;
 
 class SemanticRuleSet{
