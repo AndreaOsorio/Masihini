@@ -35,30 +35,21 @@ class VarTable{
         
     }
     
-    string insertNode(VarNode* node){
+    bool insertNode(VarNode* node){
         
         auto res = varTable.insert(*node);
-
-        string message = "";
         
-        if (res.second == false)
-            message = "Variable \"" + node->getId() + "\" has been defined previously";
 
-        return message;
+        return res.second;
         
     }
 
     
-    string isContained(string id, Type type)
+    bool isContained(string id, Type type)
     {
         VarNode elem (id, type);
-        string message = "";
         const bool result = varTable.find(elem) != varTable.end();
-
-        if(result){
-            message = "Refedinition of global variable \"" + id + "\" ";
-        }
-        return message;
+        return result;
     }
 
     int search(string id){

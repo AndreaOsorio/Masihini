@@ -79,6 +79,7 @@ public:
             case ROT_: cout << "ROT_ "; break;
             case STOP_: cout << "STOP_ "; break;
             case JUMP_: cout << "JUMP_ "; break;
+            case POPRES_: cout << "POPRES_"; break;
         }
 
         cout<<"\t\t";

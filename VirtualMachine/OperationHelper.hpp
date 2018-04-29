@@ -522,8 +522,6 @@ public:
 
     int gotoFOperation(Quadruple* quad){
 
-     
-
 
         int leftOperand = quad->getLeftOperand();
         int result= quad->getResult();
@@ -542,7 +540,7 @@ public:
 
     void speakOperation(Quadruple* quad){
 
-        int result= quad->getResult();
+        int result= quad->getRightOperand();
         Type type = getTypeFromContext(result);
 
         if(type == STRING_)
@@ -562,7 +560,7 @@ public:
 
     void accelOperation(Quadruple* quad){
 
-        int result= quad->getResult();
+        int result= quad->getRightOperand();
         Type type = getTypeFromContext(result);
 
         if(type == FLOAT_)
@@ -575,7 +573,7 @@ public:
 
     void rotOperation(Quadruple* quad){
 
-        int result= quad->getResult();
+        int result= quad->getRightOperand();
         Type type = getTypeFromContext(result);
 
         if(type == FLOAT_)

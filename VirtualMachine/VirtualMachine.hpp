@@ -39,9 +39,6 @@ private:
         currentFrame = memoryStack.top();
     }
 
-
-
-
     void goto_(Quadruple* quad){
 
         int result = quad->getResult();
@@ -220,6 +217,7 @@ private:
 
     void notOp(Quadruple* quad){
 
+        quad = getReturnValueFromFunc(quad);
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.notOperation(quad);
 
@@ -242,6 +240,8 @@ private:
     }
 
     void speak(Quadruple* quad){
+        quad = getReturnValueFromFunc(quad);
+
 
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.speakOperation(quad);
@@ -249,14 +249,14 @@ private:
     }
 
     void accel(Quadruple* quad){
-
+        quad = getReturnValueFromFunc(quad);
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.accelOperation(quad);
 
     }
 
     void rot(Quadruple* quad){
-
+        quad = getReturnValueFromFunc(quad);
         OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
         helper.rotOperation(quad);
 
@@ -275,7 +275,6 @@ private:
         helper.jumpOperation();
 
     }
-
 
     void eraOp(Quadruple* quad){
         int index = quad->getResult();
@@ -326,6 +325,14 @@ private:
         endProc();
     }
 
+    void popRes(Quadruple* quad){
+
+        int index = quad->getResult();
+        FuncNode* func = functionDirectory->at(index);
+        func->getReturnValue();
+
+    }
+
 
 
 
@@ -360,25 +367,26 @@ public:
 
             //Any action that alters exec pointer does not add to the counter
             switch (operator_){
-                case ADD_: addition(quad); execPointer++; break; //Return ready
-                case SUBS_: substraction(quad); execPointer++; break;//Return ready
-                case MULT_: multiplication(quad); execPointer++; break;//Return ready
-                case DIV_: division(quad); execPointer++; break;//Return ready
-                case GT_: greaterThan(quad); execPointer++; break;//Return ready
-                case LT_: lessThan(quad); execPointer++; break;//Return ready
-                case LE_: lessOrEquals(quad); execPointer++; break;//Return ready
-                case GE_: greaterOrEquals(quad); execPointer++; break;//Return ready
-                case EE_: equalsEquals(quad); execPointer++; break;//Return ready
+                case ADD_: addition(quad); execPointer++; break; 
+                case SUBS_: substraction(quad); execPointer++; break;
+                case MULT_: multiplication(quad); execPointer++; break;
+                case DIV_: division(quad); execPointer++; break;
+                case GT_: greaterThan(quad); execPointer++; break;
+                case LT_: lessThan(quad); execPointer++; break;
+                case LE_: lessOrEquals(quad); execPointer++; break;
+                case GE_: greaterOrEquals(quad); execPointer++; break;
+                case EE_: equalsEquals(quad); execPointer++; break;
                 case NOT_: notOp(quad); execPointer++; break;
-                case AND_: andOp(quad); execPointer++; break;//Return ready
+                case AND_: andOp(quad); execPointer++; break;
                 case OR_: orOp(quad); execPointer++; break;
                 case SPEAK_: speak(quad); execPointer++; break;
                 case ACCEL_: accel(quad); execPointer++; break;
                 case ROT_: rot(quad); execPointer++; break;
                 case JUMP_: jump(); execPointer++; break;
                 case STOP_: stopOp(); execPointer++; break;
-                case EQ_: assignment(quad); execPointer++; break;//Return ready
+                case EQ_: assignment(quad); execPointer++; break;
                 case ERA_: eraOp(quad); execPointer++; break;
+                case POPRES_: popRes(quad); execPointer++; break;
                 case PARAMETER_: parameterOp(quad); execPointer++; break;
                 case GOSUB_: gosubOp(); break;
                 case GOTOF_: gotoF_(quad); break; 

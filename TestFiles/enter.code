@@ -1,5 +1,4 @@
 
-
 func int recursive(num:int){
 
     if(num==0 || num == 1){
@@ -22,7 +21,7 @@ static func void run ()
     var a : int;
     var b : float;
 {
-    a = recursive(10);
+    a = recursive(11);
     speak(a);
 
     b = factorial(3.0f);
