@@ -11,6 +11,7 @@
 
 #include <string>
 #include <iostream>
+#include <queue>
 #include "Type.hpp"
 #endif 
 
@@ -24,24 +25,21 @@ class VarNode{
         string id;
         Type type;
         int memDir;
-    
-    
+        queue<int> dimensions;
     
     public:
-    VarNode( string identifier, Type dataType){
-        
-        id = identifier;
-        type = dataType;
-        memDir = -1;
-        
-    }
 
     VarNode( string identifier, Type dataType, int memoryDirection){
-        
         id = identifier;
         type = dataType;
         memDir = memoryDirection;
-        
+    }
+
+    VarNode( string identifier, Type dataType, int memoryDirection, queue<int> dimension){
+        id = identifier;
+        type = dataType;
+        memDir = memoryDirection;
+        dimensions = dimension;
     }
     
     string getId() const{
@@ -50,6 +48,10 @@ class VarNode{
 
     int getMemDir() const{
         return memDir;
+    }
+
+    queue<int> getArrayInfo() const{
+        return dimensions;
     }
 
 };

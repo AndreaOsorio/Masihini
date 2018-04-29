@@ -50,4 +50,3 @@ enum DeclarationState
     GLOBAL_,
     LOCAL_
 
-};

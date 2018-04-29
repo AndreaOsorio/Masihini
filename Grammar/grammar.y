@@ -38,8 +38,6 @@
 
 %}
 
-/*UNIONS DEFINITION*/
-
 %union
 {
     int intValue;
@@ -49,7 +47,6 @@
 
 
 /* TOKENS */
-
 %token <floatValue>   FLOAT
 %token <intValue>     INT
 %token <stringValue>  ID
@@ -109,7 +106,6 @@ global_declaration : STATIC declaration global_declaration
                     | func_declaration
                     ;
 
-declaration : VAR ID COLON type array SEMICOLON 
                                                 { 
                                                       string id_value($2);
                                                       declarationHelper->performVariableDeclaration(id_value, false);
@@ -121,7 +117,6 @@ func_declaration : {declarationHelper->setDeclarationStateToLocal();} func func_
                  ;
 
 func : FUNC VOID {declarationHelper->setCurrentDeclaredType(VOID_);}  func_0 
-     | FUNC type func_0
      ;
 
 func_0 :    ID    {
@@ -135,7 +130,6 @@ func_0 :    ID    {
             L_PARENTHESIS func_1 R_PARENTHESIS local_declaration 
        ;
 
-func_1 : ID COLON type {            
                               //Parameter definition                                             
                               string id_value($1);
                               declarationHelper->performVariableDeclaration(id_value, true);
@@ -144,7 +138,6 @@ func_1 : ID COLON type {
        |
        ;
 
-func_2 : COMMA ID COLON type {
                                     //ParameterDefinition
                                     string id_value($2);
                                     declarationHelper->performVariableDeclaration(id_value, true);
@@ -199,7 +192,6 @@ condition_1 : ELSE {semanticHelper->perform_else();} block {semanticHelper->cond
 
 func_call : ID { string value($1); semanticHelper->initialize_func_call(value);}L_PARENTHESIS {semanticHelper->pushOperator(FAKE_BTTM_);}func_call_1 R_PARENTHESIS {string value($1); semanticHelper->subscribe_func_call(value);}
           ;
-
 func_call_1 :  expression {semanticHelper->param_assignment();} func_call_2
             |
             ;

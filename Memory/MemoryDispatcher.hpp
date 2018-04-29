@@ -1,6 +1,3 @@
-
-
-#pragma once
 #include <stdio.h>
 #include <map>
 #include <iostream>
@@ -60,6 +57,19 @@ class MemoryDispatcher{
         return memDir;
     }
 
+    template <class X>
+    int insertArr(X value, int memOffset){
+        mem[memCounter] = value;
+        int memDir = memCounter;
+        memCounter += memOffset;
+
+        if (memCounter > memUpperLimit){
+            triggerOutOfMemoryError();
+        }
+
+        return memDir;
+    }
+
     void setValue(int memDir, T value){
         mem[memDir] = value;
     }
@@ -68,7 +78,6 @@ class MemoryDispatcher{
     Y getValue(int memDir){
         return mem[memDir];
     }
-
 
     void triggerOutOfMemoryError(){
         cout<<"System out of memory"<<endl;
