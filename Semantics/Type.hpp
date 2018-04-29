@@ -1,10 +1,8 @@
+#pragma once
 
-#ifndef Type_hpp
-#define Type_hpp
 #include <iostream>
-/**
 
-*/
+
 enum Type
 {
     STRING_, 
@@ -16,36 +14,35 @@ enum Type
 
 enum Operator
 {
-    ADD_,//Ready
-    SUBS_,//Ready
-    MULT_,//Ready
-    DIV_,//Ready
-    GT_,//Ready
-    LT_,//Ready
-    LE_,//Ready
-    GE_,//Ready
-    EE_,//Ready
-    NOT_,//Ready
-    AND_,//Ready
-    OR_,//Ready
-    EQ_,//Ready
-    FAKE_BTTM_,//Doesn't apply
-    SPEAK_,//Ready
-    ACCEL_,//Ready
-    JUMP_,//Ready
-    STOP_,//Ready
-    ROT_,//Ready
-    /** Non Expression-Related Operators */
-    GOTOF_,//Ready
-    GOTO_,//Ready
+    ADD_,
+    SUBS_,
+    MULT_,
+    DIV_,
+    GT_,
+    LT_,
+    LE_,
+    GE_,
+    EE_,
+    NOT_,
+    AND_,
+    OR_,
+    EQ_,
+    FAKE_BTTM_,
+    SPEAK_,
+    ACCEL_,
+    JUMP_,
+    STOP_,
+    ROT_,
+    //Non Expression-Related Operators
+    POPRES_,
+    GOTOF_,
+    GOTO_,
     ENDPROC_,
     RETURN_,
     ERA_,
     PARAMETER_,
     GOSUB_,
-    /** Array related Operators */
-    VERIFY_,
-    ENDPROG_//Ready
+    ENDPROG_
 };
 
 enum DeclarationState
@@ -54,5 +51,3 @@ enum DeclarationState
     LOCAL_
 
 };
-
-#endif

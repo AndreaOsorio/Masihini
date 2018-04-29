@@ -29,18 +29,14 @@ private:
     
     
 public:
-    string insertNode(FuncNode* node){
+    bool insertNode(FuncNode* node){
         
         auto res = funcTable.insert(*node);
         funcList.push_back(node);
         string message = "";
         
-        
-        if (res.second == false)
-            message = "Function \"" + node->getId() + "\" has been defined previously";
-        
 
-        return message;
+        return res.second;
     }
 
     FuncNode* getFunc(int index){
