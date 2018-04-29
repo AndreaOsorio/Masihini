@@ -1,11 +1,3 @@
-//
-//  FuncDir.hpp
-//  CompilerTestProject
-//
-//  Created by Ruben Hidalgo on 3/9/18.
-//  Copyright © 2018 Ruben Hidalgo. All rights reserved.
-//
-
 #pragma once
 #include <stdio.h>
 #include <vector>
@@ -402,6 +394,3 @@ public:
 
 
 };
-
-
-

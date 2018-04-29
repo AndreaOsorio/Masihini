@@ -1,11 +1,3 @@
-//
-//  FuncNode.hpp
-//  CompilerTestProject
-//
-//  Created by Ruben Hidalgo on 3/9/18.
-//  Copyright © 2018 Ruben Hidalgo. All rights reserved.
-//
-
 #ifndef FuncNode_hpp
 #define FuncNode_hpp
 
@@ -15,7 +7,6 @@
 #include <stack>
 #include "./Type.hpp"
 #include "./VarTable.hpp"
-#include "./Semantics/Dimension.hpp"
 #include "../Memory/MemoryFrame.hpp"
 
 
@@ -28,44 +19,35 @@ class FuncNode{
 private:
     string id;
     Type type;
-    int dimensions;
     int startingInstruction;
     VarTable *symbolTable;
     MemoryFrame *memoryFrame;
     vector<int> parameters;
     stack<int> returnValueStack;
-    stack<Dimension*> returnDimensionStack;
     
-
+    
+    
 public:
-    FuncNode( string identifier, Type dataType, int dimNumber, VarTable* symbTable, MemoryFrame* memFrame){
+    FuncNode( string identifier, Type dataType, VarTable* symbTable, MemoryFrame* memFrame){
         
         id = identifier;
         type = dataType;
-        dimensions = dimNumber;
         symbolTable = symbTable;
         memoryFrame = memFrame;
         
     }
 
-    void setReturnValue( int value ){
+    void setReturnValue(int value ){
         returnValueStack.push(value);
     }
 
     int getReturnValue(){
+        
         int returnValue = returnValueStack.top();
         returnValueStack.pop();
         return returnValue;
-    }
 
-    void setDimensionProperties(int dimensionNumber, queue<int> dimensions){
-        returnDimensionStack.push( new Dimension (dimensionNumber, dimensions));
-    }
 
-    Dimension* getDimensionProperties(){
-        Dimension* dimension = returnDimensionStack.top();
-        returnDimensionStack.pop();
-        return dimension;
     }
 
     void addParameter(int param){
@@ -101,10 +83,6 @@ public:
 
     Type getType(){
         return type;
-    }
-
-    int getDimensionNumber(){
-        return dimensions;
     }
 
     int getStartingInstruction(){

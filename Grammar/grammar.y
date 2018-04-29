@@ -8,35 +8,26 @@
     #include <vector>
     #include "Semantics/SemanticValidationHelper.hpp"
     #include "VirtualMachine/VirtualMachine.hpp"
-
     using namespace std;
-
     int yylex ();
     void yyerror (char const *);
     void run();
     extern int yylineno;
-
       //Parameters used to store values in Func Directory
       VarTable *globalSymbolTable = new VarTable();
       FuncDir *functionDirectory = new FuncDir();
-
       //Parameters used to assign memory to items;
       MemoryFrame *globalMemoryFrame = new MemoryFrame(1,5000);
-
       //DeclarationHelper
       DeclarationHelper* declarationHelper = new DeclarationHelper(globalSymbolTable,functionDirectory,globalMemoryFrame);
-
       //Global Quadruple Vector
       vector<Quadruple*> quadrupleSet;
-
       //Semantic Validation Helper
       SemanticValidationHelper* semanticHelper = new SemanticValidationHelper(declarationHelper, &quadrupleSet);
-
-
-
       
-
 %}
+
+/*UNIONS DEFINITION*/
 
 %union
 {
@@ -47,6 +38,7 @@
 
 
 /* TOKENS */
+
 %token <floatValue>   FLOAT
 %token <intValue>     INT
 %token <stringValue>  ID
@@ -106,6 +98,7 @@ global_declaration : STATIC declaration global_declaration
                     | func_declaration
                     ;
 
+declaration : VAR ID COLON type array SEMICOLON 
                                                 { 
                                                       string id_value($2);
                                                       declarationHelper->performVariableDeclaration(id_value, false);
@@ -117,6 +110,7 @@ func_declaration : {declarationHelper->setDeclarationStateToLocal();} func func_
                  ;
 
 func : FUNC VOID {declarationHelper->setCurrentDeclaredType(VOID_);}  func_0 
+     | FUNC type func_0
      ;
 
 func_0 :    ID    {
@@ -130,6 +124,7 @@ func_0 :    ID    {
             L_PARENTHESIS func_1 R_PARENTHESIS local_declaration 
        ;
 
+func_1 : ID COLON type {            
                               //Parameter definition                                             
                               string id_value($1);
                               declarationHelper->performVariableDeclaration(id_value, true);
@@ -138,6 +133,7 @@ func_0 :    ID    {
        |
        ;
 
+func_2 : COMMA ID COLON type {
                                     //ParameterDefinition
                                     string id_value($2);
                                     declarationHelper->performVariableDeclaration(id_value, true);
@@ -192,6 +188,7 @@ condition_1 : ELSE {semanticHelper->perform_else();} block {semanticHelper->cond
 
 func_call : ID { string value($1); semanticHelper->initialize_func_call(value);}L_PARENTHESIS {semanticHelper->pushOperator(FAKE_BTTM_);}func_call_1 R_PARENTHESIS {string value($1); semanticHelper->subscribe_func_call(value);}
           ;
+
 func_call_1 :  expression {semanticHelper->param_assignment();} func_call_2
             |
             ;
@@ -296,4 +293,3 @@ void yyerror(char const *x)
 void run(){
       VirtualMachine virtualMachin(&quadrupleSet, functionDirectory->getFuncList(), globalMemoryFrame, declarationHelper->getGlobalOffset() );
 }
-

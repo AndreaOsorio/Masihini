@@ -1,13 +1,4 @@
-//
-//  FuncDir.hpp
-//  CompilerTestProject
-//
-//  Created by Ruben Hidalgo on 3/9/18.
-//  Copyright © 2018 Ruben Hidalgo. All rights reserved.
-//
-
-#ifndef FuncDir_hpp
-#define FuncDir_hpp
+#pragma once
 #include <stdio.h>
 #include <unordered_set>
 #include <iostream>
@@ -15,9 +6,6 @@
 #include <vector>
 #include "./VarTable.hpp"
 #include "./FuncNode.hpp"
-
-
-
 
 using namespace std;
 
@@ -67,6 +55,4 @@ public:
 
     
 };
-
-#endif
 

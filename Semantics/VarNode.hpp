@@ -1,17 +1,8 @@
-//
-//  VarNode.hpp
-//  CompilerTestProject
-//
-//  Created by Ruben Hidalgo on 3/8/18.
-//  Copyright © 2018 Ruben Hidalgo. All rights reserved.
-//
-
 #ifndef VarNode_hpp
 #define VarNode_hpp
 
 #include <string>
 #include <iostream>
-#include <queue>
 #include "Type.hpp"
 #endif 
 
@@ -25,21 +16,24 @@ class VarNode{
         string id;
         Type type;
         int memDir;
-        queue<int> dimensions;
+    
+    
     
     public:
-
-    VarNode( string identifier, Type dataType, int memoryDirection){
+    VarNode( string identifier, Type dataType){
+        
         id = identifier;
         type = dataType;
-        memDir = memoryDirection;
+        memDir = -1;
+        
     }
 
-    VarNode( string identifier, Type dataType, int memoryDirection, queue<int> dimension){
+    VarNode( string identifier, Type dataType, int memoryDirection){
+        
         id = identifier;
         type = dataType;
         memDir = memoryDirection;
-        dimensions = dimension;
+        
     }
     
     string getId() const{
@@ -48,10 +42,6 @@ class VarNode{
 
     int getMemDir() const{
         return memDir;
-    }
-
-    queue<int> getArrayInfo() const{
-        return dimensions;
     }
 
 };
@@ -90,5 +80,3 @@ struct VarNodeComparator
         return false;
     }
 };
-
-
