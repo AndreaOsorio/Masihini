@@ -60,6 +60,11 @@ private:
         exit(0); 
     }
 
+    void callForArrayMismatchError(string message){
+        cout<<"Array dimension mismatch, operation cannot be performed"<<endl;
+        exit(0); 
+    }
+
     
     
 public:
@@ -77,6 +82,7 @@ public:
             case TOO_MANY_PARAMETERS: callForTooManyParametersError(message);break;
             case NON_DECLARED_FUNCTION: callForNonDeclaredFunctionError(message); break;
             case RETURN_STATEMENT_MISSING: callForReturnStatementMissingError(message); break;
+            case ARRAY_MISMATCH: callForArrayMismatchError(message); break;
 
         }
 

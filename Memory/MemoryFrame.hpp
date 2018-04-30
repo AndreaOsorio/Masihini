@@ -88,6 +88,19 @@ class MemoryFrame{
 
     }
 
+    int declareArray(Type type, int memoryOffset){
+        switch(type){
+
+            //set default values for a new variable
+            case INTEGER_ : return integerMemoryDispatcher->insertArray<int>(0, memoryOffset);
+            case FLOAT_ : return floatMemoryDispatcher->insertArray<float>(0.0f, memoryOffset); 
+            case STRING_ : return stringMemoryDispatcher->insertArray<string>("", memoryOffset);
+            case BOOLEAN_: return booleanMemoryDispatcher->insertArray<bool>(true, memoryOffset);
+            default : return -1;
+
+        }
+    }
+
 //Get type from memory dir
 
 Type getType(int memDir){

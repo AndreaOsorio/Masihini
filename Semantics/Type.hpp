@@ -44,6 +44,7 @@ enum Operator
     GOSUB_,
     // Array-Related Operators
     VER_,
+    DIR_,
     ENDPROG_
 };
 

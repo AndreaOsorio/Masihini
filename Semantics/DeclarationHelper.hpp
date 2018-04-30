@@ -6,6 +6,7 @@
 #include "./varTable.hpp"
 #include "../Memory/MemoryFrame.hpp"
 #include "../ErrorHandler/CompilationErrorHandler.hpp"
+#include "./Dimension.hpp"
 
 using namespace std;
 
@@ -26,13 +27,8 @@ private:
     MemoryFrame *globalMemoryFrame;
     CompilationErrorHandler* errorHandler;
 
-
-
-    Dimension *dimensionInformation;
+    Dimension *dimensionInformation = new Dimension();
     DeclarationState  dimensionalDeclarationState = UNIDIMENSIONAL_;
-    
-
-    
     
 public:
 
@@ -50,31 +46,51 @@ public:
         }else{
             dimensionalDeclarationState = UNIDIMENSIONAL_;
         }
-        
-
     }
 
     //Variable Declaration
 
     void performVariableDeclaration(string id, bool isParam){
         if(getDeclarationState() == GLOBAL_){
-            int memDir = globalMemoryFrame->declareValue(getCurrentDeclaredType());
-            bool result = globalSymbolTable->insertNode(new VarNode(id,getCurrentDeclaredType(), memDir)); 
+
+            int memDir = 0;
+            bool result = false;
+
+            if(dimensionInformation->isDimensionsEmpty()){
+                memDir = globalMemoryFrame->declareValue(getCurrentDeclaredType());
+                result = globalSymbolTable->insertNode(new VarNode(id, getCurrentDeclaredType(), memDir)); 
+            }
+            else{
+                memDir = globalMemoryFrame->declareArray(getCurrentDeclaredType(), dimensionInformation->getR());
+                result = globalSymbolTable->insertNode(new VarNode(id, getCurrentDeclaredType(), memDir, dimensionInformation));
+            }
+
             if(!result) errorHandler->callForError(GLOBAL_REDEFINITION, id);
 
 
         }else{
 
             MemoryFrame *frame = currentDeclaredFunction->getMemoryFrame();
-            int memDir = frame->declareValue(getCurrentDeclaredType());
             VarTable *symbolTable = currentDeclaredFunction->getSymbolTable();
-            if(isParam) currentDeclaredFunction->addParameter(memDir);
+            int memDir = 0;
+            bool resultLocal = false;
 
-            bool resultLocal = symbolTable->insertNode(new VarNode(id,getCurrentDeclaredType(), memDir)); 
+            if(dimensionInformation->isDimensionsEmpty()){
+                memDir = frame->declareValue(getCurrentDeclaredType());
+                resultLocal = symbolTable->insertNode(new VarNode(id, getCurrentDeclaredType(), memDir));
+            }
+            else{
+                memDir = frame->declareArray(getCurrentDeclaredType(), dimensionInformation->getR());
+                resultLocal = symbolTable->insertNode(new VarNode(id, getCurrentDeclaredType(), memDir, dimensionInformation));
+            }
+            
+            if(isParam) currentDeclaredFunction->addParameter(memDir);
             if(!resultLocal){ errorHandler->callForError(LOCAL_REDEFINITION, id);}
             bool resultGlobal = globalSymbolTable->isContained(id, getCurrentDeclaredType());
             if(resultGlobal){ errorHandler->callForError(GLOBAL_REDEFINITION, id);}
         }
+
+        dimensionInformation->clearDimension();
     }
 
     //FunctionDeclaration
@@ -134,6 +150,10 @@ public:
 
     FuncNode* getCurrentDeclaredFunction(){
         return currentDeclaredFunction;
+    }
+
+    DeclarationState getdimensionalDeclarationState(){
+        return dimensionalDeclarationState;    
     }
 
     

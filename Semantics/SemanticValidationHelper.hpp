@@ -3,9 +3,12 @@
 #include <string>
 #include <stack>
 #include <vector>
+#include <algorithm>
 #include "./DeclarationHelper.hpp"
 #include "./SemanticRuleSet.hpp"
 #include "../Quadruples/Quadruple.hpp"
+#include "./Dimension.hpp"
+#include "./DimensionHelper.hpp"
 
 using namespace std;
 
@@ -16,13 +19,15 @@ private:
     DeclarationHelper* helper;
     stack <int> stackOperand;
     stack <Operator> stackOperator;
+    stack <DimensionHelper*> stackDimensions;
+    vector<int> vectorArrays;
     stack <int> pendingJumps;
     CompilationErrorHandler* errorHandler;
     SemanticRuleSet* semanticRules;
     vector<Quadruple*>* quadrupleSet;
     int parameterCounter = 0;
     FuncNode* currentCalledFunction;
-
+    Dimension* dimensionInformation = new Dimension();
 
 Type getTypeFromContext(int value){
 
@@ -35,7 +40,6 @@ Type getTypeFromContext(int value){
             }else{
                   MemoryFrame *memFrame = helper->getCurrentDeclaredFunction()->getMemoryFrame();
                   type = memFrame->getType(value);
-
             }
 
       }else{
@@ -49,12 +53,17 @@ Type getTypeFromContext(int value){
 
 void performSystemFunction(Operator op, string id){
 
-      int operand;
+    MemoryFrame* memFrame = helper->getCurrentDeclaredFunction()->getMemoryFrame();
 
+      int operand;
 
       if(!stackOperand.empty())
       {
             operand = stackOperand.top();
+            if( checkIfArray(operand) ){
+                int auxDir = memFrame->getIntegerValue(operand);
+                operand = auxDir;
+            }
             stackOperand.pop();
             Type type = getTypeFromContext(operand);
 
@@ -100,9 +109,13 @@ void performSystemFunction(Operator op, string id){
 
 void performSemantics(bool isNot, bool isAssignment){
 
-      MemoryFrame* memFrame = helper->getCurrentDeclaredFunction()->getMemoryFrame();
+    MemoryFrame* memFrame = helper->getCurrentDeclaredFunction()->getMemoryFrame();
 
     int rightOperand = stackOperand.top();
+    if( checkIfArray(rightOperand) ){
+        int auxDir = memFrame->getIntegerValue(rightOperand);
+        rightOperand = auxDir;
+    }
     Type rightType = getTypeFromContext(rightOperand);
     stackOperand.pop();
     
@@ -113,6 +126,10 @@ void performSemantics(bool isNot, bool isAssignment){
 
       if(!isNot){
             leftOperand = stackOperand.top();
+            if( checkIfArray(leftOperand) ){
+                int auxDir = memFrame->getIntegerValue(leftOperand);
+                leftOperand = auxDir;
+            }
             leftType = getTypeFromContext(leftOperand );
             stackOperand.pop();
       }
@@ -160,15 +177,36 @@ public:
     void manage_var_cte_id(string id){
 
         VarTable *symbolTable = helper->getCurrentDeclaredFunction()->getSymbolTable();
+
+        bool isDimensional = false;
+
         int memDir = symbolTable->search(id);
         if(memDir == -1){
             memDir = helper->getGlobalSymbolTable()->search(id);
             if(memDir==-1){
                    errorHandler->callForError(NON_DECLARED_VARIABLE, id);
             }
+            else{
+                Dimension* tempDim = helper->getGlobalSymbolTable()->getDimensionInformation(id);
+                if(!tempDim->isDimensionsEmpty()){
+                    isDimensional = true;
+                    stackDimensions.push(new DimensionHelper(id, memDir, 1));
+                    stackOperator.push(FAKE_BTTM_);
+                }
+            }
+        }
+        else{
+            Dimension* tempDim = symbolTable->getDimensionInformation(id);
+            if(!tempDim->isDimensionsEmpty()){
+                isDimensional = true;
+                stackDimensions.push(new DimensionHelper(id, memDir, 1));
+                stackOperator.push(FAKE_BTTM_);
+            }
         }
 
-        stackOperand.push(memDir);
+        if(!isDimensional){
+            stackOperand.push(memDir);
+        }
     }
 
     template<class T>
@@ -258,7 +296,7 @@ public:
         if(!value.compare("speak"))
         performSystemFunction(SPEAK_, value);
 
-        if(!value.compare("accel"))
+        if(!value.compare("move"))
         performSystemFunction(ACCEL_, value);
 
         if(!value.compare("jump"))
@@ -387,7 +425,6 @@ public:
     }
 
 //Functions that handle function return
-
     void perform_return(){
         int result = stackOperand.top();
         Type resultType = getTypeFromContext(result);
@@ -414,6 +451,229 @@ public:
         }
         
     }
+
+
+    //Functions that handle Arrays
+
+    //Functions that handle Array declaration
+    void calculateArraySpace(){
+        
+        MemoryFrame *memFrame = helper->getCurrentDeclaredFunction()->getMemoryFrame();
+
+        int memDir = stackOperand.top();
+        int size = memFrame->getIntegerValue(memDir);
+        
+        dimensionInformation->calculateR(size);
+        dimensionInformation->addDimensionSize(size);
+
+        stackOperand.pop();
+    }
+
+    Dimension* getDimensionDeclarationInfo(){
+        return dimensionInformation;
+    }
+
+    void clearDimensionDeclarationInformation(){
+        dimensionInformation->clearDimension();
+    }
+
+
+    //Functions that handle Array assignment
+    void performSemanticsArray(){
+
+        MemoryFrame *memFrame = helper->getCurrentDeclaredFunction()->getMemoryFrame();
+
+        if(!stackDimensions.empty() && !stackOperand.empty()){
+            
+            //array[index]
+            int memDir = stackOperand.top();
+            int index = memFrame->getIntegerValue(memDir);
+
+            DimensionHelper* dimHelper = stackDimensions.top();
+            int value = dimHelper->getMemDir();
+            string id = dimHelper->getId();
+            int currentDimension = dimHelper->getCurrentDim();
+
+            Dimension* dimInfo = new Dimension();
+            
+            if(value < helper->getGlobalOffset()){
+                //Global Symbol Table
+                dimInfo = helper->getGlobalSymbolTable()->getDimensionInformation(id);
+            }else{
+                //Local Symbol Table
+                VarTable *symbolTable = helper->getCurrentDeclaredFunction()->getSymbolTable();
+                dimInfo = symbolTable->getDimensionInformation(id);
+            }
+
+            vector<int> dimensions = dimInfo->getDimensionSize();
+            int numberOfDimensions = dimensions.size();
+            int size = dimensions.at(currentDimension-1);
+
+            quadrupleSet->push_back(new Quadruple(VER_, index, 0, size));
+
+            //Pointer != NULL
+            if(currentDimension < numberOfDimensions){
+
+                int dimM = dimInfo->getR();
+                for(int i = 0; i<currentDimension; i++){
+                    dimM = dimM/(dimensions.at(currentDimension-1));
+                }
+                int memoryDimM = memFrame->registerValue(dimM);
+
+                int aux = stackOperand.top();
+                stackOperand.pop();
+
+                int temp = memFrame->declareValue(INTEGER_);
+
+                quadrupleSet->push_back(new Quadruple(MULT_, aux, memoryDimM, temp));
+
+                stackOperand.push(temp);
+
+            }
+
+            //DIM > 1
+            if(currentDimension > 1){
+
+                int aux2 = stackOperand.top();
+                stackOperand.pop();
+
+                int aux1 = stackOperand.top();
+                stackOperand.pop();
+
+                //Add Temporal T
+                int temp = memFrame->declareValue(INTEGER_);
+                quadrupleSet->push_back(new Quadruple(ADD_, aux1, aux2, temp));
+                stackOperand.push(temp);
+            }
+
+        }
+        
+    }
+
+    void calculateArrayIndex(){
+
+        MemoryFrame *memFrame = helper->getCurrentDeclaredFunction()->getMemoryFrame();
+        if(!stackDimensions.empty() && !stackOperand.empty() && !stackOperator.empty()){
+
+            DimensionHelper* dimHelper = stackDimensions.top();
+            int memDir = dimHelper->getMemDir();
+            string id = dimHelper->getId();
+            int currentDimension = dimHelper->getCurrentDim();
+
+            Dimension* dimInfo = new Dimension();
+            
+            if(memDir < helper->getGlobalOffset()){
+                //Global Symbol Table
+                dimInfo = helper->getGlobalSymbolTable()->getDimensionInformation(id);
+            }else{
+                //Local Symbol Table
+                VarTable *symbolTable = helper->getCurrentDeclaredFunction()->getSymbolTable();
+                dimInfo = symbolTable->getDimensionInformation(id);
+            }
+            vector<int> dimensions = dimInfo->getDimensionSize();
+            int numberOfDimensions = dimensions.size();
+
+            if( currentDimension == numberOfDimensions ){
+
+                int aux1 = stackOperand.top();
+                stackOperand.pop();
+
+                int dirBase = memFrame->registerValue(memDir);
+
+                int dir = memFrame->declareValue(INTEGER_);
+                quadrupleSet->push_back(new Quadruple(ADD_, aux1, dirBase, dir));
+
+                stackOperand.push(dir);
+                vectorArrays.push_back(dir);
+
+                //Delete FAKE_BTTM_ Operator
+                stackOperator.pop();
+                //Current dimension done
+                stackDimensions.pop();
+
+            }
+            else{
+                errorHandler->callForError(ARRAY_MISMATCH, "");
+            }
+
+        }
+        
+    }
+
+    bool checkIfArray(int memDir){
+        
+        if(!vectorArrays.empty()){
+            for (vector<int>::iterator it = vectorArrays.begin() ; it != vectorArrays.end(); ++it){
+                if(*it == memDir){
+                    vectorArrays.erase(it);
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+                
+    }
+
+    int getCurrentDimension(){
+
+        MemoryFrame *memFrame = helper->getCurrentDeclaredFunction()->getMemoryFrame();
+        if(!stackDimensions.empty()){
+
+            DimensionHelper* dimHelper = stackDimensions.top();
+            int memDir = dimHelper->getMemDir();
+            string id = dimHelper->getId();
+            int currentDimension = dimHelper->getCurrentDim();
+
+            Dimension* dimInfo = new Dimension();
+            
+            if(memDir < helper->getGlobalOffset()){
+                //Global Symbol Table
+                dimInfo = helper->getGlobalSymbolTable()->getDimensionInformation(id);
+            }else{
+                //Local Symbol Table
+                VarTable *symbolTable = helper->getCurrentDeclaredFunction()->getSymbolTable();
+                dimInfo = symbolTable->getDimensionInformation(id);
+            }
+            vector<int> dimensions = dimInfo->getDimensionSize();
+            int numberOfDimensions = dimensions.size();
+            currentDimension++;
+
+            if(currentDimension > numberOfDimensions){
+                errorHandler->callForError(ARRAY_MISMATCH, "");
+            }
+
+            return currentDimension;
+        }
+
+        return -1;
+
+
+    }
+
+    void addNewDimension(){
+
+        if(!stackDimensions.empty()){
+            
+            DimensionHelper* dimHelper = stackDimensions.top();
+            int memDir = dimHelper->getMemDir();
+            string id = dimHelper->getId();
+            int currentDimension = dimHelper->getCurrentDim();
+
+            if(currentDimension != 1){
+                stackDimensions.pop();
+                stackDimensions.push(new DimensionHelper(id, memDir, currentDimension + 1));
+                stackOperator.push(FAKE_BTTM_);
+            }
+        }
+
+    }
+
+
+
+    
+
+    
 
 
 

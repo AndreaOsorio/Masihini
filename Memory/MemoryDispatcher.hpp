@@ -58,6 +58,23 @@ class MemoryDispatcher{
         return memDir;
     }
 
+    template <class X>
+    int insertArray(X value, int memoryOffset){
+        mem[memCounter] = value;
+        int memDir = memCounter;
+
+        for(int i = 1; i<memoryOffset; i++){
+            mem[memCounter + i] = value;
+        }
+
+        memCounter += memoryOffset;
+        
+        if (memCounter > memUpperLimit){
+            triggerOutOfMemoryError();
+        }
+        return memDir;
+    }
+
     void setValue(int memDir, T value){
         mem[memDir] = value;
     }

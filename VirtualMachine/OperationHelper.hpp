@@ -671,5 +671,17 @@ public:
         
     }
 
+    void directionArrayOperation(Quadruple* quad){
+
+        int memOffset = quad->getLeftOperand();
+        int dirBase = quad->getRightOperand();
+
+        int memDir = quad->getResult();
+
+        int result = retrieveIntegerValueFromContext(memOffset) + retrieveIntegerValueFromContext(dirBase);
+        setValueFromContext( memDir, result );
+
+    }
+
     
 };

@@ -14,8 +14,10 @@ private:
 
     DeclarationHelper* declarationHelper;
     SemanticValidationHelper* semanticHelper;
+    CompilationErrorHandler* errorHandler;
 
-    
+    bool isConstant = false;
+    bool isDeclaring = false;
     
 public:
 
@@ -23,5 +25,33 @@ public:
         declarationHelper = dHelper;
         semanticHelper = sHelper;
     }
+
+    void verifyDeclaration(){
+        if(!isConstant){
+            errorHandler->callForError(TYPE_MISMATCH, "Array expression is not an Integer constant");
+        }
+    }
+
+    void setIsConstant(bool newState){
+        isConstant = newState;
+    }
+
+    bool getIsConstant(){
+        return isConstant;
+    }
+
+    void setIsDeclaring(bool newState){
+        isDeclaring = newState;
+    }
+
+    bool getIsDeclaring(){
+        return isDeclaring;
+    }
+
+
+
+
+
+
 
 };

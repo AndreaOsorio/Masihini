@@ -1,6 +1,7 @@
 #pragma once
 #include <stdio.h>
-#include <queue>
+#include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -9,14 +10,14 @@ class Dimension{
 private:
 
     int r;
-    queue<int> dimensionSize;
+    vector<int> dimensionSize;
 
 public:
     Dimension(){
-        r = 0; 
+        r = 1; 
     }
 
-    Dimension(int newR, queue<int> sizes){
+    Dimension(int newR, vector<int> sizes){
         r = newR;
         dimensionSize = sizes;
     }
@@ -29,12 +30,31 @@ public:
         return r;
     }
 
-    void addDimensionSize(int newSize){
-        dimensionSize.push(newSize);
+    void calculateR(int newSize){
+        r *= newSize;
     }
 
-    queue<int> getDimensionSize(){
+    void addDimensionSize(int newSize){
+        dimensionSize.push_back(newSize);
+    }
+
+    vector<int> getDimensionSize(){
         return dimensionSize;
+    }
+
+    int getDimensionNumber(){
+        return dimensionSize.size();
+    }
+
+    bool isDimensionsEmpty(){
+
+        return dimensionSize.empty();
+    }
+
+
+    void clearDimension(){
+        r = 1;
+        dimensionSize.clear();
     }
 
 

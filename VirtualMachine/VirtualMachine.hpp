@@ -330,11 +330,12 @@ private:
         helper.verifyOperation(quad);
     }
 
+    void dirArray(Quadruple* quad){
+        OperationHelper helper(globalMemoryOffset, globalMemoryFrame, currentFrame);
+        helper.directionArrayOperation(quad);
+    }
 
 
-
-    
-    
     
 public:
     
@@ -359,8 +360,6 @@ public:
 
             Quadruple* quad = quadrupleSet->at(execPointer);
             Operator operator_ = quad->getOperator();
-
-
 
             //Any action that alters exec pointer does not add to the counter
             switch (operator_){
@@ -390,6 +389,7 @@ public:
                 case GOTO_: goto_(quad); break; 
                 case RETURN_: retOp(quad); break; 
                 case VER_: verify(quad); execPointer++; break;
+                case DIR_: dirArray(quad); execPointer++; break;
                 case ENDPROC_: exitExec(); break;
             }
 

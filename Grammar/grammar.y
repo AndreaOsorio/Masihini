@@ -8,6 +8,8 @@
     #include <vector>
     #include "Semantics/DimensionalDeclarationHelper.hpp"
     #include "VirtualMachine/VirtualMachine.hpp"
+    #include "Semantics/Type.hpp"
+    #include "Semantics/Dimension.hpp"
 
     using namespace std;
     int yylex ();
@@ -25,9 +27,7 @@
       vector<Quadruple*> quadrupleSet;
       //Semantic Validation Helper
       SemanticValidationHelper* semanticHelper = new SemanticValidationHelper(declarationHelper, &quadrupleSet);
-
       DimensionalDeclarationHelper* dimensionalDeclarationHelper = new DimensionalDeclarationHelper(declarationHelper, semanticHelper);
-
 
       
 %}
@@ -103,12 +103,14 @@ global_declaration : STATIC declaration global_declaration
                     | func_declaration
                     ;
 
-declaration : VAR ID COLON type {declarationHelper->switchDimensionalDeclarationState();} array {declarationHelper->switchDimensionalDeclarationState();} SEMICOLON 
+declaration : VAR ID COLON type {declarationHelper->switchDimensionalDeclarationState(); dimensionalDeclarationHelper->setIsDeclaring(true);} array {declarationHelper->switchDimensionalDeclarationState();} SEMICOLON 
                                                 {     
                                                       //Variable declaration
                                                       string id_value($2);
+                                                      declarationHelper->setDimensionInformation(semanticHelper->getDimensionDeclarationInfo());
                                                       declarationHelper->performVariableDeclaration(id_value, false);
-
+                                                      semanticHelper->clearDimensionDeclarationInformation();
+                                                      dimensionalDeclarationHelper->setIsDeclaring(false);
                                                 }
             ;
 
@@ -265,7 +267,13 @@ factor : L_PARENTHESIS {semanticHelper->pushOperator(FAKE_BTTM_);}  expression R
 
 var_cte : func_call{int index = quadrupleSet.at(quadrupleSet.size()-1)->getResult() * -1; semanticHelper->func_call_as_exp();}
         | ID {string value($1); semanticHelper->manage_var_cte_id(value);} array
-        | INT {semanticHelper->manage_var_cte<int>($1);    }
+        | INT 
+            {
+              semanticHelper->manage_var_cte<int>($1);  
+                  if($1>0 && declarationHelper->getdimensionalDeclarationState() == MULTIDIMENSIONAL_){
+                        dimensionalDeclarationHelper->setIsConstant(true); 
+                  }    
+            }
         | FLOAT {semanticHelper->manage_var_cte<float>($1);}
         | STRING  {semanticHelper->manage_var_cte<string>($1);}
         | TRUE  {semanticHelper->manage_var_cte<bool>(true);} 
@@ -274,18 +282,27 @@ var_cte : func_call{int index = quadrupleSet.at(quadrupleSet.size()-1)->getResul
 
 
 array : L_BRACKET
-            {
-
-            } 
-            
             expression 
             {
+                  //Check that the expression is a constant and is greater than 0.
+                  if(declarationHelper->getdimensionalDeclarationState() == MULTIDIMENSIONAL_){
+                        dimensionalDeclarationHelper->verifyDeclaration();
+                        dimensionalDeclarationHelper->setIsConstant(false);
+                        semanticHelper->calculateArraySpace();
+                  }
+
+                  if(dimensionalDeclarationHelper->getIsDeclaring() == false){ 
+                        semanticHelper->addNewDimension();
+                        semanticHelper->performSemanticsArray();
+                  }
 
             }
             
             R_BRACKET 
             {
-
+                  if(dimensionalDeclarationHelper->getIsDeclaring() == false){ 
+                        semanticHelper->calculateArrayIndex();
+                  }
             }
 
             array

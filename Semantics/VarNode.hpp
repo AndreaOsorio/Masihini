@@ -3,7 +3,6 @@
 
 #include <string>
 #include <iostream>
-#include <queue>
 #include "Type.hpp"
 #include "Dimension.hpp"
 #endif 
@@ -18,7 +17,7 @@ class VarNode{
         string id;
         Type type;
         int memDir;
-        Dimension* dimensionInformation;
+        Dimension* dimensionInformation = new Dimension();
     
     public:
 
@@ -35,8 +34,6 @@ class VarNode{
         id = identifier;
         type = dataType;
         memDir = memoryDirection;
-        queue<int> empty;
-        dimensionInformation = new Dimension(0, empty);
         
     }
 

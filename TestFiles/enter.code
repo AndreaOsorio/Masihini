@@ -19,11 +19,18 @@ func float factorial(num:float){
 static func void run ()
     var a : int;
     var b : float;
+    var c : float [5];
+    var d : int [2];
+    var e : boolean [6];
+    var f : string [10];
 {
     a = recursive(10);
     speak(a);
 
     b = factorial(3.0f);
     speak(b);
+
+    
+    
 
 }
