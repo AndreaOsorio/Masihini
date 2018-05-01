@@ -304,21 +304,31 @@ public:
 
         Type leftType = getTypeFromContext(leftOperand);
 
+        int memOffset = quad->getRightOperand();
+        if(memOffset == -1 ){ memOffset = 1; }
 
-        if(leftType==INTEGER_){
-            setValueFromContext(memDir , retrieveIntegerValueFromContext(leftOperand));
-        }
+        int i = 0;
+        while(i<memOffset){
 
-        if(leftType==FLOAT_){
-            setValueFromContext(memDir , retrieveFloatValueFromContext(leftOperand));
-        }
+            if(leftType==INTEGER_){
+                setValueFromContext(memDir , retrieveIntegerValueFromContext(leftOperand));
+            }
 
-        if(leftType==BOOLEAN_){
-            setValueFromContext(memDir , retrieveBooleanValueFromContext(leftOperand));
-        }
+            if(leftType==FLOAT_){
+                setValueFromContext(memDir , retrieveFloatValueFromContext(leftOperand));
+            }
 
-        if(leftType==STRING_){
-            setValueFromContext(memDir , retrieveStringValueFromContext(leftOperand));
+            if(leftType==BOOLEAN_){
+                setValueFromContext(memDir , retrieveBooleanValueFromContext(leftOperand));
+            }
+
+            if(leftType==STRING_){
+                setValueFromContext(memDir , retrieveStringValueFromContext(leftOperand));
+            }
+
+            leftOperand++;
+            memDir++;
+            i++;
         }
 
     }
@@ -649,26 +659,36 @@ public:
         int result = quad->getResult();
         Type type = getTypeFromContext(result);
 
-        if(type == INTEGER_){
+        int memOffset = quad->getLeftOperand();
+        if(memOffset < 0){ memOffset = 1; }
+
+        int i = 0;
+        while(i<memOffset){
+
+            if(type == INTEGER_){
             int value = retrieveIntegerValueFromContext(result);
             return globalFrame->registerValue(value);
-        }
+            }
 
-        if(type == FLOAT_){
-            float value = retrieveFloatValueFromContext(result);
-            return globalFrame->registerValue(value);
-        }
+            if(type == FLOAT_){
+                float value = retrieveFloatValueFromContext(result);
+                return globalFrame->registerValue(value);
+            }
 
-        if(type == STRING_){
-            string value = retrieveStringValueFromContext(result);
-            return globalFrame->registerValue(value);
-        }
+            if(type == STRING_){
+                string value = retrieveStringValueFromContext(result);
+                return globalFrame->registerValue(value);
+            }
 
-         if(type == BOOLEAN_){
-            bool value = retrieveBooleanValueFromContext(result);
-            return globalFrame->registerValue(value);
-        }
+            if(type == BOOLEAN_){
+                bool value = retrieveBooleanValueFromContext(result);
+                return globalFrame->registerValue(value);
+            }
 
+            i++;
+            result++;
+
+        }
 
     }
 

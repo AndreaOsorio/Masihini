@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <vector>
 #include <stack>
+#include <algorithm>
+#include <functional>
+#include <numeric>
 #include "../Quadruples/Quadruple.hpp"
 #include "../Semantics/FuncDir.hpp"
 #include "OperationHelper.hpp"
@@ -22,7 +25,6 @@ private:
     MemoryFrame* currentFrame;
     MemoryFrame* calledFrame;
     FuncNode* calledFunction;
-
     int globalMemoryOffset;
 
     void init(){
@@ -69,6 +71,11 @@ private:
             count++;
       }
 
+    }
+
+    void callForArrayReturnMismatch(string id, string id2){
+        cout<<"RUNTIME ERROR: Return value \"" + id + "\" and var \"" + id2 + "\" don't have the number dimensions"<<endl;
+        exit(0);
     }
 
     Quadruple* getReturnValueFromFunc( Quadruple* quad){
@@ -127,9 +134,37 @@ private:
             int index = quad->getLeftOperand()*-1;
             FuncNode* func = functionDirectory->at(index);
             int memDir = func->getReturnValue();
-            Quadruple* tempQuad = new Quadruple(EQ_,memDir, -1, quad->getResult());
-            helper.assignmentOperation(tempQuad);
-            delete tempQuad;
+            int numberOfDimensions = func->getNumberOfDimensions();
+
+            if(numberOfDimensions > 0){
+                //Get return value dimensions
+                VarTable *symbolTable = func->getSymbolTable();
+                string returnID = symbolTable->getIdFromMemoryContext(memDir);
+                Dimension returnDimension = symbolTable->getDimensionInformation(returnID);
+                vector<int> returnDimensions = returnDimension.getDimensionSize();
+
+                //Get caller value dimensions
+                int resultDir = quad->getResult();
+                VarTable *symbolTableRes = calledFunction->getSymbolTable();
+                string resultID = symbolTableRes->getIdFromMemoryContext(resultDir);
+                Dimension resultDimension = symbolTableRes->getDimensionInformation(resultID);
+                vector<int> resultDimensions = resultDimension.getDimensionSize(); 
+
+                if ( equal (returnDimensions.begin(), returnDimensions.end(), resultDimensions.begin()) ){
+                    int memOffset = accumulate (resultDimensions.begin(), resultDimensions.end(), 1, multiplies<int>());
+                    Quadruple* tempQuad = new Quadruple(EQ_,memDir, memOffset, quad->getResult());
+                    helper.assignmentOperation(tempQuad);
+                    delete tempQuad;
+                }else{
+                    callForArrayReturnMismatch(returnID, resultID);
+                }
+
+            }
+            else{
+                Quadruple* tempQuad = new Quadruple(EQ_,memDir, -1, quad->getResult());
+                helper.assignmentOperation(tempQuad);
+                delete tempQuad;
+            }
          }
 
     }

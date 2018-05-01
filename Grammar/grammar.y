@@ -28,8 +28,6 @@
       //Semantic Validation Helper
       SemanticValidationHelper* semanticHelper = new SemanticValidationHelper(declarationHelper, &quadrupleSet);
       DimensionalDeclarationHelper* dimensionalDeclarationHelper = new DimensionalDeclarationHelper(declarationHelper, semanticHelper);
-      int dimensionFunctionCounter = 0;
-
       
 %}
 

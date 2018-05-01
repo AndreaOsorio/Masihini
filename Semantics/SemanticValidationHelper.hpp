@@ -30,6 +30,7 @@ private:
     FuncNode* currentCalledFunction;
     Dimension dimensionInformation;
 
+
 Type getTypeFromContext(int value){
 
       Type type;
@@ -439,11 +440,24 @@ public:
         stackOperand.pop();
 
         Type functionType = helper->getCurrentDeclaredFunction()->getType();
+        int numberOfDimensions = helper->getCurrentDeclaredFunction()->getNumberOfDimensions();
         string id = helper->getCurrentDeclaredFunction()->getId();
         int index = helper->getFunctionDirectory()->search(id);
 
-        if(resultType == functionType){
-                quadrupleSet->push_back(new Quadruple(RETURN_, -1,index, result));
+        /** Get return value dimension information */
+        VarTable *symbolTable = helper->getCurrentDeclaredFunction()->getSymbolTable();
+        string resultID = symbolTable->getIdFromMemoryContext(result);
+        Dimension resultDimension = symbolTable->getDimensionInformation(resultID);
+        vector<int> resultDimensions = resultDimension.getDimensionSize();
+
+        if((resultType == functionType) && (resultDimensions.size() == numberOfDimensions) ){
+                if(numberOfDimensions > 0){
+                    int memOffset = accumulate (resultDimensions.begin(), resultDimensions.end(), 1, multiplies<int>());
+                    quadrupleSet->push_back(new Quadruple(RETURN_, memOffset,index, result));
+                }
+                else{
+                    quadrupleSet->push_back(new Quadruple(RETURN_, -1,index, result));
+                }            
         }else{
                 errorHandler->callForError(TYPE_MISMATCH, "");
         }
