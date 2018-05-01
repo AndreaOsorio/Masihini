@@ -295,7 +295,7 @@ var_cte : func_call{int index = quadrupleSet.at(quadrupleSet.size()-1)->getResul
         ;
 
 
-array : L_BRACKET
+array : L_BRACKET {semanticHelper->pushFakeBottom();}
             expression 
             {
                   //Check that the expression is a constant and is greater than 0.
@@ -313,9 +313,11 @@ array : L_BRACKET
             
             R_BRACKET 
             {
+                  semanticHelper->popFakeBottom();
                   if(dimensionalDeclarationHelper->getIsDeclaring() == false){ 
                         semanticHelper->calculateArrayIndex();
                   }
+                  
             }
 
             array

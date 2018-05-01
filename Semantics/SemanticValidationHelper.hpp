@@ -178,7 +178,6 @@ public:
                 Dimension tempDim = helper->getGlobalSymbolTable()->getDimensionInformation(id);
                 if(!tempDim.isDimensionsEmpty()){
                     stackDimensions.push(new DimensionHelper(id, memDir, 0, tempDim.getDimensionSize()));
-                    stackOperator.push(FAKE_BTTM_);
                 }
             }
         }
@@ -186,7 +185,6 @@ public:
             Dimension tempDim = symbolTable->getDimensionInformation(id);
             if(!tempDim.isDimensionsEmpty()){
                 stackDimensions.push(new DimensionHelper(id, memDir, 0, tempDim.getDimensionSize()));
-                stackOperator.push(FAKE_BTTM_);
             }
         }
 
@@ -211,6 +209,11 @@ public:
             stackOperator.pop();
         }
     }
+
+    void pushFakeBottom(){
+        stackOperator.push(FAKE_BTTM_);
+    }
+
 
     void mult_div_semantics(){
         if(!stackOperator.empty() && (stackOperator.top() == MULT_ || stackOperator.top() == DIV_  )){
@@ -352,7 +355,6 @@ public:
                                 errorHandler->callForError(ARRAY_PARAMETERS_MISMATCH,name);
                             }
                             stackDimensions.pop();
-                            stackOperator.pop(); //Pop to the FAKEBTTM_
                         }
                         else{
                             quadrupleSet->push_back(new Quadruple(PARAMETER_, -1, result, parameterCounter));
