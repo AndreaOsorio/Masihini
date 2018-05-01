@@ -233,7 +233,7 @@ public:
 
 
         if(leftType==INTEGER_ && rightType == INTEGER_){
-            float result = retrieveIntegerValueFromContext(leftOperand) * retrieveIntegerValueFromContext(rightOperand);
+            int result = retrieveIntegerValueFromContext(leftOperand) * retrieveIntegerValueFromContext(rightOperand);
             setValueFromContext(memDir,result );
         }
 
