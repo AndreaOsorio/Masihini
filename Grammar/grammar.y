@@ -108,6 +108,7 @@ declaration : VAR ID COLON type {declarationHelper->switchDimensionalDeclaration
                                                       //Variable declaration
                                                       string id_value($2);
                                                       declarationHelper->setDimensionInformation(semanticHelper->getDimensionDeclarationInfo());
+                                                      
                                                       declarationHelper->performVariableDeclaration(id_value, false);
                                                       semanticHelper->clearDimensionDeclarationInformation();
                                                       dimensionalDeclarationHelper->setIsDeclaring(false);
@@ -290,12 +291,11 @@ array : L_BRACKET
                         dimensionalDeclarationHelper->setIsConstant(false);
                         semanticHelper->calculateArraySpace();
                   }
-
                   if(dimensionalDeclarationHelper->getIsDeclaring() == false){ 
-                        semanticHelper->addNewDimension();
+                        int currentDimension = semanticHelper->getCurrentDimension();
+                        semanticHelper->addNewDimension(currentDimension + 1);
                         semanticHelper->performSemanticsArray();
                   }
-
             }
             
             R_BRACKET 

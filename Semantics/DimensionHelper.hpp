@@ -11,13 +11,15 @@ private:
     string identifier;
     int memoryDirection;
     int currentDimension;
+    int currentExpr;
 
 public:
 
-    DimensionHelper(string id, int memDir, int currentDim){
+    DimensionHelper(string id, int memDir, int currentDim, int currentEx){
         identifier = id;
         memoryDirection = memDir;
         currentDimension = currentDim;
+        currentExpr = currentEx;
 
     }
 
@@ -31,6 +33,10 @@ public:
 
     int getCurrentDim(){
         return currentDimension;
+    }
+
+    int getCurrentExpr(){
+        return currentExpr;
     }
     
 

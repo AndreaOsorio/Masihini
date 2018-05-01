@@ -27,7 +27,8 @@ private:
     MemoryFrame *globalMemoryFrame;
     CompilationErrorHandler* errorHandler;
 
-    Dimension *dimensionInformation = new Dimension();
+    Dimension dimensionInformation;
+
     DeclarationState  dimensionalDeclarationState = UNIDIMENSIONAL_;
     
 public:
@@ -56,12 +57,12 @@ public:
             int memDir = 0;
             bool result = false;
 
-            if(dimensionInformation->isDimensionsEmpty()){
+            if(dimensionInformation.isDimensionsEmpty()){
                 memDir = globalMemoryFrame->declareValue(getCurrentDeclaredType());
                 result = globalSymbolTable->insertNode(new VarNode(id, getCurrentDeclaredType(), memDir)); 
             }
             else{
-                memDir = globalMemoryFrame->declareArray(getCurrentDeclaredType(), dimensionInformation->getR());
+                memDir = globalMemoryFrame->declareArray(getCurrentDeclaredType(), dimensionInformation.getR());
                 result = globalSymbolTable->insertNode(new VarNode(id, getCurrentDeclaredType(), memDir, dimensionInformation));
             }
 
@@ -75,12 +76,12 @@ public:
             int memDir = 0;
             bool resultLocal = false;
 
-            if(dimensionInformation->isDimensionsEmpty()){
+            if(dimensionInformation.isDimensionsEmpty()){
                 memDir = frame->declareValue(getCurrentDeclaredType());
                 resultLocal = symbolTable->insertNode(new VarNode(id, getCurrentDeclaredType(), memDir));
             }
             else{
-                memDir = frame->declareArray(getCurrentDeclaredType(), dimensionInformation->getR());
+                memDir = frame->declareArray(getCurrentDeclaredType(), dimensionInformation.getR());
                 resultLocal = symbolTable->insertNode(new VarNode(id, getCurrentDeclaredType(), memDir, dimensionInformation));
             }
             
@@ -90,7 +91,7 @@ public:
             if(resultGlobal){ errorHandler->callForError(GLOBAL_REDEFINITION, id);}
         }
 
-        dimensionInformation->clearDimension();
+        dimensionInformation.clearDimension();
     }
 
     //FunctionDeclaration
@@ -120,7 +121,7 @@ public:
         currentDeclaredType = type;
     }
 
-    void setDimensionInformation(Dimension* dimension){
+    void setDimensionInformation(Dimension dimension){
         dimensionInformation = dimension;
     }
 

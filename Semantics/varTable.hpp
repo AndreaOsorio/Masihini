@@ -56,14 +56,14 @@ class VarTable{
         return -1;
     }
 
-    Dimension* getDimensionInformation(string id){
+    Dimension getDimensionInformation(string id){
         if(isContainedInTable(id)){
             VarNode elem (id, VOID_);
             auto it = this->varTable.find(elem);
             return it->getDimensions();
         }
 
-        Dimension* noDimensions = new Dimension();
+        Dimension noDimensions;
         return noDimensions;
 
     }

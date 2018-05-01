@@ -20,7 +20,7 @@ static func void run ()
     var a : int;
     var b : float;
     var c : float [5];
-    var d : int [2];
+    var dArr : int [5][4][3];
     var e : boolean [6];
     var f : string [10];
 {
@@ -30,7 +30,14 @@ static func void run ()
     b = factorial(3.0f);
     speak(b);
 
-    
-    
+    dArr[1][3][2] = 12;
+    dArr[0][2][1] = 3;
+
+    speak(dArr[1][3][2]);
+    speak(dArr[0][2][1]);
+
+    a = dArr[1][3][2] + dArr[0][2][1];
+    speak(a);
+
 
 }

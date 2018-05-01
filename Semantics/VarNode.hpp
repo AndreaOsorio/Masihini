@@ -17,7 +17,7 @@ class VarNode{
         string id;
         Type type;
         int memDir;
-        Dimension* dimensionInformation = new Dimension();
+        Dimension dimensionInformation;
     
     public:
 
@@ -37,7 +37,7 @@ class VarNode{
         
     }
 
-    VarNode( string identifier, Type dataType, int memoryDirection, Dimension* dimensionInfo ){
+    VarNode( string identifier, Type dataType, int memoryDirection, Dimension dimensionInfo ){
         
         id = identifier;
         type = dataType;
@@ -54,7 +54,7 @@ class VarNode{
         return memDir;
     }
 
-    Dimension* getDimensions() const{
+    Dimension getDimensions() const{
         return dimensionInformation;
     }
 
