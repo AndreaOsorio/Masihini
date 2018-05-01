@@ -19,6 +19,7 @@ class FuncNode{
 private:
     string id;
     Type type;
+    int numberOfDimensions;
     int startingInstruction;
     VarTable *symbolTable;
     MemoryFrame *memoryFrame;
@@ -28,10 +29,11 @@ private:
     
     
 public:
-    FuncNode( string identifier, Type dataType, VarTable* symbTable, MemoryFrame* memFrame){
+    FuncNode( string identifier, Type dataType, int dimNumber, VarTable* symbTable, MemoryFrame* memFrame){
         
         id = identifier;
         type = dataType;
+        numberOfDimensions = dimNumber;
         symbolTable = symbTable;
         memoryFrame = memFrame;
         
@@ -42,12 +44,9 @@ public:
     }
 
     int getReturnValue(){
-        
         int returnValue = returnValueStack.top();
         returnValueStack.pop();
         return returnValue;
-
-
     }
 
     void addParameter(int param){
@@ -83,6 +82,10 @@ public:
 
     Type getType(){
         return type;
+    }
+
+    int getNumberOfDimensions(){
+        return numberOfDimensions;
     }
 
     int getStartingInstruction(){

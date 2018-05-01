@@ -605,31 +605,42 @@ public:
 
         int index = quad->getResult();
         int paramDir = functionCalled->getParameterDirAt(index);
-        
 
-        if(typeValue == INTEGER_){
+        int memOffset = quad->getLeftOperand();
+        if(memOffset < 0){ memOffset = 1; }
+
+        int i = 0;
+        while(i<memOffset){
+            if(typeValue == INTEGER_){
             int value = retrieveIntegerValueFromContext(valueDir);
             currentFrame = frameCalled;
             setValueFromContext(paramDir, value);
+            }
+
+            if(typeValue == FLOAT_){
+                float value = retrieveFloatValueFromContext(valueDir);
+                currentFrame = frameCalled;
+                setValueFromContext(paramDir, value);
+            }
+
+            if(typeValue == STRING_){
+                string value = retrieveStringValueFromContext(valueDir);
+                currentFrame = frameCalled;
+                setValueFromContext(paramDir, value);
+            }
+
+            if(typeValue == BOOLEAN_){
+                bool value = retrieveBooleanValueFromContext(valueDir);
+                currentFrame = frameCalled;
+                setValueFromContext(paramDir, value);
+            }
+            valueDir++;
+            paramDir++;
+            i++;
         }
 
-        if(typeValue == FLOAT_){
-            float value = retrieveFloatValueFromContext(valueDir);
-            currentFrame = frameCalled;
-            setValueFromContext(paramDir, value);
-        }
 
-         if(typeValue == STRING_){
-            string value = retrieveStringValueFromContext(valueDir);
-            currentFrame = frameCalled;
-            setValueFromContext(paramDir, value);
-        }
-
-         if(typeValue == BOOLEAN_){
-            bool value = retrieveBooleanValueFromContext(valueDir);
-            currentFrame = frameCalled;
-            setValueFromContext(paramDir, value);
-        }
+        
 
     }
 
@@ -662,7 +673,8 @@ public:
     }
 
     void verifyOperation(Quadruple* quad){
-        int index = quad->getLeftOperand();
+        int value = quad->getLeftOperand();
+        int index = retrieveIntegerValueFromContext(value);
         int size = quad->getResult();
 
         if(index >= size || index < 0 ){

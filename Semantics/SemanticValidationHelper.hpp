@@ -4,6 +4,8 @@
 #include <stack>
 #include <vector>
 #include <algorithm>
+#include <functional>
+#include <numeric>
 #include "./DeclarationHelper.hpp"
 #include "./SemanticRuleSet.hpp"
 #include "../Quadruples/Quadruple.hpp"
@@ -20,7 +22,6 @@ private:
     stack <int> stackOperand;
     stack <Operator> stackOperator;
     stack <DimensionHelper*> stackDimensions;
-    vector<int> vectorArrays;
     stack <int> pendingJumps;
     CompilationErrorHandler* errorHandler;
     SemanticRuleSet* semanticRules;
@@ -167,8 +168,6 @@ public:
 
         VarTable *symbolTable = helper->getCurrentDeclaredFunction()->getSymbolTable();
 
-        bool isDimensional = false;
-
         int memDir = symbolTable->search(id);
         if(memDir == -1){
             memDir = helper->getGlobalSymbolTable()->search(id);
@@ -178,8 +177,7 @@ public:
             else{
                 Dimension tempDim = helper->getGlobalSymbolTable()->getDimensionInformation(id);
                 if(!tempDim.isDimensionsEmpty()){
-                    isDimensional = true;
-                    stackDimensions.push(new DimensionHelper(id, memDir, 0, 0));
+                    stackDimensions.push(new DimensionHelper(id, memDir, 0, tempDim.getDimensionSize()));
                     stackOperator.push(FAKE_BTTM_);
                 }
             }
@@ -187,15 +185,14 @@ public:
         else{
             Dimension tempDim = symbolTable->getDimensionInformation(id);
             if(!tempDim.isDimensionsEmpty()){
-                isDimensional = true;
-                stackDimensions.push(new DimensionHelper(id, memDir, 0, 0));
+                stackDimensions.push(new DimensionHelper(id, memDir, 0, tempDim.getDimensionSize()));
                 stackOperator.push(FAKE_BTTM_);
             }
         }
 
-        if(!isDimensional){
-            stackOperand.push(memDir);
-        }
+        
+        stackOperand.push(memDir);
+        
     }
 
     template<class T>
@@ -325,25 +322,45 @@ public:
         if(numberOfParameters==0){
                 errorHandler->callForError(TOO_MANY_PARAMETERS,name);
         }else{
-
                 if(numberOfParameters==parameterCounter){
                     errorHandler->callForError(TOO_MANY_PARAMETERS,name);
                 }else{
 
                     int result = stackOperand.top();
-                    Type resultType =getTypeFromContext(result);
+                    Type resultType = getTypeFromContext(result);
                     stackOperand.pop();
 
                     Type parameterType = currentCalledFunction->getParameterType(parameterCounter);
 
                     if(parameterType==resultType){
+
+                        /** Get param dimension information */
+                        VarTable *symbolTable = currentCalledFunction->getSymbolTable();
+                        int paramDir = currentCalledFunction->getParameterDirAt(parameterCounter);
+                        string paramID = symbolTable->getIdFromMemoryContext(paramDir);
+                        Dimension paramDimension = symbolTable->getDimensionInformation(paramID);
+                        vector<int> paramDimensions = paramDimension.getDimensionSize();
+
+                        if(!stackDimensions.empty() && !stackOperator.empty()){
+
+                            DimensionHelper* dimHelper = stackDimensions.top();
+                            vector<int> resultDimensions = dimHelper->getDimInfo();
+                            if ( equal (paramDimensions.begin(), paramDimensions.end(), resultDimensions.begin()) ){
+                                int memOffset = accumulate (resultDimensions.begin(), resultDimensions.end(), 1, multiplies<int>());
+                                quadrupleSet->push_back(new Quadruple(PARAMETER_, memOffset, result, parameterCounter));
+                            }else{
+                                errorHandler->callForError(ARRAY_PARAMETERS_MISMATCH,name);
+                            }
+                            stackDimensions.pop();
+                            stackOperator.pop(); //Pop to the FAKEBTTM_
+                        }
+                        else{
                             quadrupleSet->push_back(new Quadruple(PARAMETER_, -1, result, parameterCounter));
+                        }
                     }else{
                             errorHandler->callForError(TYPE_MISMATCH,"");
                     }
-
                     parameterCounter++;
-
                 }
 
         }
@@ -497,7 +514,7 @@ public:
             int numberOfDimensions = dimensions.size();
             int size = dimensions.at(currentDimension-1);
             
-            quadrupleSet->push_back(new Quadruple(VER_, index, 0, size));
+            quadrupleSet->push_back(new Quadruple(VER_, memDir, 0, size));
 
             //Pointer != NULL
             if(currentDimension < numberOfDimensions){
@@ -507,10 +524,7 @@ public:
                     dimM = dimM/(dimensions.at(currentDimension-1));
                 }
                 stackOperand.pop();
-
-                int aux = index;
-
-                
+                int aux = index;                
                 int temp = aux * dimM;
                 stackOperand.push(temp);
 
@@ -585,21 +599,6 @@ public:
         
     }
 
-    bool checkIfArray(int memDir){
-        
-        if(!vectorArrays.empty()){
-            for (vector<int>::iterator it = vectorArrays.begin() ; it != vectorArrays.end(); ++it){
-                if(*it == memDir){
-                    vectorArrays.erase(it);
-                    return true;
-                }
-            }
-        }
-        
-        return false;
-                
-    }
-
     int getCurrentDimension(){
 
         MemoryFrame *memFrame = helper->getCurrentDeclaredFunction()->getMemoryFrame();
@@ -652,9 +651,17 @@ public:
                 dimInfo = symbolTable->getDimensionInformation(id);
             }
 
+            //For Param purposes
+            if(currentDimension == 0){
+                int expr = stackOperand.top();
+                stackOperand.pop();
+                stackOperand.pop();
+                stackOperand.push(expr); 
+            }
+
             int newExpr = stackOperand.top();
             stackDimensions.pop();
-            stackDimensions.push(new DimensionHelper(id, memDir, newCurrentDimension, newExpr));
+            stackDimensions.push(new DimensionHelper(id, memDir, newCurrentDimension));
             
         }
 

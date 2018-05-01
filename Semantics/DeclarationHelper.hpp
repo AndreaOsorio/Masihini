@@ -28,8 +28,8 @@ private:
     CompilationErrorHandler* errorHandler;
 
     Dimension dimensionInformation;
-
     DeclarationState  dimensionalDeclarationState = UNIDIMENSIONAL_;
+    int dimensionFunctionCounter = 0;
     
 public:
 
@@ -98,7 +98,7 @@ public:
 
     void performFunctionDeclaration(string id){
 
-        currentDeclaredFunction = new FuncNode(id, getCurrentDeclaredType(), new VarTable(), new MemoryFrame(globalMemoryOffset, localMemoryFrameSize));
+        currentDeclaredFunction = new FuncNode(id, getCurrentDeclaredType(), getDimensionFunctionCounter(), new VarTable(), new MemoryFrame(globalMemoryOffset, localMemoryFrameSize));
         bool result = functionDirectory->insertNode(currentDeclaredFunction);
         if(!result){ errorHandler->callForError(FUNCTION_REDEFINITION, id);}
        
@@ -119,6 +119,14 @@ public:
 
     void setCurrentDeclaredType(Type type){
         currentDeclaredType = type;
+    }
+
+    void setDimensionFunctionCounter(int newDimCounter){
+        dimensionFunctionCounter = newDimCounter;
+    }
+
+    void addDimensionFunctionCounter(){
+        dimensionFunctionCounter++;
     }
 
     void setDimensionInformation(Dimension dimension){
@@ -147,6 +155,10 @@ public:
 
     Type getCurrentDeclaredType (){
         return currentDeclaredType;
+    }
+
+    int getDimensionFunctionCounter(){
+        return dimensionFunctionCounter;
     }
 
     FuncNode* getCurrentDeclaredFunction(){

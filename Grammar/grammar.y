@@ -28,6 +28,7 @@
       //Semantic Validation Helper
       SemanticValidationHelper* semanticHelper = new SemanticValidationHelper(declarationHelper, &quadrupleSet);
       DimensionalDeclarationHelper* dimensionalDeclarationHelper = new DimensionalDeclarationHelper(declarationHelper, semanticHelper);
+      int dimensionFunctionCounter = 0;
 
       
 %}
@@ -108,7 +109,6 @@ declaration : VAR ID COLON type {declarationHelper->switchDimensionalDeclaration
                                                       //Variable declaration
                                                       string id_value($2);
                                                       declarationHelper->setDimensionInformation(semanticHelper->getDimensionDeclarationInfo());
-                                                      
                                                       declarationHelper->performVariableDeclaration(id_value, false);
                                                       semanticHelper->clearDimensionDeclarationInformation();
                                                       dimensionalDeclarationHelper->setIsDeclaring(false);
@@ -119,9 +119,13 @@ func_declaration : {declarationHelper->setDeclarationStateToLocal();} func func_
                  | run
                  ;
 
-func : FUNC VOID {declarationHelper->setCurrentDeclaredType(VOID_);}  func_0 
-     | FUNC type func_0
+func : FUNC VOID {declarationHelper->setCurrentDeclaredType(VOID_); declarationHelper->setDimensionFunctionCounter(0);}  func_0 
+     | FUNC type  {declarationHelper->setDimensionFunctionCounter(0);} type_1 func_0
      ;
+
+type_1 : L_BRACKET R_BRACKET {declarationHelper->addDimensionFunctionCounter();} type_1
+       |
+       ;
 
 func_0 :    ID    {
                         //Function Declaration
@@ -134,19 +138,28 @@ func_0 :    ID    {
             L_PARENTHESIS func_1 R_PARENTHESIS local_declaration 
        ;
 
-func_1 : ID COLON type {            
+func_1 : ID COLON type {declarationHelper->switchDimensionalDeclarationState(); dimensionalDeclarationHelper->setIsDeclaring(true);} array {declarationHelper->switchDimensionalDeclarationState();} 
+                        {            
                               //Parameter definition                                             
                               string id_value($1);
+                              declarationHelper->setDimensionInformation(semanticHelper->getDimensionDeclarationInfo());
                               declarationHelper->performVariableDeclaration(id_value, true);
+                              semanticHelper->clearDimensionDeclarationInformation();
+                              dimensionalDeclarationHelper->setIsDeclaring(false);
                         }
          func_2 
        |
        ;
 
-func_2 : COMMA ID COLON type {
+func_2 : COMMA ID COLON type  {declarationHelper->switchDimensionalDeclarationState(); dimensionalDeclarationHelper->setIsDeclaring(true);} array {declarationHelper->switchDimensionalDeclarationState();}
+                              
+                              {
                                     //ParameterDefinition
                                     string id_value($2);
+                                    declarationHelper->setDimensionInformation(semanticHelper->getDimensionDeclarationInfo());
                                     declarationHelper->performVariableDeclaration(id_value, true);
+                                    semanticHelper->clearDimensionDeclarationInformation();
+                                    dimensionalDeclarationHelper->setIsDeclaring(false);
                               } 
       func_2 
        |

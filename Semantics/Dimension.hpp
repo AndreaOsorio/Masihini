@@ -51,7 +51,6 @@ public:
         return dimensionSize.empty();
     }
 
-
     void clearDimension(){
         r = 1;
         dimensionSize.clear();

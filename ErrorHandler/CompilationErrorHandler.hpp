@@ -65,6 +65,11 @@ private:
         exit(0); 
     }
 
+    void callForArrayParameterMismatchError(string message){
+        cout<<"Function call \"" + message + "\" has parameters of different dimensions"<<endl;
+        exit(0);
+    }
+
     
     
 public:
@@ -83,6 +88,7 @@ public:
             case NON_DECLARED_FUNCTION: callForNonDeclaredFunctionError(message); break;
             case RETURN_STATEMENT_MISSING: callForReturnStatementMissingError(message); break;
             case ARRAY_MISMATCH: callForArrayMismatchError(message); break;
+            case ARRAY_PARAMETERS_MISMATCH: callForArrayParameterMismatchError(message); break;
 
         }
 

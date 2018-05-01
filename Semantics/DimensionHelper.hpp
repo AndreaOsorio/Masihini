@@ -1,6 +1,7 @@
 #pragma once
 #include <stdio.h>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -11,16 +12,21 @@ private:
     string identifier;
     int memoryDirection;
     int currentDimension;
-    int currentExpr;
+    vector<int> dimensionInformation;
 
 public:
 
-    DimensionHelper(string id, int memDir, int currentDim, int currentEx){
+    DimensionHelper(string id, int memDir, int currentDim, vector<int> dimInfo){
         identifier = id;
         memoryDirection = memDir;
         currentDimension = currentDim;
-        currentExpr = currentEx;
+        dimensionInformation = dimInfo;
+    }
 
+    DimensionHelper(string id, int memDir, int currentDim){
+        identifier = id;
+        memoryDirection = memDir;
+        currentDimension = currentDim;
     }
 
     string getId(){
@@ -35,8 +41,8 @@ public:
         return currentDimension;
     }
 
-    int getCurrentExpr(){
-        return currentExpr;
+    vector<int> getDimInfo(){
+        return dimensionInformation;
     }
     
 

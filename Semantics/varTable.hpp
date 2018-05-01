@@ -68,6 +68,17 @@ class VarTable{
 
     }
 
+    string getIdFromMemoryContext(int memDir){
+        for (auto itr = varTable.begin(); itr != varTable.end(); ++itr) {
+            /* ... process *itr ... */
+            int thisMem = itr->getMemDir();
+            if(thisMem == memDir){
+                return itr->getId();
+            }
+        }
+        return "NOT_FOUND";
+    }
+
 
     ~VarTable(){
         

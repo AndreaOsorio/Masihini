@@ -16,6 +16,20 @@ func float factorial(num:float){
     }
 }
 
+func int arrayExample(arr:int[10])
+    var i : int;
+{
+    speak('retrieve');
+    i = 0;
+    while(i<10){
+        speak(arr[i]);
+        i = i+1;
+    }
+
+    return i;
+
+}
+
 static func void run ()
     var a : int;
     var x : int;
@@ -26,7 +40,7 @@ static func void run ()
     var dArr : int [5][4][3];
     var e : boolean [6][2];
     var f : string [10][2];
-    var g : int [19];
+    var g : int [10];
 {
     a = recursive(10);
     speak(a);
@@ -34,40 +48,14 @@ static func void run ()
     b = factorial(3.0f);
     speak(b);
 
-    dArr[1][3][2] = 12;
-    dArr[0][2][1] = 3;
-
-    speak(dArr[1][3][2]);
-    speak(dArr[0][2][1]);
-
-    a = dArr[1][3][2] * dArr[0][2][1];
-    speak(a);
-
-    speak('try mult');
-    x = 12;
-    y = 3;
-    z = x * y;
-    speak(z);
-
-    e[dArr[0][2][1]][1] = true;
-    speak(e[3][1]);
-
-    c[3][0]=14.0f;
-    speak(c[3][0]);
-
-    f[3][1] = 'masihini';
-    speak(f[3][1]);
-
-    g[10] = 5555;
-    speak(g[10]);
-
     a = 0;
-    while(a<19){
+    speak('assign');
+    while(a<10){
         g[a] = a;
         speak(g[a]);
         a = a + 1;
-
     }
-
+    a = arrayExample(g);
+    speak(a);
 
 }
