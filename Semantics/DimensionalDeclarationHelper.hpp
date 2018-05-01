@@ -28,7 +28,7 @@ public:
 
     void verifyDeclaration(){
         if(!isConstant){
-            errorHandler->callForError(TYPE_MISMATCH, "Array expression is not an Integer constant");
+            errorHandler->callForError(TYPE_MISMATCH, "");
         }
     }
 

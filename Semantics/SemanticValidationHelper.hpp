@@ -113,23 +113,19 @@ void performSemantics(bool isNot, bool isAssignment){
     Operator op = stackOperator.top();
     stackOperator.pop();
 
-
     int rightOperand = stackOperand.top();
-    
-    Type rightType = getTypeFromContext(rightOperand);
     stackOperand.pop();
+    Type rightType = getTypeFromContext(rightOperand);
     
-
- 
     int leftOperand = 1;
     Type leftType = VOID_;    
 
       if(!isNot){
             leftOperand = stackOperand.top();
-            leftType = getTypeFromContext(leftOperand );
+            leftType = getTypeFromContext(leftOperand);
             stackOperand.pop();
       }
-
+    
       Type resultType = semanticRules->isAllowed(rightType,leftType, op);
 
       if(resultType == VOID_){
@@ -488,7 +484,6 @@ public:
             int currentDimension = dimHelper->getCurrentDim();
 
             Dimension dimInfo;
-            
             if(value < helper->getGlobalOffset()){
                 //Global Symbol Table
                 dimInfo = helper->getGlobalSymbolTable()->getDimensionInformation(id);
@@ -501,7 +496,7 @@ public:
             vector<int> dimensions = dimInfo.getDimensionSize();
             int numberOfDimensions = dimensions.size();
             int size = dimensions.at(currentDimension-1);
-
+            
             quadrupleSet->push_back(new Quadruple(VER_, index, 0, size));
 
             //Pointer != NULL
@@ -568,14 +563,16 @@ public:
             if( currentDimension == numberOfDimensions ){
 
                 int aux1 = stackOperand.top();
-                //int aux1Val = memFrame->getIntegerValue(aux1);
                 stackOperand.pop();
+
+                if(numberOfDimensions == 1){
+                    aux1 = memFrame->getIntegerValue(aux1);
+                }
 
                 int dirBase = memDir;
 
                 int dir = aux1 + dirBase;
                 stackOperand.push(dir);
-                //vectorArrays.push_back(dir);
 
                 //Delete FAKE_BTTM_ Operator
                 stackOperator.pop();
@@ -656,7 +653,6 @@ public:
             }
 
             int newExpr = stackOperand.top();
-    
             stackDimensions.pop();
             stackDimensions.push(new DimensionHelper(id, memDir, newCurrentDimension, newExpr));
             
