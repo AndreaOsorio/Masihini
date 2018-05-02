@@ -5,6 +5,12 @@
 #include "../Semantics/Type.hpp"
 using namespace std;
 
+
+/**
+ * This class contains the dispatcher memory with a map structure. It is also the bridge between the compilation to the VM
+ * It handles the setter of values and declaration of values and arrays
+ */
+
 template <class T>
 class MemoryDispatcher{
     private:

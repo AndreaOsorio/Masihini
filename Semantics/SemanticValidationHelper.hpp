@@ -14,6 +14,13 @@
 
 using namespace std;
 
+/**
+ * This class contains the semantic helper.
+ * It manages all the semantics checks
+ * such as type check, dimension check, operations check, values check, dimensional checks.
+ * it also handles the generation of quadruples and call of error if needed.
+ */
+
 class SemanticValidationHelper{
 
 private:

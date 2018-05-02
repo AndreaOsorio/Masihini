@@ -7,6 +7,12 @@
 #include "Dimension.hpp"
 
 
+/**
+ * This class contains the symbol table
+ * It manages the information from the current symbol table of a  function
+ * It is a set of varNodes with a hasher and comparator that are handled by the id of the variable.
+ */
+
 using namespace std;
 
 class VarTable{

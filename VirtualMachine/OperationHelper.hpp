@@ -8,6 +8,11 @@
 
 using namespace std;
 
+/**
+ * This class contains the Operation helper.
+ * It manages the operations that are executed by the VM.
+ * It also handles the runtime errors.
+ */
 
 class OperationHelper{
 private:
@@ -670,10 +675,10 @@ public:
         Type type = getTypeFromContext(result);
 
         if(type == FLOAT_)
-        cout<<"ACCEL "<<retrieveFloatValueFromContext(result)<<endl;
+        cout<<"MOVE "<<retrieveFloatValueFromContext(result)<<endl;
 
         if(type == INTEGER_)
-        cout<<"ACCEL "<<retrieveIntegerValueFromContext(result)<<endl;
+        cout<<"MOVE "<<retrieveIntegerValueFromContext(result)<<endl;
 
     }
 

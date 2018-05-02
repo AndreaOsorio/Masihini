@@ -9,6 +9,11 @@
 
 using namespace std;
 
+/**
+ * This class contains the VarNode
+ * It manages the information from the current  symbol table.
+ * it contains the id, type, memory direction of variable and dimension information which contains the memory space and size of dimensions in a vector
+ */
 
 
 

@@ -7,10 +7,15 @@
 
 using namespace std;
 
+/**
+ * This class contains the  DIMENSIONAL declaration helper.
+ * It manages the information of the dimensions from the current declared function or variable.
+ * It is a helper of the Declarartion helper.
+ */
+
 class DimensionalDeclarationHelper{
 
 private:
-
 
     DeclarationHelper* declarationHelper;
     SemanticValidationHelper* semanticHelper;

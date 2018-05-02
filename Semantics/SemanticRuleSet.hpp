@@ -11,6 +11,12 @@
 
 using namespace std;
 
+/**
+ * This class contains the Semantic rule set
+ * It manages the check of types depending on the operator. 
+ * Each operator is assigned to a tier which handles the semantic check.
+ */
+
 class SemanticRuleSet{
 private:
 

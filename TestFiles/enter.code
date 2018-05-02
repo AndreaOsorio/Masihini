@@ -1,29 +1,4 @@
-func int[] setArray(arr: int[10]){
-
-    speak(arr[5]);
-
-    return arr;
-
-}
-
-
-static func void run ()
-    var a: int;
-    var b : float;
-    var g : int[10];
-    var h : int[10];
-{
-
-    a = 0;
-    speak('assign');
-    while(a<10){
-        g[a] = a;
-        speak(g[a]);
-        a = a + 1;
-    }
-
-
-    h = setArray(g);
-    speak(h[3]);
+static func void run(){
+   jump();
 
 }

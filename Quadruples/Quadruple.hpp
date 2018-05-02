@@ -5,6 +5,11 @@
 
 using namespace std;
 
+/**
+ * This class contains the structure of a Quadruple
+ * where it has a Operator, a left operand, a right operand and a result
+ * The case handles which operator to print in the quadruples output.
+ */
 
 class Quadruple{
 private:

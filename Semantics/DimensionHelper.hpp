@@ -5,6 +5,11 @@
 
 using namespace std;
 
+/**
+ * This class contains the Dimension helper.
+ * It manages the information from the current called array.
+ */
+
 class DimensionHelper{
 
 private:

@@ -4,6 +4,11 @@
 #include <string>
 #include "MemoryDispatcher.hpp"
 
+/**
+ * This class contains the memory frames per type of value with each dispatcher. 
+ * It is also the bridge between the compilation to the VM
+ * It handles the setter of values and declaration of values and arrays
+ */
 
 using namespace std;
 

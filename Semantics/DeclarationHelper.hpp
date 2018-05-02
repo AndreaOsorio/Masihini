@@ -10,6 +10,11 @@
 
 using namespace std;
 
+/**
+ * This class contains the declaration helper.
+ * It manages the information from the current declared function or variable as well as their frames, types and dimensions.
+ */
+
 class DeclarationHelper{
 
 private:

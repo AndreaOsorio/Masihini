@@ -5,6 +5,12 @@
 
 using namespace std;
 
+
+/**
+ * This class contains the Dimension
+ * It manages the information from the memory space the array need as well as a vector with the size of each dimension. 
+ */
+
 class Dimension{
 
 private:

@@ -7,7 +7,7 @@
 
 using namespace std;
 
-
+/**  This class handles Compilation Errors which are called depending on the error type that appeared during compilation  */
 
 class CompilationErrorHandler{
 

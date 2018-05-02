@@ -11,6 +11,13 @@
 #include "OperationHelper.hpp"
 
 
+/**
+ * This class contains the Virtual Machine
+ * It manages the information from the generated quadruples and executed as designed.
+ * It sends the operations to the operation helper and when finished it exits the program
+ * and outputs the result of code.
+ */
+
 using namespace std;
 
 class VirtualMachine{
@@ -56,7 +63,7 @@ private:
 
     void exitExec(){
 
-        cout<<"Execution Sucessful!"<<endl;
+        //cout<<"Execution Sucessful!"<<endl;
         exit (0);
 
     }
@@ -389,8 +396,8 @@ public:
             globalMemoryFrame = globalMemFrame;
             globalMemoryOffset = offset;
 
-            cout<<"------------------------ Exec output---------------------"<<endl;
-            printQuads();
+            //cout<<"------------------------ Exec output---------------------"<<endl;
+            //printQuads();
             init();
             run();
 

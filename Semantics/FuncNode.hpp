@@ -16,6 +16,13 @@
 
 using namespace std;
 
+/**
+ * This class contains the FuncNode.
+ * It manages the information from the current function.
+ * It has the id, type, # of dimensions, symbol table, current memFrame of functions, parameters, and the 
+ * stack of return values for when the function is called.
+ */
+
 class FuncNode{
 private:
     string id;

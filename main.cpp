@@ -14,7 +14,7 @@ int main()
 
   int result = yyparse();
 
-    cout<< "BUILD IS SUCCESSFUL"<<endl;
+    //cout<< "BUILD IS SUCCESSFUL"<<endl;
 
 
   return result;

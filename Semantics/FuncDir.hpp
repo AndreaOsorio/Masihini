@@ -12,6 +12,11 @@
 
 using namespace std;
 
+/**
+ * This class contains the Function directory.
+ * It is an unordered set containing FuncNodes, the hasher and comparator are handled by the id of the function.
+ */
+
 class FuncDir{
 private:
     unordered_set<FuncNode, FuncNodeHasher, FuncNodeComparator> funcTable;

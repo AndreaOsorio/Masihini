@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+/**
+ * This class contains the Types and Operators used in the compiler
+ */
 
 enum Type
 {

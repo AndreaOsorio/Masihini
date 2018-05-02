@@ -52,7 +52,7 @@ linefeed           \n
 "void"                      { return VOID; }
 
 "speak" |
-"accel" |
+"move" |
 "jump"  |
 "stop"  |
 "rot"                       { yylval.stringValue = strdup(yytext); return SYSTEM_PREFIX; }
