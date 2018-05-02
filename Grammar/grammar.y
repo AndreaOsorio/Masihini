@@ -168,6 +168,9 @@ local_declaration : declaration local_declaration
                   ;
 
 run : STATIC FUNC VOID {declarationHelper->setCurrentDeclaredType(VOID_);} RUN L_PARENTHESIS R_PARENTHESIS      {
+
+
+                                                                  declarationHelper->setDeclarationStateToLocal();
                                                                   declarationHelper->performFunctionDeclaration("run");
                                                                   declarationHelper->getCurrentDeclaredFunction()->setStartingInstruction(quadrupleSet.size());
                                                                   quadrupleSet.at(0)->setResult(quadrupleSet.size());   

@@ -15,7 +15,7 @@ class DeclarationHelper{
 private:
 
     //Configuration for Global Frames
-    int globalMemoryOffset = 25000;
+    int globalMemoryOffset = 30000;
     int localMemoryFrameSize = 10000;
 
     //Structures that

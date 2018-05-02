@@ -50,8 +50,35 @@ Type getTypeFromContext(int value){
 
       }
 
+      if(type == REFERENCE_){
+          return getTypeFromReference(value);
+      }
+
       return type;
 }
+
+Type getTypeFromReference(int value){
+
+    int content = -1;
+
+    if(value<helper->getGlobalOffset()){
+              content = helper->getGlobalMemory()->getReferenceValue(value);
+
+    }else{
+            content = helper->getCurrentDeclaredFunction()->getMemoryFrame()->getReferenceValue(value);
+    }
+
+    switch(content){
+        case 0: return INTEGER_;
+        case 1: return FLOAT_;
+        case 2: return STRING_;
+        case 3: return BOOLEAN_;
+    }
+
+
+}
+
+
 
 void performSystemFunction(Operator op, string id){
 
@@ -541,8 +568,22 @@ public:
                 }
                 stackOperand.pop();
                 int aux = index;                
-                int temp = aux * dimM;
-                stackOperand.push(temp);
+
+                Type auxType = getTypeFromContext(memDir);
+
+                if(auxType == INTEGER_ || auxType == REFERENCE_){
+                    int tempMemDir = memFrame->declareValue(INTEGER_);
+                    int dimMDir = memFrame->registerValue(dimM);
+
+                    quadrupleSet->push_back(new Quadruple(MULT_, memDir, dimMDir, tempMemDir));
+
+                    stackOperand.push(tempMemDir);
+
+                }else{
+                    errorHandler->callForError(TYPE_MISMATCH, "");
+                }
+
+
 
             }
 
@@ -550,17 +591,24 @@ public:
             if(currentDimension > 1){
                 //ultimo temp
                 int aux2 = stackOperand.top();
-                int aux2Val = memFrame->getIntegerValue(aux2);
                 stackOperand.pop();
-
                 //suma pasada
                 int aux1 = stackOperand.top();
                 stackOperand.pop();
+                
 
+                Type aux2Type = getTypeFromContext(aux2);
 
-                //Add Temporal T
-                int temp = aux1 + aux2Val;
-                stackOperand.push(temp);
+                if (aux2Type == INTEGER_ || aux2Type == REFERENCE_){
+                    int tempMemDir = memFrame->declareValue(INTEGER_);
+                    quadrupleSet->push_back(new Quadruple(ADD_, aux1, aux2, tempMemDir));
+                     stackOperand.push(tempMemDir);
+
+                }else{
+                     errorHandler->callForError(TYPE_MISMATCH, "");
+                     
+                }
+               
             }
 
         }
@@ -570,7 +618,7 @@ public:
     void calculateArrayIndex(){
 
         MemoryFrame *memFrame = helper->getCurrentDeclaredFunction()->getMemoryFrame();
-        if(!stackDimensions.empty() && !stackOperand.empty() && !stackOperator.empty()){
+        if(!stackDimensions.empty() && !stackOperand.empty()){
 
             DimensionHelper* dimHelper = stackDimensions.top();
             int memDir = dimHelper->getMemDir();
@@ -590,22 +638,28 @@ public:
             vector<int> dimensions = dimInfo.getDimensionSize();
             int numberOfDimensions = dimensions.size();
 
+
             if( currentDimension == numberOfDimensions ){
 
                 int aux1 = stackOperand.top();
                 stackOperand.pop();
 
-                if(numberOfDimensions == 1){
-                    aux1 = memFrame->getIntegerValue(aux1);
+                int base = memFrame->registerValue(memDir);
+
+                Type arrayType = getTypeFromContext(memDir);
+                int temp = 0;
+                
+                switch(arrayType){
+                    case INTEGER_: temp = memFrame->registerValue(0,0); break;
+                    case FLOAT_: temp = memFrame->registerValue(1,0); break;
+                    case STRING_: temp = memFrame->registerValue(2,0); break;
+                    case BOOLEAN_: temp = memFrame->registerValue(3,0); break;
                 }
 
-                int dirBase = memDir;
+                quadrupleSet->push_back(new Quadruple(DIR_, aux1, base, temp));
 
-                int dir = aux1 + dirBase;
-                stackOperand.push(dir);
+                stackOperand.push(temp);
 
-                //Delete FAKE_BTTM_ Operator
-                stackOperator.pop();
                 //Current array done
                 stackDimensions.pop();
 

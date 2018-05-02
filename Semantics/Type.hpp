@@ -9,7 +9,8 @@ enum Type
     BOOLEAN_,
     INTEGER_,
     FLOAT_,
-    VOID_
+    VOID_,
+    REFERENCE_
 };
 
 enum Operator
@@ -45,7 +46,7 @@ enum Operator
     // Array-Related Operators
     VER_,
     DIR_,
-    ENDPROG_
+    ENDPROG_, 
 };
 
 enum DeclarationState

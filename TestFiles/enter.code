@@ -1,69 +1,8 @@
-func int recursive(num:int){
-
-    if(num==0 || num == 1){
-        return num;
-    }else{
-        return recursive(num - 1) + recursive(num - 2);
-    }
-}
-
-func float factorial(num:float){
-    
-    if (num == 0.0f || num==1.0f){
-        return 1.0f;
-    }else{
-        return factorial(num - 1) * num;
-    }
-}
-
-func int[] arrayExample(arr:int[10])
-    var i : int;
-{
-    speak('retrieve');
-    i = 0;
-    while(i<10){
-        speak(arr[i]);
-        i = i+1;
-    }
-
-    return arr;
-
-}
-
 static func void run ()
-    var a : int;
-    var x : int;
-    var y : int;
-    var z : int;
-    var b : float;
-    var c : float [5][2];
-    var dArr : int [5][4][3];
-    var e : boolean [6][2];
-    var f : string [10][2];
-    var g : int [10];
-    var h : int [10];
+    var a : int[2][2];
 {
-    a = recursive(10);
-    speak(a);
+    a[0][1] = 10;
 
-    b = factorial(3.0f);
-    speak(b);
-
-    a = 0;
-    speak('assign');
-    while(a<10){
-        g[a] = a;
-        speak(g[a]);
-        a = a + 1;
-    }
-    h = arrayExample(g);
-    a = 0;
-    speak('assign');
-    while(a<10){
-        h[a] = a;
-        speak(h[a]);
-        a = a + 1;
-    }
-
+    speak(a[0][1]);
 
 }

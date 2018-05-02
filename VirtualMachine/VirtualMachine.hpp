@@ -325,6 +325,8 @@ private:
     void endProc(){
 
 
+        
+
         MemoryFrame* oldMem = memoryStack.top();
         memoryStack.pop();
 
@@ -332,13 +334,20 @@ private:
 
         delete oldMem;
 
-        currentFrame = memoryStack.top();
+        if(!memoryStack.empty()){
+
+            currentFrame = memoryStack.top();
 
 
 
-        execPointer = execPointerPositionStack.top();
-        execPointerPositionStack.pop();
-        execPointer++;
+            execPointer = execPointerPositionStack.top();
+            execPointerPositionStack.pop();
+            execPointer++;
+
+        }else{
+            exitExec();
+        }
+
         
     }
 
@@ -425,7 +434,8 @@ public:
                 case RETURN_: retOp(quad); break; 
                 case VER_: verify(quad); execPointer++; break;
                 case DIR_: dirArray(quad); execPointer++; break;
-                case ENDPROC_: exitExec(); break;
+                case ENDPROC_: endProc(); break;
+                case ENDPROG_: exitExec(); break;
             }
 
 

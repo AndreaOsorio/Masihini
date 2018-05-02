@@ -32,34 +32,70 @@ private:
 
         Type type;
 
+    
 
-      if (value > 0){
+      if (value > 0 ){
+
+          if (!isReference(value)){
+                if(value<globalMemoryOffset){
+                     return globalFrame->getType(value);
+                }else{
+                    return currentFrame->getType(value);
+                }
+          }else{
+
+              return getTypeFromContext(retrieveReferenceValueFromContext(value));
+
+          }
+
+      }
+    }
+
+    bool isReference(int value){
+
+        Type type;
+
+
+        if (value > 0){
 
             if(value<globalMemoryOffset){
-                  type = globalFrame->getType(value);
+                    type = globalFrame->getType(value);
 
             }else{
                 
-                  type = currentFrame->getType(value);
+                    type = currentFrame->getType(value);
 
             }
 
-      }
+        }
 
-
-      return type;
+        if(type == REFERENCE_){
+         return true;
+        }else{
+          return false;
+        }
     }
+
+
 
 
     //Retrieve values
 
     int retrieveIntegerValueFromContext(int value){
 
-        if(getScope(value) == GLOBAL_){
-            return globalFrame->getIntegerValue(value);
+        if(isReference(value)){
+
+            return retrieveIntegerValueFromContext(retrieveReferenceValueFromContext(value));
+            
         }else{
-            return currentFrame->getIntegerValue(value);
+            if(getScope(value) == GLOBAL_){
+                return globalFrame->getIntegerValue(value);
+            }else{
+                return currentFrame->getIntegerValue(value);
+            }
         }
+
+
 
     }
 
@@ -94,41 +130,75 @@ private:
     }
 
 
+    int retrieveReferenceValueFromContext(int value){
+
+        if(getScope(value) == GLOBAL_){
+            return globalFrame->getReferenceValue(value);
+        }else{
+            return currentFrame->getReferenceValue(value);
+        }
+
+    }
+
+
     //Set Values
 
-    void setValueFromContext(int memDir, int store){
+    void setReferenceValueFromContext(int memDir, int store){
         
         if(getScope(memDir) == GLOBAL_){
-            return globalFrame->setValue(memDir,store);
+                globalFrame->setValue(memDir,store,0);
         }else{
-            return currentFrame->setValue(memDir,store);
+                currentFrame->setValue(memDir,store,0);
         }
+
+
+    }
+
+    void setValueFromContext(int memDir, int store){
+
+        if (isReference(memDir)){
+
+            
+            int memDirValue = retrieveReferenceValueFromContext(memDir);
+            setValueFromContext(memDirValue, store);
+
+        }    else{
+            if(getScope(memDir) == GLOBAL_){
+                globalFrame->setValue(memDir,store);
+            }else{
+                currentFrame->setValue(memDir,store);
+            }
+        }    
+
+      
+
+
     }
 
     void setValueFromContext(int memDir, float store){
         
         if(getScope(memDir) == GLOBAL_){
-            return globalFrame->setValue(memDir,store);
+            globalFrame->setValue(memDir,store);
         }else{
-            return currentFrame->setValue(memDir,store);
+            currentFrame->setValue(memDir,store);
         }
     }
 
     void setValueFromContext(int memDir, string store){
         
         if(getScope(memDir) == GLOBAL_){
-            return globalFrame->setValue(memDir,store);
+            globalFrame->setValue(memDir,store);
         }else{
-            return currentFrame->setValue(memDir,store);
+            currentFrame->setValue(memDir,store);
         }
     }
 
     void setValueFromContext(int memDir, bool store ){
         
         if(getScope(memDir) == GLOBAL_){
-            return globalFrame->setValue(memDir,store);
+            globalFrame->setValue(memDir,store);
         }else{
-            return currentFrame->setValue(memDir,store);
+            currentFrame->setValue(memDir,store);
         }
     }
     
@@ -705,13 +775,11 @@ public:
 
     void directionArrayOperation(Quadruple* quad){
 
-        int memOffset = quad->getLeftOperand();
-        int dirBase = quad->getRightOperand();
 
-        int memDir = quad->getResult();
+        int value = retrieveIntegerValueFromContext(quad->getLeftOperand());
+        int value2 = retrieveIntegerValueFromContext(quad->getRightOperand());
+        setReferenceValueFromContext(quad->getResult(), value+value2);
 
-        int result = retrieveIntegerValueFromContext(memOffset) + retrieveIntegerValueFromContext(dirBase);
-        setValueFromContext( memDir, result );
 
     }
 

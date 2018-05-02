@@ -13,6 +13,7 @@ class MemoryFrame{
     MemoryDispatcher <float>* floatMemoryDispatcher;
     MemoryDispatcher <std::string>* stringMemoryDispatcher;
     MemoryDispatcher <bool>* booleanMemoryDispatcher;
+    MemoryDispatcher <int>* refMemoryDispatcher;
     
     
     public:
@@ -25,6 +26,7 @@ class MemoryFrame{
         floatMemoryDispatcher = new MemoryDispatcher<float>(memFrame->getFloatDispatcher());
         stringMemoryDispatcher = new MemoryDispatcher<string>(memFrame->getStringDispatcher());
         booleanMemoryDispatcher = new MemoryDispatcher<bool>(memFrame->getBooleanDispatcher());
+        refMemoryDispatcher = new MemoryDispatcher<int>(memFrame->getRefDispatcher());
         this->offset = memFrame->offset;
         this->frame = memFrame->frame;
     }
@@ -38,6 +40,7 @@ class MemoryFrame{
         floatMemoryDispatcher = new MemoryDispatcher<float>(offset+frame+1,frame); 
         stringMemoryDispatcher = new MemoryDispatcher<string>(offset+(2*frame)+2,frame);
         booleanMemoryDispatcher = new MemoryDispatcher<bool>(offset+(3*frame)+3,frame);
+        refMemoryDispatcher = new MemoryDispatcher<int>(offset+(4*frame)+4,frame);
     }
 
     void dumpMemory(){
@@ -45,6 +48,7 @@ class MemoryFrame{
         floatMemoryDispatcher->dumpMemory();
         stringMemoryDispatcher->dumpMemory();
         booleanMemoryDispatcher->dumpMemory();
+        refMemoryDispatcher->dumpMemory();
     }
 
 
@@ -69,19 +73,28 @@ class MemoryFrame{
         return res;
     }
 
+    int registerValue(int value,int val2){
+        int res =  refMemoryDispatcher->insert<int>(value);
+        return res;
+    }
+
 
 //Declaring values
 
 
     int declareValue(Type type){
 
+
         switch(type){
 
             //set default values for a new variable
+
+
             case INTEGER_ : return integerMemoryDispatcher->insert<int>(0);
             case FLOAT_ : return floatMemoryDispatcher->insert<float>(0.0f); 
             case STRING_ : return stringMemoryDispatcher->insert<string>("");
             case BOOLEAN_: return booleanMemoryDispatcher->insert<bool>(true);
+            case REFERENCE_: return refMemoryDispatcher->insert<int>(0);
             default : return -1;
 
         }
@@ -106,10 +119,10 @@ class MemoryFrame{
 Type getType(int memDir){
 
     if(memDir >=offset && memDir <= offset+frame) return INTEGER_;
-    if(memDir >=(offset+frame+1) && memDir <=(offset+frame+1)+frame) return FLOAT_;
+    if(memDir >=(offset+(1*frame)+1) && memDir <=(offset+(1*frame)+1)+frame) return FLOAT_;
     if(memDir >=(offset+(2*frame)+2) && memDir <=(offset+(2*frame)+2)+frame) return STRING_;
-    if(memDir >=(offset+(3*frame)+3,frame) && memDir <=(offset+(3*frame)+3)+frame) return BOOLEAN_;
-    
+    if(memDir >=(offset+(3*frame)+3) && memDir <=(offset+(3*frame)+3)+frame) return BOOLEAN_;
+    if(memDir >=(offset+(4*frame)+4) && memDir <=(offset+(4*frame)+4)+frame) return REFERENCE_;
     return VOID_;
 }
 
@@ -131,6 +144,10 @@ Type getType(int memDir){
         stringMemoryDispatcher->setValue(memDir,value);
     }
 
+    void setValue(int memDir, int value, int value2 ){
+        refMemoryDispatcher->setValue(memDir,value);
+    }
+
 
 //Get value from memory  direction    
     int getIntegerValue(int memDir){
@@ -149,6 +166,12 @@ Type getType(int memDir){
         return booleanMemoryDispatcher->getValue<bool>(memDir);
     }
 
+    int getReferenceValue(int memDir){
+        return refMemoryDispatcher->getValue<int>(memDir);
+    }
+
+    
+
 
 //Return memoryDispatcher
 
@@ -163,6 +186,10 @@ Type getType(int memDir){
     }
     MemoryDispatcher <bool>* getBooleanDispatcher(){
         return booleanMemoryDispatcher;
+    }
+
+    MemoryDispatcher<int>* getRefDispatcher(){
+        return refMemoryDispatcher;
     }
 
 
