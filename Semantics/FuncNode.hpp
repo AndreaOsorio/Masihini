@@ -8,6 +8,7 @@
 #include "./Type.hpp"
 #include "./VarTable.hpp"
 #include "../Memory/MemoryFrame.hpp"
+#include "./Dimension.hpp"
 
 
 
@@ -24,7 +25,7 @@ private:
     VarTable *symbolTable;
     MemoryFrame *memoryFrame;
     vector<int> parameters;
-    stack<int> returnValueStack;
+    stack<Dimension*> returnValueStack;
     
     
     
@@ -39,12 +40,13 @@ public:
         
     }
 
-    void setReturnValue(int value ){
-        returnValueStack.push(value);
+    void setReturnValue(int value, vector<int> dimensionInformation){
+        Dimension* temp = new Dimension(value, dimensionInformation);
+        returnValueStack.push(temp);
     }
 
-    int getReturnValue(){
-        int returnValue = returnValueStack.top();
+    Dimension* getReturnValue(){
+        Dimension* returnValue = returnValueStack.top();
         returnValueStack.pop();
         return returnValue;
     }

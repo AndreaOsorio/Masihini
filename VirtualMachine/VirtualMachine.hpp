@@ -7,6 +7,7 @@
 #include <numeric>
 #include "../Quadruples/Quadruple.hpp"
 #include "../Semantics/FuncDir.hpp"
+#include "../Semantics/Dimension.hpp"
 #include "OperationHelper.hpp"
 
 
@@ -93,11 +94,13 @@ private:
                 if(quad->getLeftOperand()<=0 && quad->getRightOperand()<=0){
                     int indexL = quad->getLeftOperand()*-1;
                     FuncNode* funcL = functionDirectory->at(indexL);
-                    int memDirL = funcL->getReturnValue();
+                    Dimension* dimL = funcL->getReturnValue();
+                    int memDirL = dimL->getR();
 
                     int indexR = quad->getRightOperand()*-1;
                     FuncNode* funcR = functionDirectory->at(indexR);
-                    int memDirR = funcR->getReturnValue();
+                    Dimension* dimR = funcR->getReturnValue();
+                    int memDirR = dimR->getR();
 
                     return new Quadruple(op, memDirL, memDirR, result);
 
@@ -107,7 +110,9 @@ private:
 
                     int indexL = quad->getLeftOperand()*-1;
                     FuncNode* funcL = functionDirectory->at(indexL);
-                    int memDirL = funcL->getReturnValue();
+                    Dimension* dimL = funcL->getReturnValue();
+                    int memDirL = dimL->getR();
+
 
                     return new Quadruple(op, memDirL, right, result);
 
@@ -117,7 +122,9 @@ private:
 
                     int indexR = quad->getRightOperand()*-1;
                     FuncNode* funcR = functionDirectory->at(indexR);
-                    int memDirR = funcR->getReturnValue();
+                    Dimension* dimR = funcR->getReturnValue();
+                    int memDirR = dimR->getR();
+
 
                     return new Quadruple(op, left, memDirR, result);
 
@@ -133,32 +140,19 @@ private:
          }else{
             int index = quad->getLeftOperand()*-1;
             FuncNode* func = functionDirectory->at(index);
-            int memDir = func->getReturnValue();
+            Dimension* returnDim = func->getReturnValue();
+            int memDir = returnDim->getR();
             int numberOfDimensions = func->getNumberOfDimensions();
 
             if(numberOfDimensions > 0){
                 //Get return value dimensions
-                VarTable *symbolTable = func->getSymbolTable();
-                string returnID = symbolTable->getIdFromMemoryContext(memDir);
-                Dimension returnDimension = symbolTable->getDimensionInformation(returnID);
-                vector<int> returnDimensions = returnDimension.getDimensionSize();
-
-                //Get caller value dimensions
-                int resultDir = quad->getResult();
-                VarTable *symbolTableRes = calledFunction->getSymbolTable();
-                string resultID = symbolTableRes->getIdFromMemoryContext(resultDir);
-                Dimension resultDimension = symbolTableRes->getDimensionInformation(resultID);
-                vector<int> resultDimensions = resultDimension.getDimensionSize(); 
-
-                if ( equal (returnDimensions.begin(), returnDimensions.end(), resultDimensions.begin()) ){
-                    int memOffset = accumulate (resultDimensions.begin(), resultDimensions.end(), 1, multiplies<int>());
-                    Quadruple* tempQuad = new Quadruple(EQ_,memDir, memOffset, quad->getResult());
-                    helper.assignmentOperation(tempQuad);
-                    delete tempQuad;
-                }else{
-                    callForArrayReturnMismatch(returnID, resultID);
-                }
-
+                vector<int> returnDimensions = returnDim->getDimensionSize();
+                int returnDimNum = returnDimensions.size();
+                int memOffset = accumulate (returnDimensions.begin(), returnDimensions.end(), 1, multiplies<int>());
+                Quadruple* tempQuad = new Quadruple(EQ_,memDir, memOffset, quad->getResult());
+                helper.assignmentOperation(tempQuad);
+                delete tempQuad;
+                
             }
             else{
                 Quadruple* tempQuad = new Quadruple(EQ_,memDir, -1, quad->getResult());
@@ -330,7 +324,6 @@ private:
         MemoryFrame* oldMem = memoryStack.top();
         memoryStack.pop();
 
-
         delete oldMem;
 
         if(!memoryStack.empty()){
@@ -356,7 +349,14 @@ private:
         int index = quad->getRightOperand();
 
         FuncNode* func = functionDirectory->at(index);
-        func->setReturnValue(memDir);
+
+        int returnDir = quad->getResult();
+        VarTable* symbolTable = func->getSymbolTable();
+        string returnID = symbolTable->getIdFromMemoryContext(returnDir);
+        Dimension returnDimension = symbolTable->getDimensionInformation(returnID);
+        vector<int> returnDimensions = returnDimension.getDimensionSize();
+
+        func->setReturnValue(memDir, returnDimensions);
         endProc();
     }
 

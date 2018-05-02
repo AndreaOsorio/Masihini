@@ -88,6 +88,7 @@ private:
             return retrieveIntegerValueFromContext(retrieveReferenceValueFromContext(value));
             
         }else{
+
             if(getScope(value) == GLOBAL_){
                 return globalFrame->getIntegerValue(value);
             }else{
@@ -709,6 +710,8 @@ public:
         int memOffset = quad->getLeftOperand();
         if(memOffset < 0){ memOffset = 1; }
 
+        MemoryFrame* oldFrame = currentFrame;
+
         int i = 0;
         while(i<memOffset){
             if(typeValue == INTEGER_){
@@ -734,6 +737,8 @@ public:
                 currentFrame = frameCalled;
                 setValueFromContext(paramDir, value);
             }
+
+            currentFrame = oldFrame;
             valueDir++;
             paramDir++;
             i++;
@@ -750,35 +755,36 @@ public:
         Type type = getTypeFromContext(result);
 
         int memOffset = quad->getLeftOperand();
-        if(memOffset < 0){ memOffset = 1; }
+        if(memOffset == -1){ memOffset = 1; }
+
+        int returnValue = 0;
 
         int i = 0;
-        while(i<memOffset){
-
+        while(i<memOffset){                
             if(type == INTEGER_){
-            int value = retrieveIntegerValueFromContext(result);
-            return globalFrame->registerValue(value);
+                int value = retrieveIntegerValueFromContext(result);
+                if(i == 0){ returnValue = globalFrame->registerValue(value); }
             }
 
             if(type == FLOAT_){
                 float value = retrieveFloatValueFromContext(result);
-                return globalFrame->registerValue(value);
+                if(i == 0){ returnValue = globalFrame->registerValue(value); }
             }
 
             if(type == STRING_){
                 string value = retrieveStringValueFromContext(result);
-                return globalFrame->registerValue(value);
+                if(i == 0){ returnValue = globalFrame->registerValue(value); }
             }
 
             if(type == BOOLEAN_){
                 bool value = retrieveBooleanValueFromContext(result);
-                return globalFrame->registerValue(value);
+                if(i == 0){ returnValue = globalFrame->registerValue(value); }
             }
-
-            i++;
             result++;
-
+            i++;
         }
+
+        return returnValue;
 
     }
 
