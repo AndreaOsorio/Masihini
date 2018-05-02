@@ -101,30 +101,50 @@ private:
 
     float retrieveFloatValueFromContext(int value){
 
-        if(getScope(value) == GLOBAL_){
-            return globalFrame->getFloatValue(value);
+
+        if(isReference(value)){
+
+            return retrieveFloatValueFromContext(retrieveReferenceValueFromContext(value));
+            
         }else{
-            return currentFrame->getFloatValue(value);
+            if(getScope(value) == GLOBAL_){
+                return globalFrame->getFloatValue(value);
+            }else{
+                return currentFrame->getFloatValue(value);
+            }
         }
 
     }
 
     string retrieveStringValueFromContext(int value){
 
-        if(getScope(value) == GLOBAL_){
-            return globalFrame->getStringValue(value);
+        if(isReference(value)){
+
+            return retrieveStringValueFromContext(retrieveReferenceValueFromContext(value));
+            
         }else{
-            return currentFrame->getStringValue(value);
+
+            if(getScope(value) == GLOBAL_){
+                return globalFrame->getStringValue(value);
+            }else{
+                return currentFrame->getStringValue(value);
+            }
         }
 
     }
 
     bool retrieveBooleanValueFromContext(int value){
 
-        if(getScope(value) == GLOBAL_){
-            return globalFrame->getBooleanValue(value);
+        if(isReference(value)){
+
+            return retrieveBooleanValueFromContext(retrieveReferenceValueFromContext(value));
+            
         }else{
-            return currentFrame->getBooleanValue(value);
+            if(getScope(value) == GLOBAL_){
+                return globalFrame->getBooleanValue(value);
+            }else{
+                return currentFrame->getBooleanValue(value);
+            }
         }
 
     }

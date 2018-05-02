@@ -331,7 +331,6 @@ private:
         memoryStack.pop();
 
 
-
         delete oldMem;
 
         if(!memoryStack.empty()){
