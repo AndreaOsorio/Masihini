@@ -59,6 +59,8 @@ public:
     void performVariableDeclaration(string id, bool isParam){
         if(getDeclarationState() == GLOBAL_){
 
+    
+
             int memDir = 0;
             bool result = false;
 
@@ -67,6 +69,7 @@ public:
                 result = globalSymbolTable->insertNode(new VarNode(id, getCurrentDeclaredType(), memDir)); 
             }
             else{
+
                 memDir = globalMemoryFrame->declareArray(getCurrentDeclaredType(), dimensionInformation.getR());
                 result = globalSymbolTable->insertNode(new VarNode(id, getCurrentDeclaredType(), memDir, dimensionInformation));
             }

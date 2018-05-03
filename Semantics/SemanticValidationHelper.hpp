@@ -231,9 +231,22 @@ public:
     template<class T>
     void manage_var_cte(T value){
 
-        MemoryFrame *memFrame = helper->getCurrentDeclaredFunction()->getMemoryFrame();
-        int memDir = memFrame->registerValue(value);
-        stackOperand.push(memDir);
+        DeclarationState state = helper->getDeclarationState();
+
+        if (state == GLOBAL_){
+
+            MemoryFrame *memFrame = helper->getGlobalMemory();
+            int memDir = memFrame->registerValue(value);
+            stackOperand.push(memDir);
+
+        }else{
+            MemoryFrame *memFrame = helper->getCurrentDeclaredFunction()->getMemoryFrame();
+            int memDir = memFrame->registerValue(value);
+            stackOperand.push(memDir);
+
+        }
+
+
 
     }
 
@@ -513,8 +526,17 @@ public:
 
     //Functions that handle Array declaration
     void calculateArraySpace(){
-        
-        MemoryFrame *memFrame = helper->getCurrentDeclaredFunction()->getMemoryFrame();
+
+        MemoryFrame* memFrame;
+
+        DeclarationState state = helper->getDeclarationState();
+
+        if(state == GLOBAL_){
+            memFrame = helper->getGlobalMemory();
+        }else{
+            memFrame = helper->getCurrentDeclaredFunction()->getMemoryFrame();
+        }
+
 
         int memDir = stackOperand.top();
         int size = memFrame->getIntegerValue(memDir);

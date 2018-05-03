@@ -102,8 +102,9 @@ global_declaration : STATIC declaration global_declaration
                     | func_declaration
                     ;
 
-declaration : VAR ID COLON type {declarationHelper->switchDimensionalDeclarationState(); dimensionalDeclarationHelper->setIsDeclaring(true);} array {declarationHelper->switchDimensionalDeclarationState();} SEMICOLON 
+declaration : VAR  ID COLON type {declarationHelper->switchDimensionalDeclarationState();   dimensionalDeclarationHelper->setIsDeclaring(true); } array {declarationHelper->switchDimensionalDeclarationState();} SEMICOLON 
                                                 {     
+
                                                       //Variable declaration
                                                       string id_value($2);
                                                       declarationHelper->setDimensionInformation(semanticHelper->getDimensionDeclarationInfo());
@@ -284,10 +285,13 @@ var_cte : func_call{int index = quadrupleSet.at(quadrupleSet.size()-1)->getResul
         | ID {string value($1); semanticHelper->manage_var_cte_id(value);} array
         | INT 
             {
+
+
               semanticHelper->manage_var_cte<int>($1);  
                   if($1>0 && declarationHelper->getdimensionalDeclarationState() == MULTIDIMENSIONAL_){
                         dimensionalDeclarationHelper->setIsConstant(true); 
-                  }    
+                  }
+                       
             }
         | FLOAT {semanticHelper->manage_var_cte<float>($1);}
         | STRING  {semanticHelper->manage_var_cte<string>($1);}
@@ -301,11 +305,16 @@ array : L_BRACKET {semanticHelper->pushFakeBottom();}
             {
                   //Check that the expression is a constant and is greater than 0.
                   if(declarationHelper->getdimensionalDeclarationState() == MULTIDIMENSIONAL_){
+                     
+                       
                         dimensionalDeclarationHelper->verifyDeclaration();
                         dimensionalDeclarationHelper->setIsConstant(false);
                         semanticHelper->calculateArraySpace();
+                        
                   }
                   if(dimensionalDeclarationHelper->getIsDeclaring() == false){ 
+
+
                         int currentDimension = semanticHelper->getCurrentDimension();
                         semanticHelper->addNewDimension(currentDimension + 1);
                         semanticHelper->performSemanticsArray();
@@ -327,7 +336,7 @@ array : L_BRACKET {semanticHelper->pushFakeBottom();}
 
 
 type :  TYPE_STRING     {declarationHelper->setCurrentDeclaredType(STRING_);}
-      | TYPE_INT        {declarationHelper->setCurrentDeclaredType(INTEGER_);}  
+      | TYPE_INT        { declarationHelper->setCurrentDeclaredType(INTEGER_);}  
       | TYPE_FLOAT      {declarationHelper->setCurrentDeclaredType(FLOAT_);}
       | TYPE_BOOLEAN    {declarationHelper->setCurrentDeclaredType(BOOLEAN_);}
       ;

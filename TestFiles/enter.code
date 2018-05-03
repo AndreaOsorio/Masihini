@@ -1,4 +1,12 @@
-static func void run(){
-   jump();
+
+static var arr : int[2];
+
+static func void run ()
+{
+    arr[0] = 1;
+
+    speak(arr[0]);
 
 }
+
+
